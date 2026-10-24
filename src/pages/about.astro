@@ -3,7 +3,7 @@
 // (one string per paragraph). Nothing here is written for her.
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Placeholder from "../components/Placeholder.astro";
-import { ABOUT, BUSINESS } from "../content/site";
+import { ABOUT, ABOUT_TITLE, BUSINESS } from "../content/site";
 ---
 <SiteLayout title="About" description={`About ${BUSINESS.owner} and ${BUSINESS.name}, sewing classes and retreats in Felden, Hemel Hempstead.`}>
   <div class="wrap grid gap-10 md:grid-cols-[1fr_1.6fr] md:items-start">
@@ -12,7 +12,7 @@ import { ABOUT, BUSINESS } from "../content/site";
     </div>
     <article class="max-w-2xl">
       <p class="eyebrow">{BUSINESS.name} · sewing classes &amp; retreats</p>
-      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">About me</h1>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">{ABOUT_TITLE}</h1>
       {ABOUT.length > 0 ? (
         <div class="mt-6 space-y-4 text-lg leading-relaxed">{ABOUT.map((p) => <p>{p}</p>)}</div>
       ) : (
