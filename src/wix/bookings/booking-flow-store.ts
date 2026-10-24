@@ -24,8 +24,10 @@ import {
   addOnsDuration,
   addOnsTotal,
   canSelectMore,
+  friendlyBookingError,
   groupSlotsByDay,
   maxParticipants,
+  normalizeFormValues,
   showsNextAvailability,
   startOfDay,
   timeZoneLabel,
@@ -386,7 +388,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
       error = null;
       emit();
       try {
-        const result = await bookService(service, isCourse ? null : selectedSlot, values, {
+        const result = await bookService(service, isCourse ? null : selectedSlot, normalizeFormValues(formFields, values), {
           staffId,
           timeZone: zoneForBooking(),
           participants,
@@ -399,7 +401,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
         }
         return result;
       } catch (e) {
-        error = e instanceof Error ? e.message : String(e);
+        error = friendlyBookingError(e);
         throw e;
       } finally {
         booking = false;

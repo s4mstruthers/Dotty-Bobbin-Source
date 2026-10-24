@@ -471,6 +471,50 @@ export function toFormFields(summary: Raw | null | undefined, form?: Raw | null)
   return fields.length ? fields : FALLBACK_FIELDS;
 }
 
+/**
+ * A typed phone number → the international form Wix's phone validation accepts ("+447710194277").
+ * Wix refuses a number without a country code ("incorrect country code"), so: separators dropped,
+ * a "00" international prefix becomes "+", and any number without a country code gets the
+ * business's (+44 — most visitors are in the UK).
+ */
+export function normalizePhone(raw: string, defaultCountryCode = "44"): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+  // "+44 (0)7700 …" — the bracketed trunk zero is dropped in international form.
+  const digits = trimmed.replace(/\(0\)/g, "").replace(/[^\d+]/g, "");
+  if (digits.startsWith("+")) return `+${digits.slice(1).replace(/\+/g, "")}`;
+  if (digits.startsWith("00")) return `+${digits.slice(2)}`;
+  if (digits.startsWith("0")) return `+${defaultCountryCode}${digits.slice(1)}`;
+  // "447700…" already carries the code without its "+"; any other bare number is taken as national.
+  if (digits.startsWith(defaultCountryCode) && digits.length >= 12) return `+${digits}`;
+  return `+${defaultCountryCode}${digits}`;
+}
+
+/** The form values with every PHONE field normalised (see normalizePhone). */
+export function normalizeFormValues(fields: BookingFormField[], values: Record<string, string>, defaultCountryCode?: string): Record<string, string> {
+  const out = { ...values };
+  for (const f of fields) if (f.type === "PHONE" && out[f.target]) out[f.target] = normalizePhone(out[f.target], defaultCountryCode);
+  return out;
+}
+
+/**
+ * A booking refusal → a sentence a visitor can act on. Wix errors arrive as a JSON blob in
+ * `message`; the phone check gets its own wording, anything else its `message` text.
+ */
+export function friendlyBookingError(e: unknown): string {
+  const raw = e instanceof Error ? e.message : String(e);
+  let message = raw;
+  try {
+    const parsed = JSON.parse(raw);
+    message = parsed?.details?.applicationError?.description ?? parsed?.message ?? raw;
+  } catch {
+    // not JSON — use as-is
+  }
+  if (/phone/i.test(message)) return "Please check your phone number — include the country code, e.g. +44 7700 900123.";
+  if (/^validation failed/i.test(message)) return "Some details in the form weren't accepted — please check them and try again.";
+  return message;
+}
+
 // ---- createBooking → cart → checkout-or-place --------------------------------------------------------
 
 export interface BookingOptions {
