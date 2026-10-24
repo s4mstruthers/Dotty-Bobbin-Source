@@ -1,0 +1,13 @@
+---
+// A clearly marked spot for content that hasn't been supplied yet (Saskia's own words, the
+// reviews widget, policies). Shown only while the matching entry in src/content/site.ts is empty.
+interface Props {
+  title: string;
+  note: string;
+}
+const { title, note } = Astro.props;
+---
+<div class="rounded-lg border-2 border-dashed border-blush bg-blush-soft/50 p-6 text-center sm:p-8">
+  <p class="font-display text-lg font-bold">{title}</p>
+  <p class="mt-1 text-sm text-muted-foreground">{note}</p>
+</div>

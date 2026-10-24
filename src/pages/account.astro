@@ -1,0 +1,12 @@
+---
+// My account — gated: visitors see a log-in prompt, members their details. The gate and the
+// view live in one React tree (AccountPage) mounted client:only.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import AccountPage from "../components/members/AccountPage";
+---
+<SiteLayout title="My account">
+  <div class="wrap max-w-3xl">
+    <h1 class="mb-8 text-4xl text-sage">My account</h1>
+    <AccountPage client:only="react" />
+  </div>
+</SiteLayout>

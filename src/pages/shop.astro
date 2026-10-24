@@ -1,0 +1,27 @@
+---
+// The Studio Shop (/shop). Products and categories are fetched SERVER-SIDE (SEO) and handed to
+// the ShopView island; category switches then filter live. Frontmatter is the kit's skeleton.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import ShopView from "../components/storefront/ShopView";
+import { fetchProducts, fetchCategories } from "../wix/storefront/catalog";
+import type { Category, ProductSummary } from "../wix/storefront/types";
+
+let products: ProductSummary[] = [];
+let categories: Category[] = [];
+try {
+  [products, categories] = await Promise.all([fetchProducts({ limit: 24 }), fetchCategories()]);
+} catch {
+  // Guarded: an unhandled SSR throw truncates the response mid-stream; the island
+  // renders the empty state instead.
+}
+---
+<SiteLayout title="Studio Shop" description="A small shop of the notions, kits and sewing folders Saskia uses in class, mainly for her students.">
+  <div class="wrap">
+    <header class="mb-6 max-w-2xl">
+      <p class="eyebrow">A small shop for students</p>
+      <h1 class="mt-2 text-3xl text-sage sm:text-4xl">Studio Shop</h1>
+      <p class="mt-2">A small selection of the notions and kits I use in class, so you can carry on sewing at home.</p>
+    </header>
+    <ShopView client:load initialProducts={products} initialCategories={categories} />
+  </div>
+</SiteLayout>

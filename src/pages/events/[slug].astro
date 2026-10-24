@@ -1,0 +1,134 @@
+---
+// Event detail + registration page.
+//
+// This is a Wix ITEM PAGE: the wixMetadata export + <SEO.Tags> below let the site owner edit
+// this page's title/description/OG in the dashboard and register the route in the sitemap.
+// Keep all three SEO pieces and this frontmatter; swap the island import to YOUR registration
+// component. The registration island is client:only — it runs visitor-session calls and
+// redirects. A recurring event lists its other dates (the same series, fetched here).
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import EventRegistrationView from "../../components/events/EventRegistrationView";
+import { fetchEventBySlug, fetchOccurrences } from "../../wix/events/events";
+import type { EventSummary } from "../../wix/events/types";
+import NoPhoto from "../../components/ui/NoPhoto";
+import { imgAttrs } from "../../wix/media";
+import { WIX_APPS } from "@wix/essentials";
+import { SEO } from "@wix/seo/components";
+import { loadSEOTagsServiceConfig } from "@wix/seo/services";
+import { seoTags } from "@wix/seo";
+
+export const wixMetadata = {
+  appDefId: WIX_APPS.events.id,
+  pageIdentifier: WIX_APPS.events.eventPageMetadata.pageIdentifier,
+  identifiers: {
+    slug: WIX_APPS.events.eventPageMetadata.identifiers.slug,
+  },
+};
+
+const slug = Astro.params.slug!;
+
+// Behind Wix's proxy the request URL is internal — the real public page URL arrives on
+// x-wix-forwarded-url; the SEO service needs the public one.
+const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
+const pageUrl =
+  forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol)
+    ? forwardedUrl
+    : Astro.url.href;
+
+let event = null;
+let seoTagsServiceConfig = null;
+try {
+  [event, seoTagsServiceConfig] = await Promise.all([
+    fetchEventBySlug(slug),
+    loadSEOTagsServiceConfig({
+      pageUrl,
+      itemType: seoTags.ItemType.EVENTS_PAGE,
+      itemData: { slug },
+    }).catch(() => null),
+  ]);
+} catch {
+  // Guarded: an unhandled SSR throw truncates the response mid-stream.
+}
+
+if (!event) {
+  return new Response(null, { status: 404 });
+}
+
+// Other dates of a recurring series (empty for a one-time event); guarded like every SSR read.
+let occurrences: EventSummary[] = [];
+if (event.recurringCategoryId) {
+  try {
+    occurrences = (await fetchOccurrences(event.recurringCategoryId)).filter((o) => o.id !== event.id);
+  } catch {
+    /* the page renders without the date list */
+  }
+}
+---
+
+<SiteLayout title={event.title}>
+  <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />
+
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm text-muted-foreground">
+      <a href="/events" class="no-underline hover:underline">Retreats &amp; Events</a>
+      <span aria-hidden="true"> › </span>
+      <span class="text-foreground">{event.title}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-12">
+      <section class="min-w-0 lg:col-start-1">
+        <div class:list={[!event.imageUrl && "hidden lg:block", "max-h-[38vh] overflow-hidden rounded-lg lg:max-h-none"]}>
+          <div class="aspect-[16/9] lg:aspect-[2/1]">
+            {event.imageUrl ? (
+              <img {...imgAttrs(event.imageUrl, "(min-width: 1024px) 58vw, 100vw", 2)} alt={event.title} class="h-full w-full object-cover" />
+            ) : (
+              <NoPhoto motif="calendar" tone="pink" />
+            )}
+          </div>
+        </div>
+        {event.dateLabel && <p class:list={["font-semibold text-sage-deep", event.imageUrl ? "mt-6" : "lg:mt-6"]}>{event.dateLabel}</p>}
+        <h1 class="mt-1 text-3xl text-sage sm:text-4xl">{event.title}</h1>
+        <div class="mt-3 space-y-0.5">
+          <p class="font-semibold">{event.locationType === "ONLINE" ? "Online event" : event.locationName}</p>
+          {event.address && <p class="text-muted-foreground">{event.address}</p>}
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+          {event.priceLabel && <span class="rounded-control bg-secondary px-3 py-1 font-bold">{event.priceLabel}</span>}
+          {event.addToCalendar?.google && (
+            <a href={event.addToCalendar.google} target="_blank" rel="noopener" class="font-semibold underline decoration-blush decoration-2 underline-offset-4">Add to Google Calendar</a>
+          )}
+        </div>
+      </section>
+
+      <section class="min-w-0 rounded-lg border border-border p-5 sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start" aria-label="Tickets">
+        <h2 class="mb-5 text-2xl text-sage">Book your place</h2>
+        <EventRegistrationView client:only="react" event={event} />
+      </section>
+
+      <section class="min-w-0 lg:col-start-1">
+        {(event.shortDescription || event.aboutParagraphs.length > 0) && <h2 class="text-xl text-sage">About the day</h2>}
+        {event.shortDescription && <p class="mt-2 leading-relaxed">{event.shortDescription}</p>}
+        {event.aboutParagraphs.map((p) => <p class="mt-3 leading-relaxed">{p}</p>)}
+        {occurrences.length > 0 && (
+          <div class="mt-8">
+            <h2 class="text-xl text-sage">Other dates</h2>
+            <ul class="mt-2 space-y-1">
+              {occurrences.map((o) => (
+                <li><a href={`/events/${encodeURIComponent(o.slug)}`} class="underline decoration-blush decoration-2 underline-offset-4">{o.dateLabel || o.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {event.coordinates && (
+          <iframe
+            title={`Map: ${event.locationName}`}
+            src={`https://www.google.com/maps?q=${event.coordinates.lat},${event.coordinates.lng}&output=embed`}
+            class="mt-8 h-64 w-full rounded-lg border-0"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        )}
+      </section>
+    </div>
+  </div>
+</SiteLayout>

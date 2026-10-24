@@ -1,0 +1,43 @@
+---
+// Contact page — email, address and a small map. Details come from BUSINESS in
+// src/content/site.ts (the phone number stays off unless showPhone is set to true).
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { BUSINESS, HOME } from "../content/site";
+const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(BUSINESS.mapQuery)}&output=embed`;
+---
+<SiteLayout title="Contact" description={`Contact ${BUSINESS.name}: ${BUSINESS.email}. Sewing classes in Felden, Hemel Hempstead.`}>
+  <div class="wrap">
+    <header class="max-w-2xl">
+      <p class="eyebrow">Felden, Hemel Hempstead</p>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">Contact</h1>
+      <p class="mt-3 text-lg">{HOME.contactText}</p>
+    </header>
+
+    <div class="mt-10 grid gap-6 lg:grid-cols-[1fr_1.3fr]">
+      <div class="space-y-6">
+        <div class="rounded-lg bg-secondary p-6 sm:p-8">
+          <h2 class="text-xl text-sage">Email</h2>
+          <p class="mt-1 break-words text-lg font-semibold">{BUSINESS.email}</p>
+          <a href={`mailto:${BUSINESS.email}`} class="btn mt-4">{HOME.contactButton}</a>
+          {BUSINESS.showPhone && <p class="mt-4">Phone: {BUSINESS.phone}</p>}
+        </div>
+        <div class="rounded-lg border border-border p-6 sm:p-8">
+          <h2 class="text-xl text-sage">Where</h2>
+          <address class="mt-2 not-italic leading-relaxed">
+            {BUSINESS.address.map((line) => <span class="block">{line}</span>)}
+          </address>
+          <p class="mt-3 text-sm text-muted-foreground">Classes and retreats are held at my home in Felden, Hemel Hempstead. Day trips meet here first.</p>
+          <h2 class="mt-6 text-xl text-sage">Hours</h2>
+          <p class="mt-1">{BUSINESS.hours}</p>
+        </div>
+      </div>
+      <iframe
+        title={`Map of ${BUSINESS.mapQuery}`}
+        src={mapSrc}
+        class="h-80 w-full rounded-lg border-0 lg:h-full lg:min-h-[26rem]"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  </div>
+</SiteLayout>

@@ -1,0 +1,17 @@
+---
+// Log in / sign up. The shipped LoginForm does the work (it posts to the integration's own
+// /api/auth routes); this page is only the frame around it. Keep the client:only mount.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import LoginForm from "../components/members/LoginForm";
+---
+<SiteLayout title="Log in">
+  <div class="wrap">
+    <section class="mx-auto max-w-md">
+      <div class="rounded-lg border border-border p-6 sm:p-8">
+        <h1 class="text-3xl text-sage">Welcome</h1>
+        <p class="mb-6 mt-2 text-muted-foreground">Log in or create an account to see your details.</p>
+        <LoginForm client:only="react" />
+      </div>
+    </section>
+  </div>
+</SiteLayout>

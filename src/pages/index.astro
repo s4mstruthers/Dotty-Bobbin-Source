@@ -1,0 +1,170 @@
+---
+// Home page. Every listing here is live from Wix, fetched server-side:
+//   classes  → Wix Bookings (all visible services)
+//   retreats → Wix Events (next 3 upcoming; past ones drop off automatically)
+//   shop     → Wix Stores (4 products from the category in HOME.shopCategorySlug)
+// The words are in src/content/site.ts.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import ClassesList from "../components/bookings/ClassesList";
+import EventCard from "../components/events/EventCard";
+import FeaturedProducts from "../components/storefront/FeaturedProducts";
+import Placeholder from "../components/Placeholder.astro";
+import { fetchServices } from "../wix/bookings/services";
+import { fetchEvents } from "../wix/events/events";
+import { fetchCategoryBySlug, fetchProductsByCategory, fetchProducts } from "../wix/storefront/catalog";
+import type { ServiceSummary } from "../wix/bookings/types";
+import type { EventSummary } from "../wix/events/types";
+import type { ProductSummary } from "../wix/storefront/types";
+import { BUSINESS, HOME, MEET_SASKIA, REVIEWS_EMBED_HTML } from "../content/site";
+
+// Each read is guarded on its own: one failing section never takes the page down.
+let services: ServiceSummary[] = [];
+let hasMoreServices = false;
+let events: EventSummary[] = [];
+let products: ProductSummary[] = [];
+let shopHref = "/shop";
+
+const [svc, evs, shopCat] = await Promise.allSettled([
+  fetchServices({ limit: 6 }),
+  fetchEvents({ limit: 3 }),
+  fetchCategoryBySlug(HOME.shopCategorySlug),
+]);
+if (svc.status === "fulfilled") {
+  services = svc.value.items;
+  hasMoreServices = svc.value.hasMore;
+}
+if (evs.status === "fulfilled") events = evs.value;
+try {
+  const cat = shopCat.status === "fulfilled" ? shopCat.value : null;
+  if (cat) shopHref = `/category/${cat.slug}`;
+  products = cat ? await fetchProductsByCategory(cat.id, { limit: 4 }) : await fetchProducts({ limit: 4 });
+} catch {
+  /* the shop row is left out */
+}
+---
+
+<SiteLayout title={BUSINESS.name} description={HOME.heroText} bare>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="wrap grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
+      <div class="relative z-10">
+        <p class="eyebrow">{HOME.kicker}</p>
+        <h1 class="mt-4 text-5xl text-sage sm:text-6xl lg:text-7xl">
+          {HOME.heroTitleBefore}<em class="relative not-italic text-foreground">
+            <span class="relative z-10 italic">{HOME.heroTitleEmphasis}</span>
+            <span class="absolute inset-x-[-0.15em] bottom-[0.08em] z-0 h-[0.35em] rounded-full bg-blush" aria-hidden="true"></span>
+          </em>{HOME.heroTitleAfter}
+        </h1>
+        <p class="mt-6 max-w-xl text-lg sm:text-xl">{HOME.heroText}</p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="/services" class="btn text-base">{HOME.heroButton}</a>
+          <a href="/events" class="link-pill">See retreats &amp; days out</a>
+        </div>
+      </div>
+      <div class="relative mx-auto w-full max-w-[24rem] lg:max-w-[30rem]" aria-hidden="true">
+        <div class="dots aspect-square rounded-full"></div>
+        <img src="/dotty-bobbin-icon.png" alt="" width="879" height="879" class="absolute inset-[8%] h-[84%] w-[84%] object-contain" />
+        <span class="absolute right-[6%] top-[10%] h-6 w-6 rounded-full bg-blush"></span>
+        <span class="absolute bottom-[12%] left-[2%] h-10 w-10 rounded-full border-4 border-secondary bg-background"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Classes -->
+  <section class="bg-secondary py-16 sm:py-20" aria-labelledby="classes-title">
+    <div class="wrap">
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div class="max-w-2xl">
+          <h2 id="classes-title" class="text-3xl text-sage sm:text-4xl">{HOME.classesTitle}</h2>
+          <p class="mt-2 text-lg">{HOME.classesText}</p>
+        </div>
+        <a href="/services" class="link-pill bg-background">All classes</a>
+      </div>
+      <ClassesList client:load compact initialServices={services} initialHasMore={hasMoreServices} />
+    </div>
+  </section>
+
+  <!-- Retreats & days out -->
+  <section class="py-16 sm:py-20" aria-labelledby="retreats-title">
+    <div class="wrap">
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div class="max-w-2xl">
+          <h2 id="retreats-title" class="text-3xl text-sage sm:text-4xl">{HOME.retreatsTitle}</h2>
+          <p class="mt-2 text-lg">{HOME.retreatsText}</p>
+        </div>
+        <a href="/events" class="link-pill">All dates</a>
+      </div>
+      {events.length > 0 ? (
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {events.map((e, i) => <EventCard event={e} tone={i % 2 ? "sage" : "pink"} />)}
+        </div>
+      ) : (
+        <div class="rounded-lg bg-secondary p-8 text-center">
+          <p class="font-display text-lg font-bold">No retreats or days out are booked in right now</p>
+          <p class="mt-1 text-sm text-muted-foreground">New dates are added through the year — check back soon.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Studio shop (kept small: it's mainly for students) -->
+  {products.length > 0 && (
+    <section class="border-y border-border py-16 sm:py-20" aria-labelledby="shop-title">
+      <div class="wrap">
+        <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div class="max-w-2xl">
+            <h2 id="shop-title" class="text-2xl text-sage sm:text-3xl">{HOME.shopTitle}</h2>
+            <p class="mt-2">{HOME.shopText}</p>
+          </div>
+          <a href={shopHref} class="link-pill">Visit the shop</a>
+        </div>
+        <FeaturedProducts client:visible products={products} />
+      </div>
+    </section>
+  )}
+
+  <!-- Meet Saskia (her own words only) -->
+  <section class="py-16 sm:py-20" aria-labelledby="meet-title">
+    <div class="wrap grid items-center gap-10 md:grid-cols-[1fr_1.4fr]">
+      <div class="dots-pink mx-auto flex aspect-square w-full max-w-xs items-center justify-center rounded-full" aria-hidden="true">
+        <img src="/dotty-bobbin-icon.png" alt="" width="879" height="879" class="h-3/4 w-3/4 object-contain" loading="lazy" />
+      </div>
+      <div class="max-w-2xl">
+        <h2 id="meet-title" class="text-3xl text-sage sm:text-4xl">{HOME.meetTitle}</h2>
+        {MEET_SASKIA.length > 0 ? (
+          <div class="mt-4 space-y-4 text-lg">{MEET_SASKIA.map((p) => <p>{p}</p>)}</div>
+        ) : (
+          <div class="mt-4">
+            <Placeholder title="Saskia's introduction goes here" note="Her own words, added in src/content/site.ts (MEET_SASKIA)." />
+          </div>
+        )}
+        <a href="/about" class="link-pill mt-6">More about me</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews (Google widget later; never invented reviews) -->
+  <section class="pb-16 sm:pb-20" aria-label="Reviews">
+    <div class="wrap">
+      {REVIEWS_EMBED_HTML ? (
+        <div set:html={REVIEWS_EMBED_HTML} />
+      ) : (
+        <Placeholder title="Google reviews will appear here" note="Paste the reviews widget code into src/content/site.ts (REVIEWS_EMBED_HTML)." />
+      )}
+    </div>
+  </section>
+
+  <!-- Get in touch -->
+  <section class="pb-20" aria-labelledby="contact-title">
+    <div class="wrap">
+      <div class="dots rounded-lg px-6 py-14 text-center sm:px-12">
+        <div class="mx-auto max-w-xl rounded-lg bg-background/95 px-6 py-10 shadow-sm sm:px-10">
+          <h2 id="contact-title" class="text-3xl text-sage">{HOME.contactTitle}</h2>
+          <p class="mt-3 text-lg">{HOME.contactText}</p>
+          <a href={`mailto:${BUSINESS.email}`} class="btn mt-6">{HOME.contactButton}</a>
+          <p class="mt-3 text-sm text-muted-foreground">{BUSINESS.email}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</SiteLayout>

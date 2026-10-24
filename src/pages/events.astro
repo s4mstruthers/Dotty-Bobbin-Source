@@ -1,0 +1,29 @@
+---
+// Events listing — the first page fetched SERVER-SIDE (SEO) and handed to the island as DTO
+// props; the island loads further pages and the category pills itself. Keep this frontmatter;
+// swap the island import to YOUR listing component.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import EventsIndex from "../components/events/EventsIndex";
+import { fetchEventsPage } from "../wix/events/events";
+import type { EventSummary } from "../wix/events/types";
+
+let events: EventSummary[] = [];
+let total = 0;
+try {
+  ({ events, total } = await fetchEventsPage());
+} catch {
+  // An unguarded SSR throw truncates the response mid-stream; the island renders the
+  // empty state instead.
+}
+---
+
+<SiteLayout title="Retreats & events" description="Two-day sewing retreats at Saskia's home in Felden, Hemel Hempstead, and occasional sewing days out.">
+  <div class="wrap">
+    <header class="mb-8 max-w-2xl sm:mb-10">
+      <p class="eyebrow">Sewing retreats & days out</p>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">Retreats &amp; Events</h1>
+      <p class="mt-3 text-lg">Two-day sewing retreats at my home, and the occasional day out – like a tour of Savile Row's tailoring houses.</p>
+    </header>
+    <EventsIndex client:load initialEvents={events} initialTotal={total} />
+  </div>
+</SiteLayout>

@@ -1,0 +1,68 @@
+---
+// A shop category page (/category/<slug>). A Wix ITEM PAGE like a product: its own URL, its SEO
+// editable in the dashboard. The frontmatter (wixMetadata + SEO service) is the kit's — keep it
+// exactly. It mounts the same ShopView, scoped to the category.
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import ShopView from "../../components/storefront/ShopView";
+import { fetchCategoryBySlug, fetchProductsByCategory, fetchCategories } from "../../wix/storefront/catalog";
+import type { Category, ProductSummary } from "../../wix/storefront/types";
+import { WIX_APPS } from "@wix/essentials";
+import { SEO } from "@wix/seo/components";
+import { loadSEOTagsServiceConfig } from "@wix/seo/services";
+import { seoTags } from "@wix/seo";
+
+export const wixMetadata = {
+  appDefId: WIX_APPS.checkoutAndOrders.id,
+  pageIdentifier: WIX_APPS.checkoutAndOrders.categoryPageMetadata.pageIdentifier,
+  identifiers: { slug: WIX_APPS.checkoutAndOrders.categoryPageMetadata.identifiers.collection },
+};
+
+const slug = Astro.params.slug!;
+const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
+const pageUrl =
+  forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol)
+    ? forwardedUrl
+    : Astro.url.href;
+
+let category: Category | null = null;
+let products: ProductSummary[] = [];
+let categories: Category[] = [];
+let seoTagsServiceConfig = null;
+try {
+  category = await fetchCategoryBySlug(slug);
+  if (category) {
+    // A sub-category is its own SEO item type (the owner's settings differ per type).
+    const itemType = category.parentId ? seoTags.ItemType.STORES_SUB_CATEGORY : seoTags.ItemType.STORES_CATEGORY;
+    [products, categories, seoTagsServiceConfig] = await Promise.all([
+      fetchProductsByCategory(category.id, { limit: 24 }),
+      fetchCategories(),
+      loadSEOTagsServiceConfig({ pageUrl, itemType, itemData: { slug } }),
+    ]);
+  }
+} catch {
+  // Guarded: an unhandled SSR throw truncates the response mid-stream.
+}
+
+// A missing or hidden category is a real 404 — never a fallback to all products.
+if (!category) {
+  return new Response(null, { status: 404 });
+}
+---
+<SiteLayout title={category.name}>
+  <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" class="mb-4 text-sm text-muted-foreground">
+      <a href="/shop" class="no-underline hover:underline">Shop</a>
+      {category.breadcrumbs.map((b) => (
+        <span><span aria-hidden="true"> › </span><a href={`/category/${b.slug}`} class="no-underline hover:underline">{b.name}</a></span>
+      ))}
+      <span aria-hidden="true"> › </span>
+      <span class="text-foreground">{category.name}</span>
+    </nav>
+    <header class="mb-6 max-w-2xl">
+      <h1 class="text-3xl text-sage sm:text-4xl">{category.name}</h1>
+      {category.description && <p class="mt-2">{category.description}</p>}
+    </header>
+    <ShopView client:load initialProducts={products} initialCategories={categories} initialCategoryId={category.id} />
+  </div>
+</SiteLayout>
