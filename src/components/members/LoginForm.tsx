@@ -4,6 +4,7 @@
 import { type FormEvent, useState } from "react";
 import { useMember } from "../../hooks/members/useMember";
 import { PROFILE_ON_SIGNUP } from "../../wix/members/auth";
+import ForgotPassword from "./ForgotPassword";
 
 export interface LoginFormProps {
   onSuccess?: () => void;
@@ -93,7 +94,10 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       </form>
     );
   }
+  // Sign-up said the account exists, or sign-in failed: offer the password email prominently.
+  const needsPassword = Boolean(error) && (mode === "login" || /already exists/i.test(error ?? ""));
   return (
+    <>
     <form onSubmit={submit} className="space-y-4">
       <div className="flex gap-2">
         <button
@@ -161,5 +165,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         {busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}
       </button>
     </form>
+    <ForgotPassword initialEmail={email} prompt={needsPassword} />
+    </>
   );
 }

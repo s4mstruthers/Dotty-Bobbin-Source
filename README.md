@@ -56,6 +56,7 @@ start an edit from anywhere else, and never edit only the live site.
 | `/shop`, `/category/<cat>`, `/products/<item>` | `src/pages/shop.astro`, `category/[slug].astro`, `products/[slug].astro` | The studio shop; the cart opens as a drawer |
 | `/about`, `/contact`, `/policies` | `src/pages/*.astro` | Text from `src/content/site.ts` |
 | `/login`, `/account` | `src/pages/login.astro`, `account.astro` | Customer accounts: my classes (cancel / change time where the booking policy allows), retreat & event tickets, shop orders |
+| `/api/account/reset-password` | `src/pages/api/account/reset-password.ts` | "Forgot or never set a password?": Wix emails a link to its own password page, which returns to `/login` |
 | `/api/account/overview`, `/api/account/booking` | `src/pages/api/account/*.ts` → `src/wix/account/server.ts` | Server-only: reads/changes the logged-in member's OWN data. Bookings made before signing up show only once the member's email is verified |
 
 ## Common edits (for Claude or a person)
