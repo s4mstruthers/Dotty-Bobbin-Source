@@ -7,8 +7,8 @@ import { ABOUT, ABOUT_TITLE, BUSINESS } from "../content/site";
 ---
 <SiteLayout title="About" description={`About ${BUSINESS.owner} and ${BUSINESS.name}, sewing classes and retreats in Felden, Hemel Hempstead.`}>
   <div class="wrap grid gap-10 md:grid-cols-[1fr_1.6fr] md:items-start">
-    <div class="dots-pink mx-auto flex aspect-square w-full max-w-xs items-center justify-center rounded-full md:sticky md:top-28" aria-hidden="true">
-      <img src="/dotty-bobbin-icon.png" alt="" width="879" height="879" class="h-3/4 w-3/4 object-contain" />
+    <div class="dots-pink mx-auto aspect-square w-full max-w-xs rounded-full p-3 md:sticky md:top-28">
+      <img src="/saskia-800.jpg" srcset="/saskia-480.jpg 480w, /saskia-800.jpg 800w" sizes="320px" alt={`${BUSINESS.owner}, who runs ${BUSINESS.name}`} width="800" height="800" class="h-full w-full rounded-full object-cover" />
     </div>
     <article class="max-w-2xl">
       <p class="eyebrow">{BUSINESS.name} · sewing classes &amp; retreats</p>
