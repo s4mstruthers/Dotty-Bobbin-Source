@@ -14,6 +14,7 @@ export const BUSINESS = {
   showPhone: false,
   address: ["Felcote", "Felden Lane", "Hemel Hempstead", "HP3 0BA"],
   hours: "Monday to Friday, 9am – 10pm",
+  facebook: "https://www.facebook.com/dottybobbin1/",
   // Used for the small map on the Contact page.
   mapQuery: "Felden Lane, Hemel Hempstead HP3 0BA",
 };
@@ -23,6 +24,7 @@ export const NAV = [
   { label: "Classes", href: "/services" },
   { label: "Retreats & Events", href: "/events" },
   { label: "Shop", href: "/shop" },
+  { label: "Gallery", href: "/gallery" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   // Later: digital patterns sold on Payhip. Uncomment and paste the Payhip link.
@@ -83,4 +85,75 @@ export const REVIEWS_EMBED_HTML = `<!-- Elfsight Google Reviews -->
 
 // ─── Policies ───────────────────────────────────────────────────────────────────────────
 // The footer links to /policies. One entry per policy; while empty the page says they're coming.
-export const POLICIES: { title: string; paragraphs: string[] }[] = [];
+// Saskia's terms & conditions, from her SimplyBook site (24 Oct 2026). Verbatim except two
+// mentions of SimplyBook.me, reworded for this site: section intro and 9. Data and Privacy.
+export const POLICIES: { title: string; paragraphs: string[] }[] = [
+  {
+    title: "Dotty Bobbin – Additional Terms & Conditions for Sewing Classes",
+    paragraphs: [
+      "These additional terms apply to all sewing classes, workshops, and private lessons booked through the Dotty Bobbin website. By making a booking, you agree to these terms.",
+    ],
+  },
+  {
+    title: "1. Booking and Payment",
+    paragraphs: [
+      "Full payment is required at the time of booking to secure your place. Spaces are limited and allocated on a first-come, first-served basis. Your booking is confirmed once payment has been received and you have been sent an email confirmation.",
+    ],
+  },
+  {
+    title: "2. Cancellations and Rescheduling",
+    paragraphs: [
+      "All bookings are non-refundable. If you need to change your booking, rescheduling requests made at least 24 hours before your class will be accommodated where possible, subject to availability. Cancellations or rescheduling requests made less than 24 hours before the start time, or non-attendance without notice, cannot be rescheduled and no refund will be given.",
+      "If Dotty Bobbin needs to cancel or reschedule a class, you will be offered a full refund or an alternative date.",
+    ],
+  },
+  {
+    title: "3. Arriving for Class",
+    paragraphs: [
+      "Please arrive a few minutes early so you can settle in and get set up. If you are running late, please let us know — we will do our best to help you catch up, but missed time cannot be made up or refunded.",
+    ],
+  },
+  {
+    title: "4. Use of Equipment and Machines",
+    paragraphs: [
+      "All sewing equipment and machines provided remain the property of Dotty Bobbin. You are responsible for using any equipment safely and with care. Any deliberate damage or misuse may result in a charge to cover the cost of repair or replacement.",
+    ],
+  },
+  {
+    title: "5. Health and Safety",
+    paragraphs: [
+      "Please follow all safety instructions given during your session, particularly when using sewing machines, irons, or sharp tools. Dotty Bobbin cannot accept liability for injuries resulting from failure to follow safety guidance.",
+    ],
+  },
+  {
+    title: "6. Personal Belongings",
+    paragraphs: [
+      "Please keep personal belongings safe during your class. Dotty Bobbin cannot accept responsibility for any items that are lost or damaged on the premises.",
+    ],
+  },
+  {
+    title: "7. Photography and Social Media",
+    paragraphs: [
+      "We occasionally photograph classes for use on social media and promotional materials. If you would prefer not to be included, please let us know at the start of your session.",
+    ],
+  },
+  {
+    title: "8. Behaviour and Conduct",
+    paragraphs: [
+      "Our classes are designed to be friendly, inclusive, and supportive. We reserve the right to refuse or cancel a booking for anyone whose behaviour disrupts or disrespects others in the group.",
+    ],
+  },
+  {
+    title: "9. Data and Privacy",
+    paragraphs: [
+      "Your personal details are used solely for managing your bookings and communicating with you about Dotty Bobbin services. Your information will never be shared with third parties, except as required by law or as part of the website's booking and payment systems.",
+    ],
+  },
+  {
+    title: "10. Contact",
+    paragraphs: [
+      "If you have any questions about your booking, please get in touch:",
+      "Email: dottybobbin@icloud.com Facebook: facebook.com/dottybobbin1",
+    ],
+  },
+];

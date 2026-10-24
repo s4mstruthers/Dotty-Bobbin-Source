@@ -11,7 +11,7 @@ import EventRegistrationView from "../../components/events/EventRegistrationView
 import { fetchEventBySlug, fetchOccurrences } from "../../wix/events/events";
 import type { EventSummary } from "../../wix/events/types";
 import NoPhoto from "../../components/ui/NoPhoto";
-import { imgAttrs } from "../../wix/media";
+import { imgFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
 import { loadSEOTagsServiceConfig } from "@wix/seo/services";
@@ -78,9 +78,9 @@ if (event.recurringCategoryId) {
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-12">
       <section class="min-w-0 lg:col-start-1">
         <div class:list={[!event.imageUrl && "hidden lg:block", "max-h-[38vh] overflow-hidden rounded-lg lg:max-h-none"]}>
-          <div class="aspect-[16/9] lg:aspect-[2/1]">
+          <div class="aspect-[16/9] lg:aspect-[3/2]">
             {event.imageUrl ? (
-              <img {...imgAttrs(event.imageUrl, "(min-width: 1024px) 58vw, 100vw", 2)} alt={event.title} class="h-full w-full object-cover" />
+              <img {...imgFitAttrs(event.imageUrl, "(min-width: 1024px) 58vw, 100vw")} alt={event.title} class="h-full w-full object-cover object-[50%_25%]" />
             ) : (
               <NoPhoto motif="calendar" tone="pink" />
             )}

@@ -1,7 +1,7 @@
 // One retreat / day out as a rounded card: photo (or the dotted placeholder), date, title,
 // where, price-from and a Book pill. The whole card links to the event page, where tickets are
 // bought through Wix. Data is the shipped EventSummary DTO — date and price already formatted.
-import { imgAttrs } from "../../wix/media";
+import { imgFitAttrs } from "../../wix/media-fit";
 import type { EventSummary } from "../../wix/events/types";
 import NoPhoto from "../ui/NoPhoto";
 
@@ -14,7 +14,7 @@ export default function EventCard({ event, tone = "pink" }: { event: EventSummar
     >
       <div className={`relative overflow-hidden ${event.imageUrl ? "aspect-[3/2]" : "aspect-[16/7]"}`}>
         {event.imageUrl ? (
-          <img {...imgAttrs(event.imageUrl, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw", 3 / 2)} alt={event.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          <img {...imgFitAttrs(event.imageUrl, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw")} alt={event.title} className="h-full w-full object-cover object-[50%_25%] transition-transform duration-500 group-hover:scale-[1.03]" />
         ) : (
           <NoPhoto motif="calendar" tone={tone} />
         )}

@@ -105,6 +105,7 @@ const year = 2026;
           </address>
           <a href={`mailto:${BUSINESS.email}`} class="mt-3 inline-block text-sm font-semibold underline decoration-blush decoration-2 underline-offset-4">{BUSINESS.email}</a>
           {BUSINESS.showPhone && <p class="mt-1 text-sm">{BUSINESS.phone}</p>}
+          {BUSINESS.facebook && <a href={BUSINESS.facebook} target="_blank" rel="noopener" class="mt-2 block text-sm font-semibold no-underline hover:underline">Facebook</a>}
         </div>
         <div>
           <p class="eyebrow">Menu</p>
@@ -117,7 +118,7 @@ const year = 2026;
       <div class="border-t border-border">
         <div class="wrap flex flex-col gap-2 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} {BUSINESS.name}</p>
-          <a href="/policies" class="no-underline hover:underline">Policies</a>
+          <a href="/policies" class="no-underline hover:underline">Terms &amp; Conditions</a>
         </div>
       </div>
     </footer>

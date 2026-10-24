@@ -1,0 +1,22 @@
+---
+// Gallery: Saskia's photos of makes, classes and retreats. The list is in src/content/gallery.ts.
+// Photos are shown uncropped (fit) in flowing columns, so portrait and landscape shots both fit.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { GALLERY } from "../content/gallery";
+import { imgFitAttrs } from "../wix/media-fit";
+---
+<SiteLayout title="Gallery" description="Photos of makes, classes and retreats at Dotty Bobbin in Felden, Hemel Hempstead.">
+  <div class="wrap">
+    <header class="mb-8 max-w-2xl">
+      <p class="eyebrow">Makes, classes &amp; retreats</p>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">Gallery</h1>
+    </header>
+    <div class="columns-2 gap-3 sm:gap-4 md:columns-3 xl:columns-4">
+      {GALLERY.map((url) => (
+        <a href={url} target="_blank" rel="noopener" class="mb-3 block break-inside-avoid overflow-hidden rounded-md bg-secondary sm:mb-4">
+          <img {...imgFitAttrs(url, "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw")} alt="A Dotty Bobbin make or class" class="block h-auto w-full transition-transform duration-500 hover:scale-[1.02]" />
+        </a>
+      ))}
+    </div>
+  </div>
+</SiteLayout>

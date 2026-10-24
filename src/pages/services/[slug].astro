@@ -7,7 +7,7 @@ import ClassBooking from "../../components/bookings/ClassBooking";
 import NoPhoto from "../../components/ui/NoPhoto";
 import { ServicePrice } from "../../components/bookings/ClassCard";
 import { fetchServiceBySlug } from "../../wix/bookings/services";
-import { imgAttrs } from "../../wix/media";
+import { imgFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
 import { loadSEOTagsServiceConfig } from "@wix/seo/services";
@@ -72,7 +72,7 @@ const facts = [
         <div class:list={[!service.imageUrl && "hidden lg:block", "relative max-h-[38vh] overflow-hidden rounded-lg lg:max-h-none"]}>
           <div class="aspect-[16/9] lg:aspect-[4/3]">
             {service.imageUrl ? (
-              <img {...imgAttrs(service.imageUrl, "(min-width: 1024px) 40vw, 100vw", 4 / 3)} alt={service.name} class="h-full w-full object-cover" />
+              <img {...imgFitAttrs(service.imageUrl, "(min-width: 1024px) 40vw, 100vw")} alt={service.name} class="h-full w-full object-cover object-[50%_25%]" />
             ) : (
               <NoPhoto motif="spool" />
             )}

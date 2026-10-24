@@ -2,7 +2,7 @@
 // formatted). The tile root is a flex column (NOT the link): the link wraps image + name +
 // price, and the shipped <QuickAdd> sits beside it as the last child so every buy button in a
 // row lines up. A button inside a link would be invalid and would navigate instead of adding.
-import { imgAttrs } from "../../wix/media";
+import { imgFitAttrs } from "../../wix/media-fit";
 import type { ProductSummary } from "../../wix/storefront/types";
 import NoPhoto from "../ui/NoPhoto";
 import QuickAdd from "./QuickAdd";
@@ -30,11 +30,11 @@ export default function ProductTile({ p, motif = "bag" }: { p: ProductSummary; m
   return (
     <div className="relative flex flex-col rounded-lg bg-background">
       <a href={`/products/${encodeURIComponent(p.slug)}`} className="group block min-w-0 no-underline">
-        <div className="relative aspect-square overflow-hidden rounded-md">
+        <div className="relative aspect-square overflow-hidden rounded-md bg-secondary">
           {p.imageUrl ? (
             <>
-              <img {...imgAttrs(p.imageUrl, "(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw")} alt={p.name} className="h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-0" />
-              {p.hoverImageUrl && <img {...imgAttrs(p.hoverImageUrl, "(min-width: 1024px) 22vw, 50vw")} alt="" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" />}
+              <img {...imgFitAttrs(p.imageUrl, "(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw")} alt={p.name} className={`h-full w-full object-contain transition-[opacity,transform] duration-300 ${p.hoverImageUrl ? "group-hover:opacity-0" : "group-hover:scale-[1.03]"}`} />
+              {p.hoverImageUrl && <img {...imgFitAttrs(p.hoverImageUrl, "(min-width: 1024px) 22vw, 50vw")} alt="" className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100" />}
             </>
           ) : (
             <NoPhoto motif={motif} tone="sage" className="transition-transform duration-500 group-hover:scale-[1.03]" />

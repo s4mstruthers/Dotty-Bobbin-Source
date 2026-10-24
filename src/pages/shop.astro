@@ -15,11 +15,10 @@ try {
   // renders the empty state instead.
 }
 ---
-<SiteLayout title="Studio Shop" description="A small shop of the notions, kits and sewing folders Saskia uses in class, mainly for her students.">
+<SiteLayout title="Studio Shop" description="The Dotty Bobbin studio shop: the notions, kits and sewing folders Saskia uses in class.">
   <div class="wrap">
     <header class="mb-6 max-w-2xl">
-      <p class="eyebrow">A small shop for students</p>
-      <h1 class="mt-2 text-3xl text-sage sm:text-4xl">Studio Shop</h1>
+      <h1 class="text-3xl text-sage sm:text-4xl">Studio Shop</h1>
       <p class="mt-2">A small selection of the notions and kits I use in class, so you can carry on sewing at home.</p>
     </header>
     <ShopView client:load initialProducts={products} initialCategories={categories} />

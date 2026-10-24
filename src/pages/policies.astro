@@ -4,13 +4,13 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import Placeholder from "../components/Placeholder.astro";
 import { POLICIES } from "../content/site";
 ---
-<SiteLayout title="Policies">
+<SiteLayout title="Terms & Conditions">
   <div class="wrap max-w-3xl">
-    <h1 class="text-4xl text-sage">Policies</h1>
+    <h1 class="text-4xl text-sage">Terms &amp; Conditions</h1>
     {POLICIES.length > 0 ? (
       POLICIES.map((p) => (
         <section class="mt-10">
-          <h2 class="text-2xl text-sage">{p.title}</h2>
+          <h2 class="text-xl text-sage sm:text-2xl">{p.title}</h2>
           <div class="mt-3 space-y-3 leading-relaxed">{p.paragraphs.map((t) => <p>{t}</p>)}</div>
         </section>
       ))

@@ -1,7 +1,7 @@
 // One class / appointment as a card: photo (or the dotted placeholder), type, name, the weekdays
 // it runs, length and price. The whole card links to the service page, where the times and
 // booking live. Data is the shipped ServiceSummary DTO — strings are already formatted.
-import { imgAttrs } from "../../wix/media";
+import { imgFitAttrs } from "../../wix/media-fit";
 import type { ServiceSummary, Weekday } from "../../wix/bookings/types";
 import NoPhoto from "../ui/NoPhoto";
 
@@ -37,9 +37,9 @@ export default function ClassCard({ service, motif = "spool" }: { service: Servi
       href={`/services/${encodeURIComponent(service.slug)}`}
       className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-background no-underline transition-shadow hover:shadow-[0_18px_40px_-24px_rgba(78,76,76,0.45)]"
     >
-      <div className={`relative overflow-hidden ${service.imageUrl ? "aspect-[16/9]" : "aspect-[16/7]"}`}>
+      <div className={`relative overflow-hidden ${service.imageUrl ? "aspect-[4/3]" : "aspect-[16/7]"}`}>
         {service.imageUrl ? (
-          <img {...imgAttrs(service.imageUrl, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw", 16 / 9)} alt={service.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          <img {...imgFitAttrs(service.imageUrl, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw")} alt={service.name} className="h-full w-full object-cover object-[50%_25%] transition-transform duration-500 group-hover:scale-[1.03]" />
         ) : (
           <NoPhoto motif={motif} />
         )}
