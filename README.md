@@ -11,7 +11,7 @@ Wix dashboard**. Classes, retreats/events and shop products are never typed into
 | You want to change… | Where |
 |---|---|
 | A class, its times, price or capacity | Wix dashboard → **Bookings → Services / Calendar** |
-| A retreat, day out or tickets | Wix dashboard → **Events** |
+| A retreat, day out or tickets | Wix dashboard → **Events**. New events: Wix's ticket service fee is **added at checkout** (customer pays it). The events already up in Oct 2026 have it included. |
 | Shop products, prices, stock, categories | Wix dashboard → **Store Products / Categories** |
 | Photos for any of the above | Add them to the item in the dashboard; the site shows them automatically (until then it shows a dotted placeholder) |
 | Any wording on the site, the menu, email, address, About text, "Meet Saskia", reviews widget, policies | `src/content/site.ts` |
@@ -55,7 +55,8 @@ start an edit from anywhere else, and never edit only the live site.
 | `/event-confirmation` | `src/pages/event-confirmation.astro` | Thank-you page after buying tickets (keep this address) |
 | `/shop`, `/category/<cat>`, `/products/<item>` | `src/pages/shop.astro`, `category/[slug].astro`, `products/[slug].astro` | The studio shop; the cart opens as a drawer |
 | `/about`, `/contact`, `/policies` | `src/pages/*.astro` | Text from `src/content/site.ts` |
-| `/login`, `/account` | `src/pages/login.astro`, `account.astro` | Customer accounts |
+| `/login`, `/account` | `src/pages/login.astro`, `account.astro` | Customer accounts: my classes (cancel / change time where the booking policy allows), retreat & event tickets, shop orders |
+| `/api/account/overview`, `/api/account/booking` | `src/pages/api/account/*.ts` → `src/wix/account/server.ts` | Server-only: reads/changes the logged-in member's OWN data. Bookings made before signing up show only once the member's email is verified |
 
 ## Common edits (for Claude or a person)
 

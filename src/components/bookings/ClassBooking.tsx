@@ -5,6 +5,7 @@
 // afternoon / evening, then the booking form and one pink button.
 import { useEffect, useState } from "react";
 import { useBookingFlow } from "../../hooks/bookings/useBookingFlow";
+import { useMember } from "../../hooks/members/useMember";
 import type { CtaState, ServiceDetail, Slot } from "../../wix/bookings/types";
 
 const chip = (selected: boolean, disabled = false) =>
@@ -99,6 +100,20 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
     error,
   } = useBookingFlow(service);
   const [activeDay, setActiveDay] = useState<string | null>(null);
+
+  // Logged-in customers: fill in their name and email (only fields this booking form has, and
+  // only while still empty, so nothing they typed is overwritten). The booking then belongs to
+  // their account as well as their email.
+  const { member } = useMember();
+  useEffect(() => {
+    if (!member) return;
+    const known: Record<string, string> = { first_name: member.firstName, last_name: member.lastName, email: member.loginEmail };
+    for (const f of formFields) {
+      const v = known[f.target];
+      if (v && !(values[f.target] ?? "").trim()) setValue(f.target, v);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [member, formFields]);
 
   // Follow the data: land on the first day with availability, and don't strand the view on a day
   // that left when the week moved.
