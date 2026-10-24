@@ -110,8 +110,10 @@ The Wix Headless skills are installed with
 
 ### Migration status
 
-This site was moved from the Wix editor with Wix's **Headless Migration**:
-- the business data and dashboard belong to site `ee8de818-…` (Dotty Bobbin);
-- the code is released to the deploy site in `wix.config.json` as a **preview**;
-- clicking **Complete Migration** in the dashboard's Headless Settings puts this frontend live on
-  www.dottybobbin.com. **Switch back** there undoes it.
+**Completed 24 Oct 2026.** This frontend is the live site on www.dottybobbin.com (site `ee8de818-…`,
+which `wix.config.json` now names). Every `wix build` + `wix release` goes straight to the live site;
+there is no separate preview any more. Wix's **Switch back** in the dashboard's Headless Settings
+returns to the old editor site if ever needed.
+
+SimplyBook's upcoming bookings and its client list were moved into Wix the same day (see
+`migration/README.md`). SimplyBook's classes and products are hidden.
