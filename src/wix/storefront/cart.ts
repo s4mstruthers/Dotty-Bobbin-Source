@@ -178,7 +178,8 @@ export async function checkoutUrl(): Promise<string> {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const session = await redirects.createRedirectSession({
     ecomCheckout: { checkoutId: rawId(raw) },
-    callbacks: { postFlowUrl: origin ? `${origin}/` : undefined, thankYouPageUrl: origin ? `${origin}/` : undefined },
+    // Completed orders land on the thank-you page (Wix appends ?orderId=); abandoned ones go home.
+    callbacks: { postFlowUrl: origin ? `${origin}/` : undefined, thankYouPageUrl: origin ? `${origin}/order-confirmation` : undefined },
   });
   const url = session?.redirectSession?.fullUrl;
   if (!url) throw new Error("Checkout couldn't start: no redirect URL returned.");

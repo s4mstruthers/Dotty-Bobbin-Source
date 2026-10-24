@@ -52,6 +52,7 @@ start an edit from anywhere else, and never edit only the live site.
 | `/services/<class>` | `src/pages/services/[slug].astro` | One class: details, dates/times and booking |
 | `/events` (also `/retreats`) | `src/pages/events.astro` | Upcoming retreats & days out (past ones disappear automatically) |
 | `/events/<event>` | `src/pages/events/[slug].astro` | One event with ticket booking |
+| `/order-confirmation` | `src/pages/order-confirmation.astro` | Thank-you page after a shop or class-booking checkout (keep this address) |
 | `/event-confirmation` | `src/pages/event-confirmation.astro` | Thank-you page after buying tickets (keep this address) |
 | `/shop`, `/category/<cat>`, `/products/<item>` | `src/pages/shop.astro`, `category/[slug].astro`, `products/[slug].astro` | The studio shop; the cart opens as a drawer |
 | `/about`, `/contact`, `/policies` | `src/pages/*.astro` | Text from `src/content/site.ts` |
