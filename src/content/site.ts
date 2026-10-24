@@ -33,7 +33,7 @@ export const HOME = {
   kicker: "Sewing classes & retreats · Felden, Hemel Hempstead",
   heroTitleBefore: "Sewing ",
   heroTitleEmphasis: "is",
-  heroTitleAfter: " for all.",
+  heroTitleAfter: " for everyone.",
   heroText:
     "Friendly sewing classes and retreats at my home in Felden, Hemel Hempstead. Small groups, all abilities, and the kettle's always on.",
   heroButton: "Book a class",
