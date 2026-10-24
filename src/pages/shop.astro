@@ -5,6 +5,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import ShopView from "../components/storefront/ShopView";
 import { fetchProducts, fetchCategories } from "../wix/storefront/catalog";
 import type { Category, ProductSummary } from "../wix/storefront/types";
+import { SHOP_COLLECTION_NOTE } from "../content/site";
 
 let products: ProductSummary[] = [];
 let categories: Category[] = [];
@@ -20,6 +21,7 @@ try {
     <header class="mb-6 max-w-2xl">
       <h1 class="text-3xl text-sage sm:text-4xl">Studio Shop</h1>
       <p class="mt-2">A small selection of the notions and kits I use in class, so you can carry on sewing at home.</p>
+      <p class="mt-3 inline-block rounded-md bg-secondary px-4 py-2 text-sm font-semibold">{SHOP_COLLECTION_NOTE}</p>
     </header>
     <ShopView client:load initialProducts={products} initialCategories={categories} />
   </div>

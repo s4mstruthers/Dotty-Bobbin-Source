@@ -67,6 +67,9 @@ start an edit from anywhere else, and never edit only the live site.
 - **Show the phone number**: set `showPhone: true` in `BUSINESS`.
 - **Add the Payhip "Patterns" link**: uncomment the `Patterns` line in `NAV` and paste the Payhip address.
 - **Change which shop category shows on the home page**: `HOME.shopCategorySlug`.
+- **Collection-only wording** on the shop and product pages: `SHOP_COLLECTION_NOTE`. The checkout itself
+  offers only free collection (Wix dashboard → Settings → Shipping & fulfillment: region
+  "UK - collection only"; the "International" region is switched off). Turn shipping back on there, not in code.
 - **Colours**: the brand colours are tokens in `src/styles/global.css`. Hot pink (`--color-primary`) is
   for buttons only; sage is for headings and accents; pale sage for soft backgrounds.
 

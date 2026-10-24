@@ -8,6 +8,7 @@ import { imgFitAttrs } from "../../wix/media-fit";
 import type { ProductDetail } from "../../wix/storefront/types";
 import NoPhoto from "../ui/NoPhoto";
 import OptionPicker from "./OptionPicker";
+import { SHOP_COLLECTION_NOTE } from "../../content/site";
 
 export default function ProductDetailView(props: { initial?: ProductDetail | null; slug?: string }) {
   const d = useProductDetail(props);
@@ -92,6 +93,7 @@ export default function ProductDetailView(props: { initial?: ProductDetail | nul
           <div className="mt-6">
             <OptionPicker detail={d} showQuantity />
           </div>
+          <p className="mt-4 rounded-md bg-secondary px-4 py-2 text-sm font-semibold">{SHOP_COLLECTION_NOTE}</p>
 
           {p.descriptionHtml && <div className="prose-db mt-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: p.descriptionHtml }} />}
           {p.infoSections.map((s) => (

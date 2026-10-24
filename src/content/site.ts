@@ -59,6 +59,10 @@ export const HOME = {
   contactButton: "Email me",
 };
 
+/** Shown on the shop and every product page. Shop orders are collected, never posted. */
+export const SHOP_COLLECTION_NOTE =
+  "Collection only: there's no postage. Orders are collected from Felcote, Felden Lane, Hemel Hempstead HP3 0BA.";
+
 // ─── Saskia's own words ─────────────────────────────────────────────────────────────────
 // Paste her text exactly as she wrote it. One string per paragraph.
 // While a list is empty the site shows a clearly marked placeholder instead.
