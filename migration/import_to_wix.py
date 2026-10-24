@@ -92,6 +92,61 @@ def do_contacts():
     print(f"labelled {len(ids)} contacts '{key}'")
 
 
+def do_all_clients():
+    """Every client in the SimplyBook export (simplybook-clients.csv) as a Wix contact. Records that
+    share a phone number are one person: one contact, the other emails kept as additional emails.
+    SimplyBook's own test records ("temp ...") are skipped. Marketing opt-ins are NOT carried over."""
+    import csv
+    from collections import defaultdict
+    MAIN_EMAIL = {  # for shared-phone pairs: the email that stays the main one
+        "+447710194277": "frostflexsculputed@gmail.com", "+447818438990": "monikapinterova@yahoo.co.uk",
+        "+447890888823": "the_jefferies@hotmail.com", "+447753242017": "alisonsavage@live.co.uk",
+        "+447426746746": "beleuzabrambilla@gmail.com",
+    }
+    rows = csv.DictReader(open(os.path.join(HERE, "simplybook-clients.csv"), encoding="utf-8-sig"))
+    people = defaultdict(list)
+    for r in rows:
+        name, email, phone = r["Name"].strip(), r["E-mail"].strip(), r["Phone"].strip().lstrip("'")
+        if name.lower().startswith("temp "):
+            continue
+        people[phone or email].append((name, email, phone))
+    key = label_key()
+    done = LOG.setdefault("all_clients", {})
+    for pkey, recs in people.items():
+        main_email = MAIN_EMAIL.get(pkey, recs[0][1])
+        main = next(r for r in recs if r[1].lower() == main_email.lower())
+        if main[1].lower() in done:
+            continue
+        name, email, phone = main
+        first, last = split_name(name)
+        contact = {"name": {"first": first, **({"last": last} if last else {})}, "email": {"email": email}, **({"phone": {"phone": phone}} if phone else {})}
+        others = [r[1] for r in recs if r[1].lower() != email.lower()]
+        if others:
+            contact["additionalEmails"] = [{"email": e} for e in others]
+        try:
+            res = call("POST", "/contacts/v5/contacts/upsert", {"contact": contact, "upsertMode": "APPEND"})
+        except RuntimeError as e:
+            if "CANNOT_UPDATE_MEMBER" not in str(e):
+                raise
+            # Already a site member: their own record wins; nothing to import.
+            done[email.lower()] = "member"
+            save()
+            print(f"{name:<24} {email:<36} -> already a site member, left as is")
+            continue
+        c = res.get("contact") or {}
+        cid = c.get("id") or c.get("_id")
+        stored = (c.get("email") or {}).get("email", "")
+        if not cid:
+            raise RuntimeError(f"contact not stored: {json.dumps(res)[:400]}")
+        done[email.lower()] = cid
+        save()
+        print(f"{name:<24} {email:<36} -> {cid[:8]}{'' if stored.lower() == email.lower() else '  (kept existing main email ' + stored + ')'}{'  +' + ','.join(others) if others else ''}")
+    ids = sorted(set(v for v in done.values() if v != "member"))
+    for i in range(0, len(ids), 100):
+        call("POST", "/contacts/v4/bulk/contacts/add-remove-labels", {"filter": {"id": {"$in": ids[i:i + 100]}}, "labelKeysToAdd": [key]})
+    print(f"{len(ids)} contacts labelled '{key}'")
+
+
 # ── classes ──────────────────────────────────────────────────────────────────────────────
 def class_sessions():
     res = call("POST", "/_api/service-availability/v2/time-slots/event", {
@@ -228,4 +283,4 @@ def do_verify():
 
 if __name__ == "__main__":
     step = sys.argv[1]
-    {"contacts": do_contacts, "test-class": lambda: do_classes(only_first=True), "classes": do_classes, "events": do_events, "release": do_release, "verify": do_verify}[step]()
+    {"contacts": do_contacts, "all-clients": do_all_clients, "test-class": lambda: do_classes(only_first=True), "classes": do_classes, "events": do_events, "release": do_release, "verify": do_verify}[step]()

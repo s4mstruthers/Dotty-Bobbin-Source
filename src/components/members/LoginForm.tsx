@@ -80,13 +80,13 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             required
             value={code}
             onChange={(event) => setCode(event.target.value)}
-            className="mt-1 w-full rounded border border-border bg-background p-2"
+            className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
           />
         </label>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <button
           disabled={busy}
-          className="rounded bg-primary px-4 py-2 text-primary-foreground"
+          className="btn"
         >
           {busy ? "Verifying…" : "Verify"}
         </button>
@@ -118,7 +118,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             <input
               value={firstName}
               onChange={(event) => setFirstName(event.target.value)}
-              className="mt-1 w-full rounded border border-border bg-background p-2"
+              className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
             />
           </label>
           <label className="text-sm">
@@ -126,7 +126,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             <input
               value={lastName}
               onChange={(event) => setLastName(event.target.value)}
-              className="mt-1 w-full rounded border border-border bg-background p-2"
+              className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
             />
           </label>
         </div>
@@ -139,7 +139,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="mt-1 w-full rounded border border-border bg-background p-2"
+          className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
         />
       </label>
       <label className="block text-sm">
@@ -150,13 +150,13 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="mt-1 w-full rounded border border-border bg-background p-2"
+          className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
         />
       </label>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <button
         disabled={busy}
-        className="rounded bg-primary px-4 py-2 text-primary-foreground"
+        className="btn"
       >
         {busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}
       </button>
