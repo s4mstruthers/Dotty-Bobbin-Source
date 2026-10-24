@@ -24,6 +24,25 @@ Dashboard: https://manage.wix.com/dashboard/ee8de818-a542-40d2-8da5-5fc6f251a2ff
 Dashboard changes need **no release**: the site reads them live. Code or text changes in this
 project need a **build and release** (below).
 
+## How changes are made
+
+There are two kinds of change, and only one of them touches this repository.
+
+**1. Business changes: Saskia, in the Wix dashboard, no code.**
+Classes, times, prices, retreats, events, tickets, products, stock and photos are all edited in
+the Wix dashboard. The site reads them live, so they appear straight away with no release.
+
+**2. Website changes: through Sam and this repository.**
+Wording, Saskia's own text, policies, the reviews block, layout and design.
+1. Sam starts a Claude chat (in the Dotty Bobbin project) and asks for the change.
+2. Claude works from this repository (github.com/s4mstruthers/Dotty-Bobbin-Source), makes the
+   edit, builds, and releases with the Wix CLI (see *Build and release*). The CLI login must be
+   approved by a Wix account that owns or co-owns the site — currently Saskia's account.
+3. Claude commits the change here; Sam pushes it to GitHub.
+
+This repository is the master copy of the code. Wix's Code Store does not hold it, so never
+start an edit from anywhere else, and never edit only the live site.
+
 ## Pages
 
 | Address | File | Shows |
