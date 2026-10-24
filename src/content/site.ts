@@ -66,7 +66,9 @@ export const ABOUT: string[] = [];
 // ─── Reviews ────────────────────────────────────────────────────────────────────────────
 // The Google reviews widget goes here later. Paste the widget's embed code as one string.
 // While empty, the home page shows a placeholder box (only real reviews, never invented ones).
-export const REVIEWS_EMBED_HTML = "";
+export const REVIEWS_EMBED_HTML = `<!-- Elfsight Google Reviews -->
+<script src="https://elfsightcdn.com/platform.js" async></script>
+<div class="elfsight-app-b6ecb023-1545-4c68-a8f6-fe6fb833e140" data-elfsight-app-lazy></div>`;
 
 // ─── Policies ───────────────────────────────────────────────────────────────────────────
 // The footer links to /policies. One entry per policy; while empty the page says they're coming.
