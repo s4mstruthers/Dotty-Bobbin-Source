@@ -1,5 +1,5 @@
 // Slide-over cart with quantity stepper (capped at the stock left), remove, struck line prices
-// on discounted lines, per-line availability, a coupon field, a note to the merchant, the totals
+// on discounted lines, per-line availability, a coupon field, the totals
 // breakdown from the cart estimate (subtotal, named discounts, fees, taxes when prices exclude
 // them, the total before shipping), and Wix-hosted checkout. Mount ONCE per page, as-is; opens via
 // useCart().openCart() / CartButton. Styled from the @theme tokens.
@@ -19,10 +19,9 @@ function lineStatusCopy(line: CartLine): string | null {
 }
 
 export default function CartDrawer() {
-  const { cart, open, closeCart, busy, error, updateQuantity, removeLine, applyCoupon, removeCoupon, setNote, checkout } = useCart();
+  const { cart, open, closeCart, busy, error, updateQuantity, removeLine, applyCoupon, removeCoupon, checkout } = useCart();
   const [code, setCode] = useState("");
   const [codeOpen, setCodeOpen] = useState(false);
-  const [note, setNoteDraft] = useState<string | null>(null); // null = not edited: show the cart's
 
   // The overlay contract, done here rather than assumed from CSS: Escape closes (the backdrop
   // click is pointer-only), the page behind stops scrolling, focus moves into the panel on open
@@ -169,18 +168,6 @@ export default function CartDrawer() {
               ) : (
                 <button type="button" onClick={() => setCodeOpen(true)} className="self-start text-sm underline">Have a promo code?</button>
               )}
-
-              {/* Note to the merchant — saved on blur */}
-              <label className="flex flex-col gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Note to seller
-                <textarea
-                  rows={2}
-                  value={note ?? cart?.note ?? ""}
-                  onChange={(e) => setNoteDraft(e.target.value)}
-                  onBlur={() => { if (note !== null) setNote(note).then(() => setNoteDraft(null)).catch(() => {}); }}
-                  className="rounded-md border border-border bg-background px-3 py-2 text-sm normal-case tracking-normal text-foreground"
-                />
-              </label>
             </div>
           )}
         </div>
