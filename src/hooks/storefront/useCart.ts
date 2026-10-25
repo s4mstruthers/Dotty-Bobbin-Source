@@ -19,6 +19,12 @@ import type { AddToCartExtras } from "../../wix/storefront/cart";
 
 const SERVER_STATE = getCartState();
 
+// Module-scope so their identity never changes between renders: CartDrawer's overlay effect
+// depends on closeCart, and a fresh function each render re-ran it on every keystroke, moving
+// focus out of the note field, whose blur saved the note, which re-rendered — a freeze.
+const openCart = () => setCartOpen(true);
+const closeCart = () => setCartOpen(false);
+
 export interface UseCart extends CartState {
   itemCount: number;
   addToCart: (
@@ -52,8 +58,8 @@ export function useCart(): UseCart {
     removeCoupon: removeCartCoupon,
     setNote: setCartNote,
     checkout: goToCheckout,
-    openCart: () => setCartOpen(true),
-    closeCart: () => setCartOpen(false),
+    openCart,
+    closeCart,
     refresh: refreshCart,
   };
 }
