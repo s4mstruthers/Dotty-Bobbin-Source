@@ -23,6 +23,11 @@ const fullTitle = title === BUSINESS.name ? title : `${title} · ${BUSINESS.name
 const path = Astro.url.pathname;
 const isActive = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
 const year = 2026;
+// Where "Back" goes when there is no page of this site to go back to (a link from an email or
+// search): the page's parent section, else home.
+const PARENTS: Record<string, string> = { services: "/services", products: "/shop", category: "/shop", events: "/events" };
+const [, section, item] = path.split("/");
+const backHref = (item && PARENTS[section]) || "/";
 ---
 
 <!doctype html>
@@ -88,7 +93,15 @@ const year = 2026;
       </div>
     </header>
 
-    <main id="main" class:list={["flex-1", !bare && "pb-20 pt-8 sm:pt-12"]}>
+    <main id="main" class:list={["flex-1", !bare && "pb-20 pt-5 sm:pt-8"]}>
+      {path !== "/" && (
+        <div class="wrap mb-4 sm:mb-5">
+          <a href={backHref} id="back-link" class="-ml-2 inline-flex items-center gap-1 rounded-control px-2 py-1.5 text-sm font-semibold text-muted-foreground no-underline transition-colors hover:bg-secondary hover:text-sage-deep">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+            Back
+          </a>
+        </div>
+      )}
       <slot />
     </main>
 
@@ -135,6 +148,18 @@ const year = 2026;
         }
       });
       menu?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => (menu.open = false)));
+
+      // Back: the previous page when it was a page of this site, else the link's own parent page.
+      document.getElementById("back-link")?.addEventListener("click", (e) => {
+        let sameSite = false;
+        try {
+          sameSite = !!document.referrer && new URL(document.referrer).origin === location.origin;
+        } catch {}
+        if (sameSite && history.length > 1) {
+          e.preventDefault();
+          history.back();
+        }
+      });
     </script>
   </body>
 </html>
