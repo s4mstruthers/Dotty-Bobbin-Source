@@ -231,6 +231,12 @@ export default function CartDrawer() {
             >
               {busy ? "One moment…" : "Continue to secure checkout"}
             </button>
+            {/* Wix's hosted checkout can't be reworded: after Apple Pay / Google Pay it shows a review
+                page, and the card is only charged when "Place Order & Pay" is pressed there. */}
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Paying with Apple Pay or Google Pay? You'll then see a "Review and place your order" page. Tap{" "}
+              <span className="font-semibold">Place Order &amp; Pay</span> to finish. You're only charged once, at that step.
+            </p>
           </div>
         )}
       </aside>
