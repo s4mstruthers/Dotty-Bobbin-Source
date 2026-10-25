@@ -9,6 +9,8 @@ import type { AccountBooking, AccountOverview, AccountShopOrder, AccountTicketOr
 import { dateLabel, fetchAccountOverview, isPast, whenLabel } from "../../wix/account/client";
 import RescheduleBooking from "./RescheduleBooking";
 import CancelBooking from "./CancelBooking";
+import AddToCalendar from "../ui/AddToCalendar";
+import { STUDIO_ADDRESS, calendarLinks } from "../../lib/calendar";
 
 export interface AccountViewProps {
   initialMember?: CurrentMember | null;
@@ -205,8 +207,11 @@ function BookingRow({ booking: b, onChanged }: { booking: AccountBooking; onChan
             {b.status === "PENDING" ? "Waiting for Saskia to confirm" : "Confirmed"}
           </p>
         </div>
-        {mode === "idle" && (canMove || b.canCancel) && (
+        {mode === "idle" && (
           <div className="flex flex-wrap gap-2">
+            {b.serviceType !== "COURSE" && b.startIso && b.endIso && (
+              <AddToCalendar links={calendarLinks({ title: b.serviceName, startIso: b.startIso, endIso: b.endIso, location: STUDIO_ADDRESS })} />
+            )}
             {canMove && (
               <button type="button" className="link-pill" onClick={() => setMode("reschedule")}>
                 Change time

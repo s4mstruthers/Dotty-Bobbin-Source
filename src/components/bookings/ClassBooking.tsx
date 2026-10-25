@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useBookingFlow } from "../../hooks/bookings/useBookingFlow";
 import { useMember } from "../../hooks/members/useMember";
 import type { CtaState, ServiceDetail, Slot } from "../../wix/bookings/types";
+import AddToCalendar from "../ui/AddToCalendar";
+import { calendarLinks, slotCalendarEvent } from "../../lib/calendar";
 
 const chip = (selected: boolean, disabled = false) =>
   `rounded-control border-[1.5px] px-4 py-2 text-sm font-semibold transition-colors ${
@@ -98,6 +100,7 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
     booking,
     confirmed,
     error,
+    timeZone,
   } = useBookingFlow(service);
   const [activeDay, setActiveDay] = useState<string | null>(null);
 
@@ -155,6 +158,11 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
           {when}.{" "}
           {ctaState === "requestToBook" ? "You'll hear back once the request is approved." : "A confirmation email is on its way."}
         </p>
+        {!isCourse && selectedSlot && (
+          <div className="mt-5">
+            <AddToCalendar links={calendarLinks(slotCalendarEvent(service, selectedSlot, timeZone))} className="link-pill bg-background" />
+          </div>
+        )}
       </div>
     );
   }

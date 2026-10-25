@@ -7,6 +7,8 @@
 // email — never invented order details.
 import { useState } from "react";
 import { useEventConfirmation } from "../../hooks/events/useEventConfirmation";
+import AddToCalendar from "../ui/AddToCalendar";
+import { eventCalendarLinks } from "../../lib/calendar";
 
 const row = "flex justify-between gap-4 py-1";
 
@@ -31,6 +33,7 @@ export default function EventConfirmationView({ eventsHref = "/events" }: { even
   }
 
   const settled = order ? order.settled : true;
+  const calendar = event ? eventCalendarLinks(event) : null;
   return (
     <div className="mx-auto max-w-lg py-16">
       <div className="text-center">
@@ -51,16 +54,7 @@ export default function EventConfirmationView({ eventsHref = "/events" }: { even
             </a>
           )}
           {order && !order.ticketsReady && polling && <span className="self-center text-sm text-muted-foreground">Preparing your tickets…</span>}
-          {event?.addToCalendar.google && (
-            <a href={event.addToCalendar.google} target="_blank" rel="noreferrer" className="rounded-control border border-border px-6 py-2.5 text-sm font-medium text-foreground no-underline transition-colors hover:bg-secondary">
-              Add to Google Calendar
-            </a>
-          )}
-          {event?.addToCalendar.ics && (
-            <a href={event.addToCalendar.ics} className="rounded-control border border-border px-6 py-2.5 text-sm font-medium text-foreground no-underline transition-colors hover:bg-secondary">
-              iCal
-            </a>
-          )}
+          {calendar && <AddToCalendar links={calendar} className="rounded-control border border-border px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary inline-flex items-center gap-1.5" />}
         </div>
       </div>
 

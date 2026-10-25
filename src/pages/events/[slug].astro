@@ -11,6 +11,8 @@ import EventRegistrationView from "../../components/events/EventRegistrationView
 import { fetchEventBySlug, fetchOccurrences } from "../../wix/events/events";
 import type { EventSummary } from "../../wix/events/types";
 import NoPhoto from "../../components/ui/NoPhoto";
+import AddToCalendar from "../../components/ui/AddToCalendar";
+import { eventCalendarLinks } from "../../lib/calendar";
 import { imgFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
@@ -54,6 +56,8 @@ if (!event) {
   return new Response(null, { status: 404 });
 }
 
+const calendar = eventCalendarLinks(event);
+
 // Other dates of a recurring series (empty for a one-time event); guarded like every SSR read.
 let occurrences: EventSummary[] = [];
 if (event.recurringCategoryId) {
@@ -94,9 +98,7 @@ if (event.recurringCategoryId) {
         </div>
         <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
           {event.priceLabel && <span class="rounded-control bg-secondary px-3 py-1 font-bold">{event.priceLabel}</span>}
-          {event.addToCalendar?.google && (
-            <a href={event.addToCalendar.google} target="_blank" rel="noopener" class="font-semibold underline decoration-blush decoration-2 underline-offset-4">Add to Google Calendar</a>
-          )}
+          {calendar && <AddToCalendar client:visible links={calendar} align="left" className="link-pill py-1" />}
         </div>
       </section>
 

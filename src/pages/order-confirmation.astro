@@ -10,6 +10,7 @@
 // confirmation. No order details are invented: the confirmation email carries those.
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { BUSINESS } from "../content/site";
+import BookedClassCalendar from "../components/bookings/BookedClassCalendar";
 
 const address = BUSINESS.address.join(", ");
 ---
@@ -37,6 +38,7 @@ const address = BUSINESS.address.join(", ");
             Your booking is confirmed. You can see your classes, and change or cancel them where
             the booking policy allows, in <a href="/account">My account</a>.
           </p>
+          <BookedClassCalendar client:only="react" />
         </div>
       </div>
 

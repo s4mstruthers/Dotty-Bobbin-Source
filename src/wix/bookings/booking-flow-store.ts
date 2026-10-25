@@ -36,6 +36,7 @@ import {
   type BookingDay,
 } from "./booking-core";
 import type { AddOnGroup, BookingFormField, BookingResult, BookingsSettings, CourseAvailability, CtaState, ServiceDetail, Session, Slot, Weekday } from "./types";
+import { rememberBookedEvent, slotCalendarEvent } from "../../lib/calendar";
 
 export type { BookingDay };
 
@@ -395,6 +396,8 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
           depositSelected: service.deposit?.fullUpfrontAllowed ? payDeposit : undefined,
         });
         if (result.kind === "redirect") {
+          // Kept for the thank-you page the checkout returns to, which offers Add to calendar.
+          if (!isCourse && selectedSlot) rememberBookedEvent(slotCalendarEvent(service, selectedSlot, timeZone ?? requestZone ?? null));
           window.location.href = result.url;
         } else {
           confirmed = result;
