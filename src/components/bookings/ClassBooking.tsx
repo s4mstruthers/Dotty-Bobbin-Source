@@ -104,7 +104,22 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
   // Logged-in customers: fill in their name and email (only fields this booking form has, and
   // only while still empty, so nothing they typed is overwritten). The booking then belongs to
   // their account as well as their email.
-  const { member } = useMember();
+  const { member, loggedIn, loading: memberLoading } = useMember();
+  // Visitors who aren't logged in first choose: log in (and come back here) or book as a guest.
+  // The guest choice lasts for the visit, so it isn't asked again on every class page.
+  const [asGuest, setAsGuest] = useState(() => {
+    try {
+      return sessionStorage.getItem("book-as-guest") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const continueAsGuest = () => {
+    setAsGuest(true);
+    try {
+      sessionStorage.setItem("book-as-guest", "1");
+    } catch {}
+  };
   useEffect(() => {
     if (!member) return;
     const known: Record<string, string> = { first_name: member.firstName, last_name: member.lastName, email: member.loginEmail };
@@ -139,6 +154,33 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
           {service.name}
           {when}.{" "}
           {ctaState === "requestToBook" ? "You'll hear back once the request is approved." : "A confirmation email is on its way."}
+        </p>
+      </div>
+    );
+  }
+
+  if (memberLoading) {
+    return <div className="h-40 animate-pulse rounded-lg bg-secondary" aria-busy="true" />;
+  }
+
+  if (!loggedIn && !asGuest) {
+    const loginHref = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
+    return (
+      <div className="rounded-lg bg-secondary p-6 sm:p-8">
+        <p className="font-display text-xl font-bold text-sage">Already have an account?</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Log in to book — your details are filled in for you, and you can see, cancel or change your classes from your account.
+        </p>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <a href={loginHref} className="btn">
+            Log in to book
+          </a>
+          <button type="button" onClick={continueAsGuest} className="link-pill justify-center bg-background">
+            Continue as guest
+          </button>
+        </div>
+        <p className="mt-4 text-xs text-muted-foreground">
+          New here? You can <a href={loginHref} className="underline">create an account</a> from the login page, or simply book as a guest.
         </p>
       </div>
     );
