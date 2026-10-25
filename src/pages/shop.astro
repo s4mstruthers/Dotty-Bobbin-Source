@@ -23,6 +23,13 @@ try {
       <p class="mt-2">A small selection of the notions and kits I use in class, so you can carry on sewing at home.</p>
       <p class="mt-3 inline-block rounded-md bg-secondary px-4 py-2 text-sm font-semibold">{SHOP_COLLECTION_NOTE}</p>
     </header>
+    <a href="/gift-card" class="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background p-5 no-underline transition-colors hover:border-sage hover:bg-secondary">
+      <span>
+        <span class="block text-lg font-bold text-sage">Gift cards</span>
+        <span class="mt-0.5 block text-sm text-muted-foreground">Give the gift of sewing — for classes, retreats or anything in the shop. Emailed straight to them.</span>
+      </span>
+      <span class="link-pill">Buy a gift card</span>
+    </a>
     <ShopView client:load initialProducts={products} initialCategories={categories} />
   </div>
 </SiteLayout>

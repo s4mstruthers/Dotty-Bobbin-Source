@@ -14,6 +14,8 @@ export const BUSINESS = {
   showPhone: false,
   address: ["Felcote", "Felden Lane", "Hemel Hempstead", "HP3 0BA"],
   hours: "Monday to Friday, 9am – 10pm",
+  // The site's currency (Wix dashboard › Settings › Language & region). A gift card line sends it.
+  currency: "GBP",
   facebook: "https://www.facebook.com/dottybobbin1/",
   // Used for the small map on the Contact page.
   mapQuery: "Felden Lane, Hemel Hempstead HP3 0BA",

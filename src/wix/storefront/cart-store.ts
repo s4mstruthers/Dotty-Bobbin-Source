@@ -14,6 +14,8 @@ import {
   checkoutUrl,
   type AddToCartExtras,
 } from "./cart";
+import { addGiftCardToCart } from "../gift-cards/gift-card";
+import type { GiftCardProduct, GiftCardPurchase } from "../gift-cards/types";
 
 export interface CartState {
   cart: Cart | null;
@@ -71,6 +73,16 @@ export async function refreshCart(): Promise<void> {
     setState({ cart: await fetchCart() });
   } catch {
     /* no cart yet — leave the empty state */
+  }
+}
+
+/** Add a gift card (src/wix/gift-cards) to the cart and open the drawer, like addLine. */
+export async function addGiftCardLine(product: GiftCardProduct, purchase: GiftCardPurchase, currency: string): Promise<void> {
+  setState({ pendingProductId: product.id });
+  try {
+    await run(() => addGiftCardToCart(product, purchase, currency));
+  } finally {
+    setState({ pendingProductId: null, open: true });
   }
 }
 
