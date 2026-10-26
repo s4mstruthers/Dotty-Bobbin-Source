@@ -7,9 +7,15 @@ import { BUSINESS, HOME } from "../content/site";
 import { getForm } from "../wix/forms/forms";
 import type { FormDto } from "../wix/forms/types";
 // The map and directions go to the house's own pin when it's set (Google doesn't know the name
-// Felcote), else to the road and postcode. Directions use Google's documented Maps URLs.
+// Felcote), else to the road and postcode. Directions use Google's documented Maps URLs. With a
+// pin, the map is Google's "Embed a map" form (centre, ~1.2 km across, and the Dotty Bobbin
+// place marked): the simple ?q=lat,lng embed zooms past the imagery and shows a grey box.
 const mapTarget = BUSINESS.mapPin ? `${BUSINESS.mapPin.lat},${BUSINESS.mapPin.lng}` : BUSINESS.mapQuery;
-const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapTarget)}&output=embed`;
+const pin = BUSINESS.mapPin;
+const place = BUSINESS.mapPlace.id ? `!3m3!1m2!1s${encodeURIComponent(BUSINESS.mapPlace.id)}!2s${encodeURIComponent(BUSINESS.mapPlace.name)}` : "";
+const mapSrc = pin
+  ? `https://www.google.com/maps/embed?pb=!1m${place ? 18 : 14}!1m12!1m3!1d1200!2d${pin.lng}!3d${pin.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1${place}!5e0!3m2!1sen!2suk`
+  : `https://www.google.com/maps?q=${encodeURIComponent(mapTarget)}&output=embed`;
 const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapTarget)}`;
 
 // The site's own Wix form "Dotty Bobbin Studio Inquiry" (Wix dashboard > Forms). Its fields,

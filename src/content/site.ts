@@ -22,8 +22,11 @@ export const BUSINESS = {
   // Used for the small map on the Contact page and its Get directions button.
   mapQuery: "Felden Lane, Hemel Hempstead HP3 0BA",
   // The house itself, from Google Maps (press and hold on the house, copy the two numbers). Google
-  // doesn't know the name Felcote, so the pin goes here; null falls back to mapQuery.
-  mapPin: null as { lat: number; lng: number } | null,
+  // doesn't know the name Felcote, so the map centres here; null falls back to mapQuery.
+  mapPin: { lat: 51.7414768, lng: -0.4955415 } as { lat: number; lng: number } | null,
+  // Google's own "Dotty Bobbin" place at the house (the ftid in its share link), so the map marks
+  // it by name. "" leaves the map unmarked, centred on mapPin.
+  mapPlace: { id: "0x487643ab7d141aa9:0x400371f84544235d", name: "Dotty Bobbin" },
 };
 
 /** The main menu, in order. `href` is the page address. */
