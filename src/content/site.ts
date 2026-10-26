@@ -15,7 +15,9 @@ export const BUSINESS = {
   phoneIntl: "+447703854647",
   showPhone: false,
   address: ["Felcote", "Felden Lane", "Hemel Hempstead", "HP3 0BA"],
-  hours: "Monday to Friday, 9am – 10pm",
+  // Shown under the address on the Contact page. Not opening hours: Saskia isn't always in, and
+  // classes run daytime and evening. (Google's hours come from her Google Business listing, not here.)
+  hours: "By appointment: come at your class time, or get in touch first.",
   // The site's currency (Wix dashboard › Settings › Language & region). A gift card line sends it.
   currency: "GBP",
   facebook: "https://www.facebook.com/dottybobbin1/",
