@@ -76,27 +76,46 @@ function fold(line: string): string {
   return out.join("\r\n ");
 }
 
-export function icsText(e: CalendarEvent, now = new Date()): string {
-  const slug = e.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+/** One VEVENT in a feed: its own UID (stable across refreshes) and notes. */
+export interface FeedEvent extends CalendarEvent {
+  uid: string;
+  description: string;
+}
+
+function veventLines(e: FeedEvent, now: Date): string[] {
+  return [
+    "BEGIN:VEVENT",
+    `UID:${e.uid}`,
+    `DTSTAMP:${stamp(now.toISOString())}`,
+    `DTSTART:${stamp(e.startIso)}`,
+    `DTEND:${stamp(e.endIso)}`,
+    `SUMMARY:${escapeText(e.title)}`,
+    ...(e.location ? [`LOCATION:${escapeText(e.location)}`] : []),
+    `DESCRIPTION:${escapeText(e.description)}`,
+    "END:VEVENT",
+  ];
+}
+
+/** A whole calendar: `name` is what Apple Calendar calls a subscription until it's renamed. */
+export function icsCalendar(events: FeedEvent[], { name, now = new Date() }: { name?: string; now?: Date } = {}): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     `PRODID:-//${BUSINESS.name}//Website//EN`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    // Stable for the same class at the same time, so adding it twice updates rather than duplicates.
-    `UID:${stamp(e.startIso)}-${slug || "event"}@dottybobbin`,
-    `DTSTAMP:${stamp(now.toISOString())}`,
-    `DTSTART:${stamp(e.startIso)}`,
-    `DTEND:${stamp(e.endIso)}`,
-    `SUMMARY:${escapeText(e.title)}`,
-    ...(e.location ? [`LOCATION:${escapeText(e.location)}`] : []),
-    `DESCRIPTION:${escapeText(DETAILS)}`,
-    "END:VEVENT",
+    ...(name ? [`X-WR-CALNAME:${escapeText(name)}`, "REFRESH-INTERVAL;VALUE=DURATION:PT15M", "X-PUBLISHED-TTL:PT15M"] : []),
+    ...events.flatMap((e) => veventLines(e, now)),
     "END:VCALENDAR",
   ];
   return lines.map(fold).join("\r\n") + "\r\n";
+}
+
+export function icsText(e: CalendarEvent, now = new Date()): string {
+  const slug = e.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // Stable for the same class at the same time, so adding it twice updates rather than duplicates.
+  const uid = `${stamp(e.startIso)}-${slug || "event"}@dottybobbin`;
+  return icsCalendar([{ ...e, uid, description: DETAILS }], { now });
 }
 
 // ---- booking slots ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import wix from "@wix/astro";
 import wixPages from "@wix/astro-pages";
 
@@ -19,4 +19,12 @@ export default defineConfig({
   },
 
   output: "server",
+
+  env: {
+    schema: {
+      // The secret part of the studio's private bookings calendar link (/api/bookings-feed/<token>.ics).
+      // Set on Wix's servers with `wix env set`; without it the feed is switched off.
+      BOOKINGS_FEED_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
+    },
+  },
 });
