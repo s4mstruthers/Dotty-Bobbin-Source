@@ -148,8 +148,9 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
   // only while still empty, so nothing they typed is overwritten). The booking then belongs to
   // their account as well as their email.
   const { member, loggedIn, loading: memberLoading } = useMember();
-  // Visitors who aren't logged in first choose: log in (and come back here) or book as a guest.
-  // The guest choice lasts for the visit, so it isn't asked again on every class page.
+  // Times are shown to everyone; at "Your details" a visitor who isn't logged in chooses: log in
+  // (and come back here) or book as a guest. The guest choice lasts for the visit, so it isn't
+  // asked again on every class page.
   const [asGuest, setAsGuest] = useState(() => {
     try {
       return sessionStorage.getItem("book-as-guest") === "1";
@@ -220,33 +221,6 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
             <AddToCalendar links={calendarLinks(slotCalendarEvent(service, selectedSlot, timeZone))} className="link-pill bg-background" />
           </div>
         )}
-      </div>
-    );
-  }
-
-  if (memberLoading) {
-    return <div className="h-40 animate-pulse rounded-lg bg-secondary" aria-busy="true" />;
-  }
-
-  if (!loggedIn && !asGuest) {
-    const loginHref = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
-    return (
-      <div className="rounded-lg bg-secondary p-6 sm:p-8">
-        <p className="font-display text-xl font-bold text-sage">Already have an account?</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Log in to book — your details are filled in for you, and you can see, cancel or change your classes from your account.
-        </p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <a href={loginHref} className="btn">
-            Log in to book
-          </a>
-          <button type="button" onClick={continueAsGuest} className="link-pill justify-center bg-background">
-            Continue as guest
-          </button>
-        </div>
-        <p className="mt-4 text-xs text-muted-foreground">
-          New here? You can <a href={loginHref} className="underline">create an account</a> from the login page, or simply book as a guest.
-        </p>
       </div>
     );
   }
@@ -466,42 +440,66 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
         </div>
       )}
 
-      <p className={`${heading} mt-8`}>Your details</p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {formFields.map((f) => (
-          <label key={f.target} className="block">
-            <span className={heading}>{f.label}{f.required ? " *" : ""}</span>
-            {f.options?.length ? (
-              <select value={values[f.target] ?? ""} onChange={(e) => setValue(f.target, e.target.value)} className={input}>
-                <option value="">Choose…</option>
-                {f.options.map((o) => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type={f.type === "EMAIL" ? "email" : f.type === "PHONE" ? "tel" : f.type === "NUMBER" ? "number" : f.type === "URL" ? "url" : "text"}
-                value={values[f.target] ?? ""}
-                autoComplete={autoCompleteOf(f)}
-                required={f.required}
-                onChange={(e) => setValue(f.target, e.target.value)}
-                className={input}
-              />
-            )}
-          </label>
-        ))}
-      </div>
+      {memberLoading ? (
+        <div className="mt-8 h-32 animate-pulse rounded-lg bg-secondary" aria-busy="true" />
+      ) : !loggedIn && !asGuest ? (
+        <div className="mt-8 rounded-lg bg-secondary p-5 sm:p-6">
+          <p className="font-display text-xl font-bold text-sage">Already have an account?</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Log in to book — your details are filled in for you, and you can see, cancel or change your classes from your account.
+          </p>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`} className="btn">
+              Log in to book
+            </a>
+            <button type="button" onClick={continueAsGuest} className="link-pill justify-center bg-background">
+              Continue as guest
+            </button>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            New here? You can <a href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`} className="underline">create an account</a> from the login page, or simply book as a guest.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p className={`${heading} mt-8`}>Your details</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {formFields.map((f) => (
+              <label key={f.target} className="block">
+                <span className={heading}>{f.label}{f.required ? " *" : ""}</span>
+                {f.options?.length ? (
+                  <select value={values[f.target] ?? ""} onChange={(e) => setValue(f.target, e.target.value)} className={input}>
+                    <option value="">Choose…</option>
+                    {f.options.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={f.type === "EMAIL" ? "email" : f.type === "PHONE" ? "tel" : f.type === "NUMBER" ? "number" : f.type === "URL" ? "url" : "text"}
+                    value={values[f.target] ?? ""}
+                    autoComplete={autoCompleteOf(f)}
+                    required={f.required}
+                    onChange={(e) => setValue(f.target, e.target.value)}
+                    className={input}
+                  />
+                )}
+              </label>
+            ))}
+          </div>
 
-      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-      <button
-        type="button"
-        disabled={!canBook || booking}
-        onClick={() => book().catch(() => {})}
-        className="btn mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none sm:w-auto"
-      >
-        {booking ? "Booking…" : ctaLabel(service, ctaState, payDeposit)}
-      </button>
-      {bookHint && <p className="mt-2 text-sm text-muted-foreground">{bookHint}</p>}
+          {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+          <button
+            type="button"
+            disabled={!canBook || booking}
+            onClick={() => book().catch(() => {})}
+            className="btn mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none sm:w-auto"
+          >
+            {booking ? "Booking…" : ctaLabel(service, ctaState, payDeposit)}
+          </button>
+          {bookHint && <p className="mt-2 text-sm text-muted-foreground">{bookHint}</p>}
+        </>
+      )}
     </div>
   );
 }

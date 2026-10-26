@@ -1,8 +1,11 @@
 ---
 // The site chrome for every page: header (logo, menu, account, cart), footer, and the cart
 // drawer. Keep these shipped pieces when editing:
-//   - <slot name="seo-tags" /> in <head> (owner-editable SEO for item pages lands there,
-//     including the <title> — ours is printed only when that slot is empty)
+//   - <slot name="seo-tags" /> in <head> (owner-editable SEO for item pages lands there)
+//   - NO hard-coded <title>, description, canonical or social tags: Wix injects them on every
+//     page from the dashboard (SEO & GEO › SEO Settings › Main Pages; item pages via the slot),
+//     and tags of our own would compete with them. The title / description props are kept as
+//     the intended wording to enter there.
 //   - the global.css import (Tailwind + the design tokens)
 //   - one <CartButton> in the header and one <CartDrawer> per page (client:only)
 // The menu itself is in src/content/site.ts (NAV).
@@ -17,26 +20,13 @@ interface Props {
   description?: string;
   /** Pages with their own full-bleed sections (home) skip the default top padding. */
   bare?: boolean;
-  /** The picture shown when the page is shared (a path in /public or a full URL). */
-  image?: string;
-  /** Keep the page out of search results (log in, my account, not found). */
+  /** Keep the page out of search results (log in, my account, not found) — not a dashboard-owned tag. */
   noindex?: boolean;
 }
-const { title, description, bare = false, image = "/saskia-800.jpg", noindex = false } = Astro.props;
-// A title that already starts with the business name (the home page's) is used as it is.
-const fullTitle = title === BUSINESS.name || title.startsWith(`${BUSINESS.name} ·`) ? title : `${title} · ${BUSINESS.name}`;
+const { bare = false, noindex = false } = Astro.props;
 const path = Astro.url.pathname;
 const isActive = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
 const year = new Date().getFullYear();
-// Item pages bring the owner's own SEO tags (title, description, sharing, canonical) in the
-// seo-tags slot; every other page gets ours. Behind Wix's proxy the request URL is internal, so
-// the public address comes from x-wix-forwarded-url (as on the item pages).
-const ownSeo = !Astro.slots.has("seo-tags");
-const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
-const publicUrl =
-  forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol) ? new URL(forwardedUrl) : Astro.url;
-const canonical = new URL(publicUrl.pathname, publicUrl.origin).href;
-const shareImage = new URL(image, publicUrl.origin).href;
 // Where "Back" goes when there is no page of this site to go back to (a link from an email or
 // search): the page's parent section, else home.
 const PARENTS: Record<string, string> = { services: "/services", products: "/shop", category: "/shop", events: "/events" };
@@ -49,24 +39,6 @@ const backHref = (item && PARENTS[section]) || "/";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {ownSeo && (
-      <>
-        <title>{fullTitle}</title>
-        {description && <meta name="description" content={description} />}
-        <link rel="canonical" href={canonical} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content={BUSINESS.name} />
-        <meta property="og:locale" content="en_GB" />
-        <meta property="og:title" content={fullTitle} />
-        {description && <meta property="og:description" content={description} />}
-        <meta property="og:url" content={canonical} />
-        <meta property="og:image" content={shareImage} />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content={fullTitle} />
-        {description && <meta name="twitter:description" content={description} />}
-        <meta name="twitter:image" content={shareImage} />
-      </>
-    )}
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
