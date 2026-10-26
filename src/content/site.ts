@@ -19,8 +19,11 @@ export const BUSINESS = {
   // The site's currency (Wix dashboard › Settings › Language & region). A gift card line sends it.
   currency: "GBP",
   facebook: "https://www.facebook.com/dottybobbin1/",
-  // Used for the small map on the Contact page.
+  // Used for the small map on the Contact page and its Get directions button.
   mapQuery: "Felden Lane, Hemel Hempstead HP3 0BA",
+  // The house itself, from Google Maps (press and hold on the house, copy the two numbers). Google
+  // doesn't know the name Felcote, so the pin goes here; null falls back to mapQuery.
+  mapPin: null as { lat: number; lng: number } | null,
 };
 
 /** The main menu, in order. `href` is the page address. */

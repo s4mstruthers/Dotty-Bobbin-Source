@@ -6,7 +6,11 @@ import ContactForm from "../components/ContactForm";
 import { BUSINESS, HOME } from "../content/site";
 import { getForm } from "../wix/forms/forms";
 import type { FormDto } from "../wix/forms/types";
-const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(BUSINESS.mapQuery)}&output=embed`;
+// The map and directions go to the house's own pin when it's set (Google doesn't know the name
+// Felcote), else to the road and postcode. Directions use Google's documented Maps URLs.
+const mapTarget = BUSINESS.mapPin ? `${BUSINESS.mapPin.lat},${BUSINESS.mapPin.lng}` : BUSINESS.mapQuery;
+const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapTarget)}&output=embed`;
+const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapTarget)}`;
 
 // The site's own Wix form "Dotty Bobbin Studio Inquiry" (Wix dashboard > Forms). Its fields,
 // choices, button text and required marks are edited there; the page follows with no code change.
@@ -68,9 +72,13 @@ try {
         <div class="p-6 sm:p-8">
           <h2 id="where-title" class="text-2xl text-sage sm:text-3xl">Where to find me</h2>
           <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Classes and retreats are held at my home in Felden, Hemel Hempstead. Day trips meet here first.</p>
+          <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p class="font-semibold">{BUSINESS.address.slice(0, 2).join(", ")}</p>
+            <a href={directionsUrl} target="_blank" rel="noopener" class="link-pill">Get directions</a>
+          </div>
         </div>
         <iframe
-          title={`Map of ${BUSINESS.mapQuery}`}
+          title={`Map of ${BUSINESS.address.join(", ")}`}
           src={mapSrc}
           class="block min-h-72 w-full flex-1 border-0"
           loading="lazy"
