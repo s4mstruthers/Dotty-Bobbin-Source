@@ -9,13 +9,18 @@ import ClassesList from "../components/bookings/ClassesList";
 import EventCard from "../components/events/EventCard";
 import FeaturedProducts from "../components/storefront/FeaturedProducts";
 import Placeholder from "../components/Placeholder.astro";
+import GoogleReviews from "../components/GoogleReviews";
 import { fetchServices } from "../wix/bookings/services";
 import { fetchEvents } from "../wix/events/events";
 import { fetchCategoryBySlug, fetchProductsByCategory, fetchProducts } from "../wix/storefront/catalog";
 import type { ServiceSummary } from "../wix/bookings/types";
 import type { EventSummary } from "../wix/events/types";
 import type { ProductSummary } from "../wix/storefront/types";
-import { BUSINESS, HOME, MEET_SASKIA, REVIEWS_EMBED_HTML } from "../content/site";
+import { BUSINESS, HOME, MEET_SASKIA } from "../content/site";
+
+// Where "Read all our reviews on Google" goes before Google has said (a Maps search URL, from
+// Google's documented Maps URLs; the place ID pins it to the listing once it's set).
+const reviewsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${BUSINESS.name} ${BUSINESS.mapQuery}`)}${BUSINESS.googlePlaceId ? `&query_place_id=${encodeURIComponent(BUSINESS.googlePlaceId)}` : ""}`;
 
 // Each read is guarded on its own: one failing section never takes the page down.
 let services: ServiceSummary[] = [];
@@ -160,14 +165,10 @@ try {
     </div>
   </section>
 
-  <!-- Reviews (Google widget later; never invented reviews) -->
+  <!-- Google reviews, live from Google once scrolled to (never invented reviews) -->
   <section class="pb-16 sm:pb-20" aria-label="Reviews">
     <div class="wrap">
-      {REVIEWS_EMBED_HTML ? (
-        <div set:html={REVIEWS_EMBED_HTML} />
-      ) : (
-        <Placeholder title="Google reviews will appear here" note="Paste the reviews widget code into src/content/site.ts (REVIEWS_EMBED_HTML)." />
-      )}
+      <GoogleReviews client:visible title={HOME.reviewsTitle} fallbackUrl={reviewsSearchUrl} />
     </div>
   </section>
 

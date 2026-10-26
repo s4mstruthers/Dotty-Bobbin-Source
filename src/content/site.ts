@@ -29,6 +29,9 @@ export const BUSINESS = {
   // Google's own "Dotty Bobbin" place at the house (the ftid in its share link), so the map marks
   // it by name. "" leaves the map unmarked, centred on mapPin.
   mapPlace: { id: "0x487643ab7d141aa9:0x400371f84544235d", name: "Dotty Bobbin" },
+  // The same place's Google place ID (starts "ChIJ"), which the home page's Google reviews are read
+  // with. "" hides the reviews and leaves just the link to them on Google.
+  googlePlaceId: "ChIJqRoUfatDdkgRXSNERfhxA0A",
 };
 
 /** The main menu, in order. `href` is the page address. */
@@ -66,6 +69,8 @@ export const HOME = {
 
   meetTitle: "Meet Saskia",
 
+  reviewsTitle: "What people say",
+
   contactTitle: "Get in Touch",
   contactText: "Questions about a class or retreat? Send me a message and I'll get back to you.",
   contactButton: "Email me",
@@ -101,13 +106,6 @@ export const ABOUT: string[] = [
   "I have a soft spot for the old things. A vintage machine that still purrs, a length of fabric with a bit of history to it: bring them along, they’re very welcome here. But we work with today’s tools and today’s fabrics too. Patterns can go up on a projector, or be traced, or printed, whichever suits you; I offer the options and you choose. Overlockers are there to be used, not feared. The patterns I draft are built in Ellwand, pattern-drafting software my son built from the way I teach. Sewing is an old craft, and I love it for that; it’s also very much alive, and I teach it that way.",
   "Classes run from my home in Felden, Hemel Hempstead, in small groups, with the kettle on. Beginners leave their first session with something finished and a reason to come back. If you’ve got an Oma of your own in your past, or wish you had, you’re very welcome here.",
 ];
-
-// ─── Reviews ────────────────────────────────────────────────────────────────────────────
-// The Google reviews widget goes here later. Paste the widget's embed code as one string.
-// While empty, the home page shows a placeholder box (only real reviews, never invented ones).
-export const REVIEWS_EMBED_HTML = `<!-- Elfsight Google Reviews -->
-<script src="https://elfsightcdn.com/platform.js" async></script>
-<div class="elfsight-app-b6ecb023-1545-4c68-a8f6-fe6fb833e140" data-elfsight-app-lazy></div>`;
 
 // ─── Policies ───────────────────────────────────────────────────────────────────────────
 // The footer links to /policies. One entry per policy; while empty the page says they're coming.

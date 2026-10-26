@@ -25,6 +25,9 @@ export default defineConfig({
       // The secret part of the studio's private bookings calendar link (/api/bookings-feed/<token>.ics).
       // Set on Wix's servers with `wix env set`; without it the feed is switched off.
       BOOKINGS_FEED_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
+      // Google Places API (New) key for the home page's Google reviews (/api/google-reviews). Set on
+      // Wix's servers with `wix env set`; without it the section is just a link to the reviews.
+      GOOGLE_PLACES_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

@@ -14,7 +14,7 @@ Wix dashboard**. Classes, retreats/events and shop products are never typed into
 | A retreat, day out or tickets | Wix dashboard → **Events**. New events: Wix's ticket service fee is **added at checkout** (customer pays it). The events already up in Oct 2026 have it included. |
 | Shop products, prices, stock, categories | Wix dashboard → **Store Products / Categories** |
 | Photos for any of the above | Add them to the item in the dashboard; the site shows them automatically (until then it shows a dotted placeholder) |
-| Any wording on the site, the menu, email, address, About text, "Meet Saskia", reviews widget, policies | `src/content/site.ts` |
+| Any wording on the site, the menu, email, address, About text, "Meet Saskia", reviews heading and Google place ID, policies | `src/content/site.ts` |
 | Colours, fonts, rounded corners | `src/styles/global.css` (the `@theme` block) |
 | Header, footer | `src/layouts/SiteLayout.astro` |
 | Logo / favicon | `public/dotty-bobbin-logo.png`, `public/dotty-bobbin-icon.png`, `public/favicon.png` |
@@ -65,7 +65,7 @@ start an edit from anywhere else, and never edit only the live site.
 - **Reword the home page**: edit `HOME` in `src/content/site.ts`.
 - **Add Saskia's text**: paste it into `MEET_SASKIA` and `ABOUT` in `src/content/site.ts`,
   one string per paragraph, exactly as she wrote it. The dashed placeholders disappear by themselves.
-- **Google reviews**: paste the widget's embed code into `REVIEWS_EMBED_HTML`. Never write reviews by hand.
+- **Google reviews**: read live from Google (`/api/google-reviews`) with the place ID in `BUSINESS.googlePlaceId` and the `GOOGLE_PLACES_API_KEY` secret (`wix env set`). Google allows no caching, so each visitor who scrolls to them is one billed call; the key's daily quota in Google Cloud caps the cost. Never write reviews by hand.
 - **Policies**: fill `POLICIES` in `src/content/site.ts`.
 - **Show the phone number**: set `showPhone: true` in `BUSINESS`.
 - **Add the Payhip "Patterns" link**: uncomment the `Patterns` line in `NAV` and paste the Payhip address.
