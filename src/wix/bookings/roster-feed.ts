@@ -1,7 +1,9 @@
 // SERVER ONLY. Who is booked on each class: the private calendar feed the studio subscribes to in
 // Apple Calendar (served by src/pages/api/bookings-feed/[token].ics.ts). Wix's own calendar sync
 // shows the sessions but not the people, so this lists every confirmed or pending booking, grouped
-// into one calendar event per session, with each person's name, places and phone in the notes.
+// into one calendar event per session, with each person's name and places in the notes. No phone
+// numbers: Apple Calendar turns the first number in the notes into the event's "Call" button, which
+// then looks like the studio's own number.
 //
 // The booking query is a business-level call that reads every customer's details, so it is
 // elevated here and only ever reached through the token-checked route.
@@ -61,7 +63,7 @@ function personLine(b: Raw): string {
   const c: Raw = b.contactDetails ?? {};
   const name = [c.firstName, c.lastName].filter(Boolean).join(" ").trim() || c.email || "Name not given";
   const n = places(b);
-  const parts = [name, ...(n > 1 ? [`${n} places`] : []), ...(c.phone ? [c.phone] : [])];
+  const parts = [name, ...(n > 1 ? [`${n} places`] : [])];
   return `• ${parts.join(" · ")}${b.status === "PENDING" ? " (awaiting your confirmation)" : ""}`;
 }
 
