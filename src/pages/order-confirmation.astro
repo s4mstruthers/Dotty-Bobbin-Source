@@ -34,7 +34,7 @@ const address = BUSINESS.address.join(", ");
         <div class="rounded-lg bg-secondary p-5" data-panel="shop">
           <h2 class="text-lg text-sage">Bought from the shop?</h2>
           <p class="mt-2 text-sm leading-relaxed">
-            Shop orders are collected from {address}. Please call or text {`${BUSINESS.owner.split(" ")[0]} on `}<a href={`tel:${BUSINESS.phone.replace(/\s/g, "")}`}>{BUSINESS.phone}</a> to arrange a
+            Shop orders are collected from {address}. Please call or text {`${BUSINESS.owner.split(" ")[0]} on `}<a href={`tel:${BUSINESS.phoneIntl}`}>{BUSINESS.phone}</a> to arrange a
             time, or pick it up at your next class.
           </p>
         </div>

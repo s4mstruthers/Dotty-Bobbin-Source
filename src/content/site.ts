@@ -9,8 +9,10 @@ export const BUSINESS = {
   name: "Dotty Bobbin",
   owner: "Saskia Struthers",
   email: "dottybobbin@icloud.com",
-  // Left off the site on purpose. To show it, put the number here and set showPhone to true.
+  // Shown on the Contact page (call / text). `phoneIntl` is what the phone dials: +44 and the
+  // number without its leading 0. showPhone also puts it in the footer of every page.
   phone: "07703 854647",
+  phoneIntl: "+447703854647",
   showPhone: false,
   address: ["Felcote", "Felden Lane", "Hemel Hempstead", "HP3 0BA"],
   hours: "Monday to Friday, 9am – 10pm",
