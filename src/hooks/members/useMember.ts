@@ -3,6 +3,7 @@
 // member as `initialMember` (Astro island props) and no client re-fetch happens.
 import { useRef, useSyncExternalStore } from "react";
 import {
+  clearMemberError,
   getMemberState,
   hydrateMember,
   login,
@@ -34,6 +35,8 @@ export interface UseMember extends MemberState {
   /** Log out through the Wix logout flow; navigates away. */
   logout: (returnTo?: string) => Promise<void>;
   refresh: () => Promise<void>;
+  /** Forget the last error message. */
+  clearError: () => void;
 }
 
 export function useMember({ initialMember }: UseMemberOptions = {}): UseMember {
@@ -63,5 +66,6 @@ export function useMember({ initialMember }: UseMemberOptions = {}): UseMember {
     verifyEmail,
     logout,
     refresh: refreshMember,
+    clearError: clearMemberError,
   };
 }

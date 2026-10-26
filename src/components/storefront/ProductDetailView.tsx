@@ -4,7 +4,7 @@
 // Hooks first, branches after.
 import { useEffect, useState } from "react";
 import { useProductDetail } from "../../hooks/storefront/useProductDetail";
-import { imgFitAttrs } from "../../wix/media-fit";
+import { heroFitAttrs, imgFitAttrs } from "../../wix/media-fit";
 import type { ProductDetail } from "../../wix/storefront/types";
 import NoPhoto from "../ui/NoPhoto";
 import OptionPicker from "./OptionPicker";
@@ -53,15 +53,15 @@ export default function ProductDetailView(props: { initial?: ProductDetail | nul
         <div>
           <div className="aspect-[4/3] max-h-[40vh] overflow-hidden rounded-lg bg-secondary md:aspect-square md:max-h-none">
             {main ? (
-              <img {...imgFitAttrs(main, "(min-width: 768px) 50vw, 100vw")} alt={p.name} className="h-full w-full object-contain" />
+              <img {...heroFitAttrs(main, "(min-width: 768px) 50vw, 100vw")} alt={p.name} className="h-full w-full object-contain" />
             ) : (
               <NoPhoto motif="bag" />
             )}
           </div>
           {gallery.length > 1 && (
             <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-              {gallery.map((url) => (
-                <button key={url} type="button" onClick={() => setActive(url)} aria-label="Show this photo" className={`h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 ${url === main ? "border-sage" : "border-transparent"}`}>
+              {gallery.map((url, i) => (
+                <button key={url} type="button" onClick={() => setActive(url)} aria-label={`Photo ${i + 1} of ${gallery.length}`} aria-pressed={url === main} className={`h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 ${url === main ? "border-sage" : "border-transparent"}`}>
                   <img {...imgFitAttrs(url, "64px")} alt="" className="h-full w-full bg-secondary object-contain" />
                 </button>
               ))}

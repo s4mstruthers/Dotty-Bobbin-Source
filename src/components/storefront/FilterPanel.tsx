@@ -15,6 +15,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SORTS, type ShopFilters, type UseShop } from "../../hooks/storefront/useShop";
 import type { CatalogSort } from "../../wix/storefront/catalog";
+import { BUSINESS } from "../../content/site";
+import { inertOutside } from "./inert-outside";
 
 interface Draft {
   min: string;
@@ -30,6 +32,14 @@ const draftFrom = (shop: UseShop): Draft => ({
   choiceIds: shop.selectedChoiceIds,
 });
 
+/** "£5" / "£5.50" for the price chip; "…" when the bound isn't known yet. */
+function chipPrice(v: string | number | null | undefined): string {
+  const n = Number(v);
+  if (v == null || v === "" || !Number.isFinite(n)) return "…";
+  const digits = Number.isInteger(n) ? 0 : 2;
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: BUSINESS.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
+}
+
 function validPricePair(min: string, max: string): boolean {
   if (min && !Number.isFinite(Number(min))) return false;
   if (max && !Number.isFinite(Number(max))) return false;
@@ -42,19 +52,22 @@ export default function FilterPanel({ shop, children }: { shop: UseShop; childre
   const [staged, setStaged] = useState<Draft>(() => draftFrom(shop));
   const panelRef = useRef<HTMLElement>(null);
 
-  // The sheet is an overlay: root-level, scrim, scroll lock, Escape, focus in and back.
+  // The sheet is an overlay: root-level, scrim, scroll lock, the page behind inert, Escape, focus
+  // in and back.
   useEffect(() => {
     if (!sheetOpen) return;
     setStaged(draftFrom(shop));
     const opener = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const release = panelRef.current ? inertOutside(panelRef.current) : () => {};
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheetOpen(false);
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previousOverflow;
+      release();
       if (opener instanceof HTMLElement) opener.focus();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,7 +126,7 @@ export default function FilterPanel({ shop, children }: { shop: UseShop; childre
           )}
           {(shop.filters.minPrice || shop.filters.maxPrice) && (
             <button type="button" onClick={() => shop.setFilters({ ...shop.filters, minPrice: undefined, maxPrice: undefined })} className="rounded-control bg-secondary px-2.5 py-1 text-xs">
-              Price {shop.filters.minPrice ?? shop.priceRange?.min ?? "…"}–{shop.filters.maxPrice ?? shop.priceRange?.max ?? "…"} ×
+              Price {chipPrice(shop.filters.minPrice ?? shop.priceRange?.min)}–{chipPrice(shop.filters.maxPrice ?? shop.priceRange?.max)} ×
             </button>
           )}
           <button type="button" onClick={shop.clearFilters} className="text-xs text-muted-foreground underline">Clear all</button>
@@ -135,7 +148,7 @@ export default function FilterPanel({ shop, children }: { shop: UseShop; childre
             className="flex max-h-[85vh] w-full flex-col rounded-t-2xl bg-background text-foreground outline-none">
             <div className="flex items-center justify-between px-5 pt-5">
               <h2 className="text-base font-semibold">Filters</h2>
-              <button type="button" aria-label="Close filters" onClick={() => setSheetOpen(false)} className="text-xl leading-none">×</button>
+              <button type="button" aria-label="Close filters" onClick={() => setSheetOpen(false)} className="relative text-xl leading-none before:absolute before:-inset-x-4 before:-inset-y-3">×</button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
               <Groups shop={shop} draft={staged} onChange={setStaged} />

@@ -54,7 +54,9 @@ export interface ProductSummary {
    * tile (a preview, not a picker: selection happens in QuickAdd or on the PDP). [] when none.
    */
   swatches: string[];
-  /** True when the product can be added to the cart with no choices (single variant, in stock, no subscription plans). */
+  /** The product has a modifier the buyer must fill in or pick (an engraving, a size note…). */
+  hasRequiredModifiers: boolean;
+  /** True when the product can be added to the cart with no choices (single variant, in stock, no subscription plans, no required modifier). */
   quickAddable: boolean;
 }
 
@@ -260,6 +262,8 @@ export interface CartLine {
   availableQuantity: number | null;
   /** Resolved https URL ("" when none). */
   imageUrl: string;
+  /** The catalog the line comes from (`catalogReference.appId`): the Stores app, or another app such as Gift Cards. */
+  appId: string;
   /** The item's page URL when Wix returned one; "" otherwise (a headless site links by slug). */
   productUrl: string;
   /** Human-readable option/modifier labels, e.g. ["Color: Ink", "Size: M"]. */

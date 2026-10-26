@@ -7,7 +7,7 @@ import { useCart } from "../../hooks/storefront/useCart";
 import { addGiftCardLine } from "../../wix/storefront/cart-store";
 import { CUSTOM_AMOUNT_ID, purchaseProblem } from "../../wix/gift-cards/gift-card-core";
 import type { GiftCardProduct, GiftCardPurchase } from "../../wix/gift-cards/types";
-import { BUSINESS } from "../../content/site";
+import { BUSINESS, GIFT_CARD_AMOUNT_LABELS } from "../../content/site";
 
 const chip = (selected: boolean) =>
   `rounded-control border-[1.5px] px-4 py-2 text-sm font-semibold transition-colors ${
@@ -55,6 +55,7 @@ export default function GiftCardView({ product }: { product: GiftCardProduct }) 
           {product.amounts.map((a) => (
             <button key={a.id} type="button" className={chip(amountId === a.id)} aria-pressed={amountId === a.id} onClick={() => setAmountId(a.id)}>
               {a.price}
+              {GIFT_CARD_AMOUNT_LABELS[a.priceAmount] && <span className="font-normal"> · {GIFT_CARD_AMOUNT_LABELS[a.priceAmount]}</span>}
               {a.value !== a.price && <span className="ml-1 font-normal text-muted-foreground">(worth {a.value})</span>}
             </button>
           ))}
@@ -69,7 +70,11 @@ export default function GiftCardView({ product }: { product: GiftCardProduct }) 
             <span className="text-sm font-semibold">
               Your amount <span className="font-normal text-muted-foreground">({product.custom.minLabel} to {product.custom.maxLabel})</span>
             </span>
-            <input type="number" inputMode="decimal" min={product.custom.min} max={product.custom.max} step="0.01" value={customText} onChange={(e) => setCustomText(e.target.value)} className={`${input} mt-1.5 max-w-[12rem]`} />
+            <span className="relative mt-1.5 block max-w-[12rem]">
+              <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-muted-foreground">£</span>
+              <input type="number" inputMode="decimal" min={product.custom.min} max={product.custom.max} step="0.01" value={customText} onChange={(e) => setCustomText(e.target.value)}
+                className="w-full rounded-md border border-border bg-background py-2 pl-7 pr-3 text-sm text-foreground" />
+            </span>
           </label>
         )}
       </fieldset>

@@ -7,29 +7,21 @@
 // tile root that carries `relative flex flex-col` — the picker anchors to that root and takes its
 // width, and the control pins itself to the tile's bottom (mt-auto) so the action row lines up
 // across a grid row whether or not a neighbour carries swatches or a struck price. Never overlay
-// it on the image, never wrap it in a narrower positioned box.
+// it on the image, never wrap it in a narrower positioned box, and never put it inside the tile's
+// link (ProductTile keeps it beside the link): a button inside a link is invalid and navigates.
 //   <QuickAdd product={p} />   Wire as-is; style via the tokens.
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "../../hooks/storefront/useCart";
 import { useProductDetail } from "../../hooks/storefront/useProductDetail";
 import type { ProductSummary } from "../../wix/storefront/types";
 import OptionPicker from "./OptionPicker";
+import { inertOutside } from "./inert-outside";
 
+// No click-cancelling wrapper here: one used to guard against a tile that is one big <a>, but it
+// also killed this control's own links (Out of stock, Choose a plan, Customize on the product
+// page) and the picker's "Notify me" submit. Our tile keeps the control outside its link.
 export default function QuickAdd({ product }: { product: ProductSummary }) {
-  return (
-    // A tile is often one big <a>. A click inside the buy control must never become a navigation
-    // to the product page — this boundary cancels the link's default for everything below it
-    // (the button, the picker, the sheet). Still: keep the control OUTSIDE the tile's link.
-    <div
-      className="contents"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    >
-      <QuickAddControl product={product} />
-    </div>
-  );
+  return <QuickAddControl product={product} />;
 }
 
 const control = "w-full rounded-control border border-foreground py-2 text-center text-sm font-medium transition-colors hover:bg-foreground hover:text-background disabled:opacity-50";
@@ -75,7 +67,7 @@ function QuickAddControl({ product }: { product: ProductSummary }) {
   return (
     <div className="mt-auto pt-3">
       <button type="button" onClick={() => setOpen(true)} className={control}>
-        {product.optionsSummary ? "Choose options" : product.preorder ? "Pre-order" : "Add to cart"}
+        {product.optionsSummary || product.hasRequiredModifiers ? "Choose options" : product.preorder ? "Pre-order" : "Add to cart"}
       </button>
       {open && <QuickAddPicker product={product} onClose={() => setOpen(false)} />}
     </div>
@@ -87,34 +79,40 @@ function QuickAddControl({ product }: { product: ProductSummary }) {
 function QuickAddPicker({ product, onClose }: { product: ProductSummary; onClose: () => void }) {
   const d = useProductDetail({ slug: product.slug });
   const panelRef = useRef<HTMLElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
+  // Under md the picker is a bottom sheet over a scrim — a modal. On md+ it's a popover on the tile
+  // and the page around it stays usable, so it isn't marked modal there.
+  const [isSmall] = useState(() => window.matchMedia("(max-width: 767px)").matches);
 
-  // Overlay contract: Escape closes, scroll locks under md, focus moves in and back.
+  // Overlay contract: Escape closes, focus moves in and back; under md the scroll locks and the
+  // page behind goes inert (Tab stays in the sheet; the scrim stays tappable to close).
   useEffect(() => {
     const opener = document.activeElement;
-    const isSmall = window.matchMedia("(max-width: 767px)").matches;
     const previousOverflow = document.body.style.overflow;
     if (isSmall) document.body.style.overflow = "hidden";
+    const release = isSmall && panelRef.current ? inertOutside(panelRef.current, [scrimRef.current]) : () => {};
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previousOverflow;
+      release();
       if (opener instanceof HTMLElement) opener.focus();
     };
-  }, [onClose]);
+  }, [onClose, isSmall]);
 
   // Free text and plans belong on the product page.
   const needsPdp = (d.product?.modifiers ?? []).some((m) => m.type === "text") || (d.product?.subscriptions.length ?? 0) > 0;
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-foreground/40 md:hidden" onClick={onClose} />
+      <div ref={scrimRef} className="fixed inset-0 z-40 bg-foreground/40 md:hidden" onClick={onClose} />
       <section
         ref={panelRef}
         tabIndex={-1}
         role="dialog"
-        aria-modal="true"
+        aria-modal={isSmall}
         aria-label={`Choose options for ${product.name}`}
         // md+: anchored to the tile (its nearest `relative` ancestor), the tile's full width — and never
         // narrower than 18rem even when mounted inside a small wrapper.
@@ -129,7 +127,7 @@ function QuickAddPicker({ product, onClose }: { product: ProductSummary; onClose
               {d.pricePerUnit && <span className="ml-2 text-xs text-muted-foreground">{d.pricePerUnit}</span>}
             </p>
           </div>
-          <button type="button" aria-label="Close" onClick={onClose} className="text-xl leading-none text-muted-foreground">×</button>
+          <button type="button" aria-label="Close" onClick={onClose} className="relative text-xl leading-none text-muted-foreground before:absolute before:-inset-x-4 before:-inset-y-3">×</button>
         </div>
 
         {!d.product && !d.notFound && <p className="text-sm text-muted-foreground">Loading options…</p>}

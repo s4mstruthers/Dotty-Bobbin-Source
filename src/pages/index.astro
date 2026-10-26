@@ -43,7 +43,7 @@ try {
 }
 ---
 
-<SiteLayout title={BUSINESS.name} description={HOME.heroText} bare>
+<SiteLayout title={`${BUSINESS.name} · Sewing classes & retreats in Hemel Hempstead`} description={HOME.heroText} bare>
   <!-- Hero -->
   <section class="relative overflow-hidden">
     <div class="wrap grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
@@ -123,6 +123,21 @@ try {
     </section>
   )}
 
+  <!-- Gift cards -->
+  <section class="pt-16 sm:pt-20" aria-labelledby="gift-title">
+    <div class="wrap">
+      <div class="dots-pink rounded-lg p-3 sm:p-4">
+        <div class="flex flex-col gap-5 rounded-md bg-background/95 px-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+          <div class="max-w-2xl">
+            <h2 id="gift-title" class="text-2xl text-sage sm:text-3xl">Give the gift of sewing</h2>
+            <p class="mt-2">Know someone who'd love to learn? A gift card can be spent on any of my classes, retreats or anything in the studio shop.</p>
+          </div>
+          <a href="/gift-card" class="btn shrink-0 self-start sm:self-auto">Buy a gift card</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Meet Saskia (her own words only) -->
   <section class="py-16 sm:py-20" aria-labelledby="meet-title">
     <div class="wrap grid items-center gap-10 md:grid-cols-[1fr_1.4fr]">
@@ -163,7 +178,10 @@ try {
         <div class="mx-auto max-w-xl rounded-lg bg-background/95 px-6 py-10 shadow-sm sm:px-10">
           <h2 id="contact-title" class="text-3xl text-sage">{HOME.contactTitle}</h2>
           <p class="mt-3 text-lg">{HOME.contactText}</p>
-          <a href={`mailto:${BUSINESS.email}`} class="btn mt-6">{HOME.contactButton}</a>
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href={`mailto:${BUSINESS.email}`} class="btn">{HOME.contactButton}</a>
+            <button type="button" class="link-pill" data-copy={BUSINESS.email} aria-live="polite" hidden>Copy email address</button>
+          </div>
           <p class="mt-3 text-sm text-muted-foreground">{BUSINESS.email}</p>
         </div>
       </div>

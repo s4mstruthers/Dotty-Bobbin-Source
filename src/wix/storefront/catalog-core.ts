@@ -388,6 +388,8 @@ export function toSummary(raw: Raw, imgSrc: ImgSrc, mediaKey: MediaKey): Product
   const fromPrice = isRange && discounted;
   const ribbons = ribbonsOf(raw);
   const hasSubscriptions = visibleSubscriptions(raw).length > 0;
+  // Search returns `modifiers` without asking (no `fields` entry); mandatory unless it says false, as in toModifiers.
+  const hasRequiredModifiers = ((raw.modifiers ?? []) as Raw[]).some((m) => m.mandatory !== false);
   return {
     id: id(raw),
     slug: raw.slug ?? "",
@@ -417,8 +419,9 @@ export function toSummary(raw: Raw, imgSrc: ImgSrc, mediaKey: MediaKey): Product
       .flatMap((o) => (o.choicesSettings?.choices ?? []) as Raw[])
       .filter((c) => c.visible !== false && c.colorCode)
       .map((c) => String(c.colorCode)),
-    // Addable in one click: no options, plainly in stock, and no plan to choose.
-    quickAddable: options.length === 0 && availability === "IN_STOCK" && !hasSubscriptions,
+    hasRequiredModifiers,
+    // Addable in one click: no options, plainly in stock, no plan to choose, and nothing the buyer must fill in.
+    quickAddable: options.length === 0 && availability === "IN_STOCK" && !hasSubscriptions && !hasRequiredModifiers,
   };
 }
 

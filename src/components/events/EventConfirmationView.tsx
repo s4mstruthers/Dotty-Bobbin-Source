@@ -49,7 +49,7 @@ export default function EventConfirmationView({ eventsHref = "/events" }: { even
         {event?.address && <p className="mt-1 text-sm text-muted-foreground">{event.address}</p>}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           {order?.ticketsReady && order.ticketsPdfUrl && (
-            <a href={order.ticketsPdfUrl} target="_blank" rel="noreferrer" className="rounded-control bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground no-underline transition-opacity hover:opacity-90">
+            <a href={order.ticketsPdfUrl} target="_blank" rel="noreferrer" className="btn">
               Download tickets
             </a>
           )}

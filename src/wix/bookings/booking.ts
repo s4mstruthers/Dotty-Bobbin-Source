@@ -216,7 +216,9 @@ export async function bookService(
   const calc: Raw = await cart.calculateCart(cartId);
   if (checkoutRequired(service, calc)) {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const session: Raw = await redirects.createRedirectSession(checkoutRedirectRequest(cartId, origin));
+    // A checkout left part-way comes back to the class page it started from.
+    const here = typeof window !== "undefined" ? window.location.href : "";
+    const session: Raw = await redirects.createRedirectSession(checkoutRedirectRequest(cartId, origin, here));
     const url = session?.redirectSession?.fullUrl;
     if (!url) throw new Error("Checkout couldn't start — please try again.");
     return { kind: "redirect", url };

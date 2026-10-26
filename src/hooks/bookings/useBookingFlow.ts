@@ -13,6 +13,7 @@ export type UseBookingFlow = BookingFlowState &
     BookingFlowStore,
     | "nextWeek"
     | "prevWeek"
+    | "retrySlots"
     | "jumpTo"
     | "setStaffId"
     | "setSelectedSlot"
@@ -40,6 +41,7 @@ export function useBookingFlow(service: ServiceDetail): UseBookingFlow {
     ...state,
     nextWeek: store.nextWeek,
     prevWeek: store.prevWeek,
+    retrySlots: store.retrySlots,
     jumpTo: store.jumpTo,
     setStaffId: store.setStaffId,
     setSelectedSlot: store.setSelectedSlot,

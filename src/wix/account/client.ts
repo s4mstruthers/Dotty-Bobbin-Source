@@ -4,9 +4,16 @@ import type { AccountOverview, BookingActionRequest } from "./types";
 
 export const BUSINESS_TIME_ZONE = "Europe/London";
 
+/** The member's session has run out (the route answered 401): show "Log in again", not "Try again". */
+export class SessionExpiredError extends Error {
+  constructor() {
+    super("You've been logged out. Please log in again.");
+  }
+}
+
 export async function fetchAccountOverview(): Promise<AccountOverview> {
   const r = await fetch("/api/account/overview", { credentials: "same-origin", cache: "no-store" });
-  if (r.status === 401) throw new Error("Please log in again.");
+  if (r.status === 401) throw new SessionExpiredError();
   if (!r.ok) throw new Error("We couldn't load your account just now. Please try again.");
   return (await r.json()) as AccountOverview;
 }

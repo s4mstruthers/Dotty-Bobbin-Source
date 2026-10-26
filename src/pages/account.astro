@@ -4,9 +4,11 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import AccountPage from "../components/members/AccountPage";
 ---
-<SiteLayout title="My account">
-  <div class="wrap max-w-3xl">
-    <h1 class="mb-8 text-4xl text-sage">My account</h1>
-    <AccountPage client:only="react" />
+<SiteLayout title="My account" description="Your Dotty Bobbin classes, retreat tickets and shop orders in one place." noindex>
+  <div class="wrap">
+    <div class="max-w-3xl">
+      <h1 class="mb-8 text-4xl text-sage">My account</h1>
+      <AccountPage client:only="react" />
+    </div>
   </div>
 </SiteLayout>

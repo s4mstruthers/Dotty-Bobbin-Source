@@ -70,9 +70,25 @@
   a {
     color: inherit;
   }
+  /* Deep sage, not blush: the ring has to stand out (3:1) against white and pale sage. */
   :focus-visible {
-    outline: 3px solid var(--color-blush);
+    outline: 3px solid var(--color-sage-deep);
     outline-offset: 2px;
+  }
+  /* Tailwind v4 gives buttons the arrow cursor; every clickable button here shows the hand. */
+  button:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+}
+
+/* iPhone Safari zooms the page into any field under 16px; keep phone-sized fields at 16px or more.
+   Unlayered on purpose, so it wins over a smaller text-* utility on the field. */
+@media (max-width: 639.98px) {
+  input:not([type='checkbox'], [type='radio'], [type='range']),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
   }
 }
 
@@ -130,9 +146,10 @@
     font-weight: 700;
     padding: 0.8rem 1.6rem;
     text-decoration: none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   }
-  .btn:hover {
+  .btn:not(:disabled, [aria-disabled='true']):hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--color-primary) 70%, transparent);
   }
@@ -146,11 +163,22 @@
     padding: 0.55rem 1.1rem;
     font-weight: 600;
     text-decoration: none;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
   }
-  .link-pill:hover {
+  .link-pill:not(:disabled, [aria-disabled='true']):hover {
     border-color: var(--color-sage);
     background: var(--color-secondary);
+  }
+  /* Both, while they can't be used (sending, nothing picked yet): faded, no hover lift. */
+  .btn:disabled,
+  .btn[aria-disabled='true'],
+  .link-pill:disabled,
+  .link-pill[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 
   /* Rich text that came from the dashboard (product descriptions etc.). */

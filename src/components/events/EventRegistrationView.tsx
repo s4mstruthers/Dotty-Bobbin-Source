@@ -14,9 +14,10 @@ import type { EventDetail, RsvpFormControl, RsvpFormInput, TicketTier } from "..
 const input =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-primary";
 const labelText = "mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground";
-const cta =
-  "mt-5 rounded-control bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50";
-const stepper = "h-8 w-8 rounded-control border border-border text-foreground transition-colors hover:bg-secondary disabled:opacity-40";
+// The site's pink button, as on class pages.
+const cta = "btn mt-5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none";
+// 44px: big enough to tap on a phone.
+const stepper = "h-11 w-11 rounded-control border border-border text-lg text-foreground transition-colors hover:bg-secondary disabled:opacity-40";
 const badge = "rounded-control bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground";
 
 function Stepper({ label, qty, max, disabled, onChange }: { label: string; qty: number; max: number; disabled: boolean; onChange: (q: number) => void }) {
@@ -257,7 +258,7 @@ export default function EventRegistrationView({ event }: { event: EventDetail })
 
   if (event.registrationType === "EXTERNAL") {
     return (
-      <a href={event.externalUrl} className={`${cta} inline-block no-underline`} target="_blank" rel="noreferrer">
+      <a href={event.externalUrl} className={cta} target="_blank" rel="noreferrer">
         Register
       </a>
     );

@@ -137,14 +137,27 @@ export function rememberBookedEvent(e: CalendarEvent): void {
   } catch {}
 }
 
-/** The class booked just before the checkout (read once, then forgotten); null when there isn't one. */
-export function takeBookedEvent(): CalendarEvent | null {
+/** Drop a class kept for a checkout that was left, so a later shop order doesn't offer it. */
+export function forgetBookedEvent(): void {
+  try {
+    sessionStorage.removeItem(BOOKED_KEY);
+  } catch {}
+}
+
+/**
+ * The class booked just before the checkout that produced `orderId`; null when there isn't one.
+ * The first read ties the kept class to that order, so every reader on the thank-you page (its
+ * script and the Add to calendar island, which load separately) and a refresh all get it, while
+ * a later, different order doesn't.
+ */
+export function bookedEventForOrder(orderId: string): CalendarEvent | null {
   try {
     const raw = sessionStorage.getItem(BOOKED_KEY);
-    sessionStorage.removeItem(BOOKED_KEY);
     const e = raw ? JSON.parse(raw) : null;
     // A checkout takes minutes; anything older is from a checkout that was left.
-    if (!e || Date.now() - e.savedAt > 2 * 60 * 60 * 1000) return null;
+    if (!e || !orderId || Date.now() - e.savedAt > 2 * 60 * 60 * 1000) return null;
+    if (e.orderId && e.orderId !== orderId) return null;
+    if (!e.orderId) sessionStorage.setItem(BOOKED_KEY, JSON.stringify({ ...e, orderId }));
     return { title: e.title, startIso: e.startIso, endIso: e.endIso, location: e.location };
   } catch {
     return null;

@@ -32,8 +32,8 @@ export interface EventSummary {
   shortDescription: string;
   status: EventStatus;
   /**
-   * Human-formatted date/time from Wix in the event's zone, e.g. "Sep 26, 2026, 7:00 PM"; the
-   * organizer's TBD message when the date is TBD ("" only when both are missing).
+   * UK-style date/time in the event's zone, e.g. "Sat 26 Sept 2026, 7:00 – 9:00pm" (Wix's own text
+   * when there's no start to format); the organizer's TBD message when the date is TBD ("" only when both are missing).
    */
   dateLabel: string;
   /** ISO start/end instants for custom formatting/grouping ("" when the date is TBD). */
@@ -123,7 +123,7 @@ export interface TaxSettings {
 export interface EventDetail extends EventSummary {
   /** Long description as plain paragraphs (extracted from the rich content; may be empty). */
   aboutParagraphs: string[];
-  /** Wix's formatted schedule parts ("" for a TBD schedule; end parts "" when the end date is hidden). */
+  /** The schedule parts, UK style ("" for a TBD schedule; end parts "" when the end date is hidden). */
   formatted: { startDate: string; startTime: string; endDate: string; endTime: string };
   /** Full formatted street address ("" for ONLINE/TBD). */
   address: string;

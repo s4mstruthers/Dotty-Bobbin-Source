@@ -36,7 +36,8 @@ import {
   type BookingDay,
 } from "./booking-core";
 import type { AddOnGroup, BookingFormField, BookingResult, BookingsSettings, CourseAvailability, CtaState, ServiceDetail, Session, Slot, Weekday } from "./types";
-import { rememberBookedEvent, slotCalendarEvent } from "../../lib/calendar";
+import { forgetBookedEvent, rememberBookedEvent, slotCalendarEvent } from "../../lib/calendar";
+import { forgetCheckoutKinds } from "../storefront/checkout-kinds";
 
 export type { BookingDay };
 
@@ -47,6 +48,8 @@ const RESOURCE_PARAM = "resource";
 export interface BookingFlowState {
   /** Slots grouped by day, in order — [{ dayKey, dayLabel, slots }]. null while loading; [] for a COURSE (no slots). */
   days: BookingDay[] | null;
+  /** The week's times couldn't be loaded (days is [] then) — offer retrySlots(), don't say "no times". */
+  slotsFailed: boolean;
   /** The 7-day window start (a day boundary); page with nextWeek/prevWeek (prev clamps to today). */
   windowStart: Date;
   /** The next few bookable times beyond the window — what an empty week points at; null while loading, [] when none/not applicable. */
@@ -78,8 +81,10 @@ export interface BookingFlowState {
   /** Formatted extra price of the selected add-ons ("" when none). Shown, not yet booked — see INSTRUCTIONS. */
   addOnsTotal: string;
   addOnsMinutes: number;
-  /** Schema-driven form fields (never empty — contact basics fallback). */
+  /** Schema-driven form fields (never empty once loaded — contact basics fallback; [] until formLoaded). */
   formFields: BookingFormField[];
+  /** The form's fields have arrived — nothing can be booked before then. */
+  formLoaded: boolean;
   values: Record<string, string>;
   /** book / requestToBook / viewCourse — the CTA's label and the confirmed copy follow it. */
   ctaState: CtaState;
@@ -100,6 +105,8 @@ export interface BookingFlowStore {
   stop(): void;
   nextWeek(): void;
   prevWeek(): void;
+  /** Load the same week again — after slotsFailed. */
+  retrySlots(): void;
   /** Move the window to the week holding this day ("YYYY-MM-DD" — a nextAvailable slot's dayKey). */
   jumpTo(dayKey: string): void;
   setStaffId(id: string | undefined): void;
@@ -134,6 +141,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
   let windowStart = startOfDay(new Date());
   let staffId: string | undefined = readResourceParam();
   let slots: Slot[] | null = isCourse ? [] : null;
+  let slotsFailed = false;
   let nextAvailable: Slot[] | null = showsNextAvailability(service) ? null : [];
   let selectedSlot: Slot | null = null;
   let settings: BookingsSettings = { displayTimeZone: "BUSINESS", customerCanChange: false };
@@ -148,6 +156,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
   let addOnGroups: AddOnGroup[] = [];
   let addOns: AddOnSelection = {};
   let formFields: BookingFormField[] = [];
+  let formLoaded = false;
   let values: Record<string, string> = {};
   let booking = false;
   let confirmed: BookingResult | null = null;
@@ -162,7 +171,8 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
   };
 
   const ctaState = (): CtaState => ctaStateOf(service, course?.full ?? false);
-  const formComplete = () => formFields.every((f) => !f.required || (values[f.target] ?? "").trim().length > 0);
+  // Not before the form has loaded: an empty field list would pass `every` (a service may truly have none).
+  const formComplete = () => formLoaded && formFields.every((f) => !f.required || (values[f.target] ?? "").trim().length > 0);
   const zoneForBooking = () => timeZone ?? requestZone ?? undefined;
 
   function getState(): BookingFlowState {
@@ -171,6 +181,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
     const target = isCourse ? !service.course?.ended && cta !== "viewCourse" && !!service.scheduleId : !!selectedSlot?.bookable;
     snapshot = {
       days: slots === null ? null : groupSlotsByDay(slots),
+      slotsFailed,
       windowStart,
       nextAvailable,
       staffId,
@@ -191,6 +202,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
       addOnsTotal: addOnsTotal(addOnGroups, addOns),
       addOnsMinutes: addOnsDuration(addOnGroups, addOns),
       formFields,
+      formLoaded,
       values,
       ctaState: cta,
       canBook: target && formComplete() && !booking,
@@ -206,6 +218,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
     if (!started || isCourse) return;
     const id = ++generation;
     slots = null;
+    slotsFailed = false;
     selectedSlot = null;
     emit();
     fetchSlots(service, { from: windowStart, days: WINDOW_DAYS, staffId, timeZone: requestZone })
@@ -213,12 +226,14 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
         if (!started || generation !== id) return; // superseded — drop it
         slots = page.slots;
         timeZone = page.timeZone ?? requestZone ?? null;
+        error = null; // whatever went wrong before is past: the picker has fresh times
         emit();
       })
-      .catch((e) => {
+      .catch(() => {
         if (!started || generation !== id) return;
+        // A failed load isn't an empty week: the picker says so and offers to try again.
         slots = [];
-        error = e instanceof Error ? e.message : String(e);
+        slotsFailed = true;
         emit();
       });
   }
@@ -300,7 +315,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
         requestZone = resolveDisplayTimeZone(s);
         loadForZone();
       });
-      fetchBookingForm(service.formId).then((f) => { if (started) { formFields = f; emit(); } });
+      fetchBookingForm(service.formId).then((f) => { if (started) { formFields = f; formLoaded = true; emit(); } });
       if (service.hasAddOns) fetchAddOnGroups(service.id).then((g) => { if (started) { addOnGroups = g; emit(); } });
     },
     stop() {
@@ -315,6 +330,9 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
       const today = startOfDay(new Date());
       const prev = new Date(windowStart.getFullYear(), windowStart.getMonth(), windowStart.getDate() - WINDOW_DAYS);
       windowStart = prev < today ? today : prev;
+      loadSlots();
+    },
+    retrySlots() {
       loadSlots();
     },
     jumpTo(dayKey) {
@@ -396,19 +414,25 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
           depositSelected: service.deposit?.fullUpfrontAllowed ? payDeposit : undefined,
         });
         if (result.kind === "redirect") {
+          forgetCheckoutKinds(); // a cart checkout left earlier mustn't add shop panels to this one
           // Kept for the thank-you page the checkout returns to, which offers Add to calendar.
           if (!isCourse && selectedSlot) rememberBookedEvent(slotCalendarEvent(service, selectedSlot, timeZone ?? requestZone ?? null));
+          // Stay "Booking…" while the checkout loads, so a second tap can't hold another seat.
+          // Coming back with the browser's Back button restores this page as it was: free it then
+          // (and forget the class, as that checkout was left).
+          window.addEventListener("pageshow", (e) => { if (e.persisted) { forgetBookedEvent(); booking = false; emit(); } }, { once: true });
           window.location.href = result.url;
-        } else {
-          confirmed = result;
+          return result;
         }
+        confirmed = result;
+        booking = false;
+        emit();
         return result;
       } catch (e) {
         error = friendlyBookingError(e);
-        throw e;
-      } finally {
         booking = false;
         emit();
+        throw e;
       }
     },
   };

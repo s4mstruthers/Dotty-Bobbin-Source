@@ -14,6 +14,8 @@ import {
   checkoutUrl,
   type AddToCartExtras,
 } from "./cart";
+import { rememberCheckoutKinds } from "./checkout-kinds";
+import { forgetBookedEvent } from "../../lib/calendar";
 import { addGiftCardToCart } from "../gift-cards/gift-card";
 import type { GiftCardProduct, GiftCardPurchase } from "../gift-cards/types";
 
@@ -38,6 +40,9 @@ const EMPTY: CartState = { cart: null, busy: false, pendingProductId: null, erro
 let state: CartState = EMPTY;
 const listeners = new Set<() => void>();
 let loaded = false;
+// Bumped by every cart operation. A refresh that started before the latest one is stale (the first
+// load can finish after a quick add) and its cart is dropped rather than overwriting the newer one.
+let cartSeq = 0;
 
 function setState(patch: Partial<CartState>): void {
   state = { ...state, ...patch };
@@ -59,6 +64,7 @@ export function subscribeCart(listener: () => void): () => void {
 }
 
 async function run(op: () => Promise<Cart>): Promise<void> {
+  cartSeq++;
   setState({ busy: true, error: null });
   try {
     setState({ cart: await op(), busy: false });
@@ -69,8 +75,10 @@ async function run(op: () => Promise<Cart>): Promise<void> {
 }
 
 export async function refreshCart(): Promise<void> {
+  const seq = ++cartSeq;
   try {
-    setState({ cart: await fetchCart() });
+    const cart = await fetchCart();
+    if (seq === cartSeq) setState({ cart });
   } catch {
     /* no cart yet — leave the empty state */
   }
@@ -134,6 +142,9 @@ export async function goToCheckout(): Promise<void> {
   setState({ busy: true, error: null });
   try {
     const url = await checkoutUrl();
+    // For the thank-you page: which panels (shop collection, gift card) fit this order.
+    rememberCheckoutKinds(state.cart?.lines ?? []);
+    forgetBookedEvent(); // a class checkout left earlier mustn't show as booked after this one
     window.location.href = url;
   } catch (e) {
     setState({ busy: false, error: e instanceof Error ? e.message : String(e) });

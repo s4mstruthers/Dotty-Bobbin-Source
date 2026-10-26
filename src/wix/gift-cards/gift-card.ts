@@ -28,6 +28,20 @@ export async function fetchGiftCardProduct(): Promise<GiftCardProduct | null> {
   return first ? toGiftCardProduct(first) : null;
 }
 
+// The gift card's photo for its cart line (the Stores catalog doesn't hold the gift card), read
+// once per visit; a failed read is tried again next time, and shows no photo meanwhile.
+let imageRead: Promise<string> | null = null;
+export function giftCardImageUrl(): Promise<string> {
+  imageRead ??= fetchGiftCardProduct().then(
+    (p) => p?.imageUrl ?? "",
+    () => {
+      imageRead = null;
+      return "";
+    },
+  );
+  return imageRead;
+}
+
 /**
  * Add a gift card to the current cart and return the cart. Refuses an incomplete purchase with
  * buyer copy before calling Wix; a line Wix refuses (quantity 0, not IN_STOCK) throws too.

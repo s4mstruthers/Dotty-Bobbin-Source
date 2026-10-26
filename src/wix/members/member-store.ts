@@ -3,6 +3,7 @@
 // singleton is shared by every island in the page bundle, and works identically in a
 // single-root SPA. Consume it through useMember() (hooks/), or subscribe directly.
 import { fetchCurrentMember } from "./members";
+import { OUR_SIDE_ERROR, failureText } from "./auth-core";
 import {
   loggedInHint,
   loginMember,
@@ -87,15 +88,18 @@ async function runLogin(
       return result;
     }
     if (result.state === "SUCCESS") await refreshMember();
-    if (result.state === "FAILURE")
-      setState({
-        error: result.error ?? result.errorCode ?? "Could not log in.",
-      });
+    if (result.state === "FAILURE") setState({ error: failureText(result) });
     return result;
   } catch (e) {
-    setState({ error: e instanceof Error ? e.message : String(e) });
+    // A network or server fault: the raw message ("Failed to fetch") means nothing to a customer.
+    setState({ error: OUR_SIDE_ERROR });
     throw e;
   }
+}
+
+/** Clear the last error (the login form does when switching between sign in and sign up). */
+export function clearMemberError(): void {
+  if (state.error) setState({ error: null });
 }
 
 /**

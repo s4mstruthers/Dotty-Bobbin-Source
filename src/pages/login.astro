@@ -1,16 +1,17 @@
 ---
 // Log in / sign up. The shipped LoginForm does the work (it posts to the integration's own
-// /api/auth routes); this page is only the frame around it. Keep the client:only mount.
+// /api/auth routes); this page is only the frame around it. Keep the client:only mount. The form
+// brings its own heading, which follows the mode (sign in / create account / enter the code).
 import SiteLayout from "../layouts/SiteLayout.astro";
 import LoginForm from "../components/members/LoginForm";
 ---
-<SiteLayout title="Log in">
+<SiteLayout title="Log in" description="Sign in or create a Dotty Bobbin account to see your classes, retreat tickets and shop orders." noindex>
   <div class="wrap">
     <section class="mx-auto max-w-md">
       <div class="rounded-lg border border-border p-6 sm:p-8">
-        <h1 class="text-3xl text-sage">Welcome</h1>
-        <p class="mb-6 mt-2 text-muted-foreground">Log in or create an account to see your details.</p>
-        <LoginForm client:only="react" />
+        <LoginForm client:only="react">
+          <div slot="fallback" class="h-72 animate-pulse rounded-md bg-secondary" aria-busy="true"></div>
+        </LoginForm>
       </div>
     </section>
   </div>

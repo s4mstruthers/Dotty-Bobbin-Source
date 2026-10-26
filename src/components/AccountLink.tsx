@@ -1,10 +1,26 @@
 // Header account control, on the shipped useMember hook (session state lives in the shipped
 // store — never copied here). Visitor → "Log in"; member → their initial/photo linking to
 // /account (log out lives on the account page). Mount client:only="react".
+// variant="menu" is the same control as a row of the mobile menu: "Log in" or "My account".
 import { useMember } from "../hooks/members/useMember";
 
-export default function AccountLink() {
+export default function AccountLink({ variant = "header" }: { variant?: "header" | "menu" }) {
   const { member, loggedIn, loading } = useMember();
+
+  if (variant === "menu") {
+    // While the session read settles it says "My account" (which asks a visitor to log in anyway).
+    const href = loading || loggedIn ? "/account" : "/login";
+    const current = typeof window !== "undefined" && window.location.pathname === href;
+    return (
+      <a
+        href={href}
+        aria-current={current ? "page" : undefined}
+        className={`block rounded-md px-4 py-3 font-semibold no-underline ${current ? "bg-secondary text-sage-deep" : "hover:bg-secondary"}`}
+      >
+        {href === "/login" ? "Log in" : "My account"}
+      </a>
+    );
+  }
 
   // While the session read settles: a quiet placeholder, never a flash of "Log in".
   if (loading) {
@@ -15,7 +31,8 @@ export default function AccountLink() {
     return (
       <a
         href="/login"
-        className="inline-flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-semibold text-foreground no-underline transition-colors hover:text-sage-deep"
+        aria-label="Log in"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-control px-2 py-1.5 text-sm font-semibold text-foreground no-underline transition-colors hover:text-sage-deep"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
           <circle cx="12" cy="8" r="4" />
@@ -28,11 +45,11 @@ export default function AccountLink() {
 
   const name = member?.displayName ?? "My account";
   return (
-    <a href="/account" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground no-underline" title="My account">
+    <a href="/account" aria-label="My account" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground no-underline" title="My account">
       {member?.photoUrl ? (
         <img src={member.photoUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
       ) : (
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blush font-display text-sm font-bold text-primary-foreground">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blush font-display text-sm font-bold text-primary-foreground" aria-hidden="true">
           {name.slice(0, 1).toUpperCase()}
         </span>
       )}

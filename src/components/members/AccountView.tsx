@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useMember } from "../../hooks/members/useMember";
 import type { CurrentMember } from "../../wix/members/types";
 import type { AccountBooking, AccountOverview, AccountShopOrder, AccountTicketOrder } from "../../wix/account/types";
-import { dateLabel, fetchAccountOverview, isPast, whenLabel } from "../../wix/account/client";
+import { SessionExpiredError, dateLabel, fetchAccountOverview, isPast, whenLabel } from "../../wix/account/client";
 import RescheduleBooking from "./RescheduleBooking";
 import CancelBooking from "./CancelBooking";
 import AddToCalendar from "../ui/AddToCalendar";
@@ -23,11 +23,25 @@ export default function AccountView({ initialMember }: AccountViewProps) {
   const { member, loggedIn, loading, error, logout } = useMember({ initialMember });
   const [data, setData] = useState<AccountOverview | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [expired, setExpired] = useState(false);
+  // "Cancelled…" / "Moved…": shown above the list, since the changed row drops out when it reloads.
+  const [notice, setNotice] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoadError(null);
-    fetchAccountOverview().then(setData, (e: Error) => setLoadError(e.message));
+    fetchAccountOverview().then(setData, (e: Error) => {
+      setExpired(e instanceof SessionExpiredError);
+      setLoadError(e.message);
+    });
   }, []);
+
+  const changed = useCallback(
+    (message: string) => {
+      setNotice(message);
+      load();
+    },
+    [load],
+  );
 
   useEffect(() => {
     if (loggedIn) load();
@@ -64,14 +78,22 @@ export default function AccountView({ initialMember }: AccountViewProps) {
         {error && <p className="w-full text-sm text-destructive">{error}</p>}
       </section>
 
-      {loadError && (
-        <p className="rounded-md bg-blush-soft px-4 py-3 text-sm">
-          {loadError}{" "}
-          <button type="button" onClick={load} className="font-semibold underline">
-            Try again
-          </button>
-        </p>
-      )}
+      {loadError &&
+        (expired ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-blush-soft px-4 py-3 text-sm">
+            <p>{loadError}</p>
+            <a href="/login?returnTo=/account" className="btn">
+              Log in again
+            </a>
+          </div>
+        ) : (
+          <p className="rounded-md bg-blush-soft px-4 py-3 text-sm">
+            {loadError}{" "}
+            <button type="button" onClick={load} className="font-semibold underline">
+              Try again
+            </button>
+          </p>
+        ))}
       {!data && !loadError && <div className="h-48 animate-pulse rounded-lg bg-secondary" aria-busy="true" />}
 
       {data && (
@@ -93,6 +115,9 @@ export default function AccountView({ initialMember }: AccountViewProps) {
                 Book a class
               </a>
             </div>
+            <div role="status">
+              {notice && <p className="mb-3 rounded-md bg-secondary px-4 py-3 text-sm font-semibold text-sage-deep">{notice}</p>}
+            </div>
             {data.failed.includes("bookings") ? (
               <SectionError onRetry={load} />
             ) : upcoming.length === 0 ? (
@@ -100,7 +125,7 @@ export default function AccountView({ initialMember }: AccountViewProps) {
             ) : (
               <ul className="space-y-3">
                 {upcoming.map((b) => (
-                  <BookingRow key={b.id} booking={b} onChanged={load} />
+                  <BookingRow key={b.id} booking={b} onChanged={changed} />
                 ))}
               </ul>
             )}
@@ -187,14 +212,12 @@ export default function AccountView({ initialMember }: AccountViewProps) {
   );
 }
 
-function BookingRow({ booking: b, onChanged }: { booking: AccountBooking; onChanged: () => void }) {
+function BookingRow({ booking: b, onChanged }: { booking: AccountBooking; onChanged: (message: string) => void }) {
   const [mode, setMode] = useState<"idle" | "reschedule" | "cancel">("idle");
-  const [done, setDone] = useState<string | null>(null);
   const canMove = b.canReschedule && (b.serviceType === "CLASS" || b.serviceType === "APPOINTMENT");
   const finish = (message: string) => {
     setMode("idle");
-    setDone(message);
-    onChanged();
+    onChanged(message);
   };
   return (
     <li className={card}>
@@ -225,7 +248,6 @@ function BookingRow({ booking: b, onChanged }: { booking: AccountBooking; onChan
           </div>
         )}
       </div>
-      {done && <p className="mt-3 rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-sage-deep" role="status">{done}</p>}
       {mode === "reschedule" && <RescheduleBooking booking={b} onDone={() => finish("Moved. A confirmation email is on its way.")} onClose={() => setMode("idle")} />}
       {mode === "cancel" && <CancelBooking booking={b} onDone={() => finish("Cancelled. A confirmation email is on its way.")} onClose={() => setMode("idle")} />}
       {!b.canCancel && !canMove && (

@@ -65,6 +65,16 @@ export const HOME = {
 export const SHOP_COLLECTION_NOTE =
   "Collection only: there's no postage. Orders are collected from Felcote, Felden Lane, Hemel Hempstead HP3 0BA.";
 
+/**
+ * What each gift card amount buys, shown beside the amount on the gift card page ("£17.50 · 1 class").
+ * Keyed by the amount as Wix sends it ("17.5", not "17.50"). An amount not listed shows its price only.
+ */
+export const GIFT_CARD_AMOUNT_LABELS: Record<string, string> = {
+  "17.5": "1 class",
+  "35": "2 classes",
+  "70": "4 classes",
+};
+
 // ─── Saskia's own words ─────────────────────────────────────────────────────────────────
 // Paste her text exactly as she wrote it. One string per paragraph.
 // While a list is empty the site shows a clearly marked placeholder instead.

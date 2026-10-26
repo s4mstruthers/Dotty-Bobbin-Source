@@ -17,12 +17,26 @@ interface Props {
   description?: string;
   /** Pages with their own full-bleed sections (home) skip the default top padding. */
   bare?: boolean;
+  /** The picture shown when the page is shared (a path in /public or a full URL). */
+  image?: string;
+  /** Keep the page out of search results (log in, my account, not found). */
+  noindex?: boolean;
 }
-const { title, description, bare = false } = Astro.props;
-const fullTitle = title === BUSINESS.name ? title : `${title} · ${BUSINESS.name}`;
+const { title, description, bare = false, image = "/saskia-800.jpg", noindex = false } = Astro.props;
+// A title that already starts with the business name (the home page's) is used as it is.
+const fullTitle = title === BUSINESS.name || title.startsWith(`${BUSINESS.name} ·`) ? title : `${title} · ${BUSINESS.name}`;
 const path = Astro.url.pathname;
 const isActive = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
-const year = 2026;
+const year = new Date().getFullYear();
+// Item pages bring the owner's own SEO tags (title, description, sharing, canonical) in the
+// seo-tags slot; every other page gets ours. Behind Wix's proxy the request URL is internal, so
+// the public address comes from x-wix-forwarded-url (as on the item pages).
+const ownSeo = !Astro.slots.has("seo-tags");
+const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
+const publicUrl =
+  forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol) ? new URL(forwardedUrl) : Astro.url;
+const canonical = new URL(publicUrl.pathname, publicUrl.origin).href;
+const shareImage = new URL(image, publicUrl.origin).href;
 // Where "Back" goes when there is no page of this site to go back to (a link from an email or
 // search): the page's parent section, else home.
 const PARENTS: Record<string, string> = { services: "/services", products: "/shop", category: "/shop", events: "/events" };
@@ -35,8 +49,25 @@ const backHref = (item && PARENTS[section]) || "/";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {!Astro.slots.has("seo-tags") && <title>{fullTitle}</title>}
-    {description && <meta name="description" content={description} />}
+    {ownSeo && (
+      <>
+        <title>{fullTitle}</title>
+        {description && <meta name="description" content={description} />}
+        <link rel="canonical" href={canonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={BUSINESS.name} />
+        <meta property="og:locale" content="en_GB" />
+        <meta property="og:title" content={fullTitle} />
+        {description && <meta property="og:description" content={description} />}
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={shareImage} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={fullTitle} />
+        {description && <meta name="twitter:description" content={description} />}
+        <meta name="twitter:image" content={shareImage} />
+      </>
+    )}
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#ffffff" />
@@ -51,13 +82,13 @@ const backHref = (item && PARENTS[section]) || "/";
           <img src="/dotty-bobbin-logo.png" alt={BUSINESS.name} width="698" height="175" class="h-11 w-auto sm:h-14" />
         </a>
 
-        <nav class="hidden items-center gap-1 lg:flex" aria-label="Main">
+        <nav class="hidden items-center gap-0.5 lg:flex xl:gap-1" aria-label="Main">
           {NAV.map((item) => (
             <a
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
               class:list={[
-                "rounded-control px-3.5 py-2 text-[15px] font-semibold no-underline transition-colors",
+                "whitespace-nowrap rounded-control px-2.5 py-2 text-sm font-semibold no-underline transition-colors xl:px-3.5 xl:text-[15px]",
                 isActive(item.href) ? "bg-secondary text-sage-deep" : "text-foreground hover:bg-secondary",
               ]}
             >
@@ -66,7 +97,7 @@ const backHref = (item && PARENTS[section]) || "/";
           ))}
         </nav>
 
-        <div class="flex items-center gap-1 sm:gap-2">
+        <div class="flex shrink-0 items-center gap-1 sm:gap-2">
           <AccountLink client:only="react" />
           <CartButton client:only="react" />
           <details class="group relative lg:hidden" id="mobile-menu">
@@ -87,6 +118,16 @@ const backHref = (item && PARENTS[section]) || "/";
                   {item.label}
                 </a>
               ))}
+              <a
+                href="/gift-card"
+                aria-current={isActive("/gift-card") ? "page" : undefined}
+                class:list={["block rounded-md px-4 py-3 font-semibold no-underline", isActive("/gift-card") ? "bg-secondary text-sage-deep" : "hover:bg-secondary"]}
+              >
+                Gift cards
+              </a>
+              <div class="mt-1 border-t border-border pt-1">
+                <AccountLink client:only="react" variant="menu" />
+              </div>
             </nav>
           </details>
         </div>
@@ -124,6 +165,7 @@ const backHref = (item && PARENTS[section]) || "/";
           <p class="eyebrow">Menu</p>
           <ul class="mt-3 space-y-1.5 text-sm">
             {NAV.map((item) => <li><a href={item.href} class="no-underline hover:underline">{item.label}</a></li>)}
+            <li><a href="/gift-card" class="no-underline hover:underline">Gift cards</a></li>
             <li><a href="/account" class="no-underline hover:underline">My account</a></li>
           </ul>
         </div>
@@ -139,7 +181,8 @@ const backHref = (item && PARENTS[section]) || "/";
     <CartDrawer client:only="react" />
 
     <script>
-      // Close the mobile menu on Escape or after picking a link.
+      // Close the mobile menu on Escape, a tap outside it, or after picking a link (delegated: the
+      // account link is an island that renders after this runs).
       const menu = document.getElementById("mobile-menu") as HTMLDetailsElement | null;
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && menu?.open) {
@@ -147,7 +190,31 @@ const backHref = (item && PARENTS[section]) || "/";
           menu.querySelector("summary")?.focus();
         }
       });
-      menu?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => (menu.open = false)));
+      document.addEventListener("click", (e) => {
+        if (menu?.open && e.target instanceof Node && !menu.contains(e.target)) menu.open = false;
+      });
+      menu?.addEventListener("click", (e) => {
+        if (e.target instanceof Element && e.target.closest("nav a")) menu.open = false;
+      });
+
+      // "Copy email address" buttons (data-copy="…"): hidden until the browser can copy, then
+      // copy and say "Copied" for a moment. Without it the mailto link and the printed address remain.
+      document.querySelectorAll<HTMLButtonElement>("button[data-copy]").forEach((btn) => {
+        if (!navigator.clipboard?.writeText) return;
+        const label = btn.textContent;
+        let timer: number | undefined;
+        btn.hidden = false;
+        btn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+            btn.textContent = "Copied";
+          } catch {
+            btn.textContent = "Couldn't copy";
+          }
+          clearTimeout(timer);
+          timer = window.setTimeout(() => (btn.textContent = label), 2000);
+        });
+      });
 
       // Back: the previous page when it was a page of this site, else the link's own parent page.
       document.getElementById("back-link")?.addEventListener("click", (e) => {

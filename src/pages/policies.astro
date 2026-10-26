@@ -4,20 +4,22 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import Placeholder from "../components/Placeholder.astro";
 import { POLICIES } from "../content/site";
 ---
-<SiteLayout title="Terms & Conditions">
-  <div class="wrap max-w-3xl">
-    <h1 class="text-4xl text-sage">Terms &amp; Conditions</h1>
-    {POLICIES.length > 0 ? (
-      POLICIES.map((p) => (
-        <section class="mt-10">
-          <h2 class="text-xl text-sage sm:text-2xl">{p.title}</h2>
-          <div class="mt-3 space-y-3 leading-relaxed">{p.paragraphs.map((t) => <p>{t}</p>)}</div>
-        </section>
-      ))
-    ) : (
-      <div class="mt-8">
-        <Placeholder title="Policies coming soon" note="Booking, cancellation, privacy and shop policies go in src/content/site.ts (POLICIES)." />
-      </div>
-    )}
+<SiteLayout title="Terms & Conditions" description="Dotty Bobbin's terms and conditions: booking and payment, cancellations and rescheduling, and what to know before your sewing class.">
+  <div class="wrap">
+    <div class="max-w-3xl">
+      <h1 class="text-4xl text-sage">Terms &amp; Conditions</h1>
+      {POLICIES.length > 0 ? (
+        POLICIES.map((p) => (
+          <section class="mt-10">
+            <h2 class="text-xl text-sage sm:text-2xl">{p.title}</h2>
+            <div class="mt-3 space-y-3 leading-relaxed">{p.paragraphs.map((t) => <p>{t}</p>)}</div>
+          </section>
+        ))
+      ) : (
+        <div class="mt-8">
+          <Placeholder title="Policies coming soon" note="Booking, cancellation, privacy and shop policies go in src/content/site.ts (POLICIES)." />
+        </div>
+      )}
+    </div>
   </div>
 </SiteLayout>

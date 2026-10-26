@@ -13,7 +13,7 @@ import type { EventSummary } from "../../wix/events/types";
 import NoPhoto from "../../components/ui/NoPhoto";
 import AddToCalendar from "../../components/ui/AddToCalendar";
 import { eventCalendarLinks } from "../../lib/calendar";
-import { imgFitAttrs } from "../../wix/media-fit";
+import { heroFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
 import { loadSEOTagsServiceConfig } from "@wix/seo/services";
@@ -84,7 +84,7 @@ if (event.recurringCategoryId) {
         <div class:list={[!event.imageUrl && "hidden lg:block", "max-h-[38vh] overflow-hidden rounded-lg lg:max-h-none"]}>
           <div class="aspect-[16/9] lg:aspect-[3/2]">
             {event.imageUrl ? (
-              <img {...imgFitAttrs(event.imageUrl, "(min-width: 1024px) 58vw, 100vw")} alt={event.title} class="h-full w-full object-cover object-[50%_25%]" />
+              <img {...heroFitAttrs(event.imageUrl, "(min-width: 1024px) 58vw, 100vw")} alt={event.title} class="h-full w-full object-cover object-[50%_25%]" />
             ) : (
               <NoPhoto motif="calendar" tone="pink" />
             )}

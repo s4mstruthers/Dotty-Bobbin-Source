@@ -7,7 +7,7 @@ export default function CartButton() {
   return (
     <button
       type="button"
-      aria-label={`Cart, ${itemCount} items`}
+      aria-label={`Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
       onClick={openCart}
       className="relative inline-flex items-center p-1.5 text-foreground transition-opacity hover:opacity-70"
     >

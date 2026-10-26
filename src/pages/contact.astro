@@ -18,7 +18,10 @@ const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(BUSINESS.mapQ
         <div class="rounded-lg bg-secondary p-6 sm:p-8">
           <h2 class="text-xl text-sage">Email</h2>
           <p class="mt-1 break-words text-lg font-semibold">{BUSINESS.email}</p>
-          <a href={`mailto:${BUSINESS.email}`} class="btn mt-4">{HOME.contactButton}</a>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <a href={`mailto:${BUSINESS.email}`} class="btn">{HOME.contactButton}</a>
+            <button type="button" class="link-pill bg-background" data-copy={BUSINESS.email} aria-live="polite" hidden>Copy email address</button>
+          </div>
           {BUSINESS.showPhone && <p class="mt-4">Phone: {BUSINESS.phone}</p>}
         </div>
         <div class="rounded-lg border border-border p-6 sm:p-8">

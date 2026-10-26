@@ -648,11 +648,12 @@ export function checkoutRequired(service: Pick<ServiceDetail, "cancellationFeeEn
 }
 
 /** The Create Redirect Session body for a cart's checkout; the cart id IS the checkout id. */
-export function checkoutRedirectRequest(cartId: string, origin: string): Raw {
-  // Completed bookings land on /order-confirmation (Wix appends ?orderId=); abandoned ones go home.
+export function checkoutRedirectRequest(cartId: string, origin: string, returnUrl = origin ? `${origin}/` : ""): Raw {
+  // Completed bookings land on /order-confirmation (Wix appends ?orderId=); abandoned ones go back
+  // to `returnUrl` — the page they booked from (home when the caller doesn't say).
   return {
     ecomCheckout: { checkoutId: cartId },
-    callbacks: origin ? { postFlowUrl: `${origin}/`, thankYouPageUrl: `${origin}/order-confirmation` } : {},
+    callbacks: origin ? { postFlowUrl: returnUrl || `${origin}/`, thankYouPageUrl: `${origin}/order-confirmation` } : {},
   };
 }
 

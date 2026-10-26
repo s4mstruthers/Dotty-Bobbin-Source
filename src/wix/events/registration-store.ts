@@ -155,17 +155,24 @@ export function createRegistrationStore(event: EventDetail, { paths }: Registrat
     try {
       const result = await op();
       if (result.kind === "redirect") {
-        if (typeof window !== "undefined") window.location.href = result.url;
+        if (typeof window !== "undefined") {
+          // Stay "Reserving…" while the checkout loads, so a second tap can't hold more tickets.
+          // Coming back with the browser's Back button restores this page as it was: free it then.
+          window.addEventListener("pageshow", (e) => { if (e.persisted) { submitting = false; emit(); } }, { once: true });
+          window.location.href = result.url;
+          return result;
+        }
       } else {
         confirmed = result;
       }
+      submitting = false;
+      emit();
       return result;
     } catch (e) {
       error = errorMessage(e);
-      throw e;
-    } finally {
       submitting = false;
       emit();
+      throw e;
     }
   }
 
@@ -183,6 +190,12 @@ export function createRegistrationStore(event: EventDetail, { paths }: Registrat
         .then((t) => {
           if (!started) return;
           tiers = t;
+          // One kind of ticket: start at 1, so "Get tickets" works straight away.
+          const only = t.length === 1 ? t[0] : null;
+          if (only && only.available && only.pricingType !== "OPTIONS" && !Object.keys(quantities).length) {
+            const q = Math.min(clampQuantity(only, 1), event.ticketLimitPerOrder);
+            if (q > 0) quantities = { [selectionKey(only.id)]: q };
+          }
           emit();
         })
         .catch((e) => {

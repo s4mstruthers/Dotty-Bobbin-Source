@@ -1,0 +1,27 @@
+---
+// Not found: any address the site doesn't have. Astro also shows this page when an item page
+// (a class, event, product or category that has gone) answers `new Response(null, { status: 404 })`.
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+const LINKS = [
+  { label: "Classes", href: "/services" },
+  { label: "Retreats & Events", href: "/events" },
+  { label: "Shop", href: "/shop" },
+];
+---
+<SiteLayout title="Page not found" description="Sorry, that page couldn't be found." noindex>
+  <div class="wrap">
+    <div class="max-w-2xl py-6 sm:py-10">
+      <p class="eyebrow">Page not found</p>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">Sorry, that page has come unstitched</h1>
+      <p class="mt-4 text-lg">
+        The link may be old, or the class or retreat may have finished. Try one of these instead, or
+        <a href="/contact" class="font-semibold underline decoration-blush decoration-2 underline-offset-4">get in touch</a> and I'll help you find what you were after.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/" class="btn">Home</a>
+        {LINKS.map((l) => <a href={l.href} class="link-pill">{l.label}</a>)}
+      </div>
+    </div>
+  </div>
+</SiteLayout>

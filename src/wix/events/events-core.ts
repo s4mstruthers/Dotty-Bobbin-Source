@@ -143,6 +143,40 @@ export function formatInZone(value: unknown, timeZoneId: string | null | undefin
   }
 }
 
+/** A moment's UK-style parts in the event's zone: day "Sat 21 Nov 2026", time "9:00" + period "am". Null when unusable. */
+function ukParts(iso: string, timeZoneId: string): { date: string; dateNoYear: string; year: string; time: string; period: string } | null {
+  if (!iso) return null;
+  const opts: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true };
+  let parts: Intl.DateTimeFormatPart[];
+  try {
+    parts = new Intl.DateTimeFormat("en-GB", timeZoneId ? { ...opts, timeZone: timeZoneId } : opts).formatToParts(new Date(iso));
+  } catch {
+    parts = new Intl.DateTimeFormat("en-GB", opts).formatToParts(new Date(iso));
+  }
+  const p = Object.fromEntries(parts.map((x) => [x.type, x.value]));
+  if (!p.weekday || !p.day || !p.month || !p.year || !p.hour) return null;
+  const dateNoYear = `${p.weekday} ${p.day} ${p.month}`;
+  return { date: `${dateNoYear} ${p.year}`, dateNoYear, year: p.year, time: `${p.hour}:${p.minute}`, period: (p.dayPeriod ?? "").toLowerCase().replace(/\./g, "") };
+}
+
+/**
+ * The schedule in UK style, in the event's zone: "Sat 21 Nov 2026, 9:00am – Sun 22 Nov, 5:00pm";
+ * a same-day event "Mon 9 Nov 2026, 8:00 – 11:00am". Only the start when the organizer hides the
+ * end. "" when the start can't be formatted (the caller keeps Wix's text).
+ */
+export function ukSchedule(startIso: string, endIso: string, timeZoneId: string, hideEndDate: boolean): { label: string; startDate: string; startTime: string; endDate: string; endTime: string } {
+  const s = ukParts(startIso, timeZoneId);
+  if (!s) return { label: "", startDate: "", startTime: "", endDate: "", endTime: "" };
+  const startTime = `${s.time}${s.period}`;
+  const e = hideEndDate ? null : ukParts(endIso, timeZoneId);
+  if (!e) return { label: `${s.date}, ${startTime}`, startDate: s.date, startTime, endDate: "", endTime: "" };
+  const endTime = `${e.time}${e.period}`;
+  let label: string;
+  if (e.date === s.date) label = `${s.date}, ${e.period === s.period ? s.time : startTime} – ${endTime}`;
+  else label = `${s.date}, ${startTime} – ${e.year === s.year ? e.dateNoYear : e.date}, ${endTime}`;
+  return { label, startDate: s.date, startTime, endDate: e.date, endTime };
+}
+
 /** "From €45" (ticketed), "Free" (RSVP / free tickets), "" when nothing applies. */
 export function lowestPriceLabel(reg: Raw): string {
   const type = reg.type ?? reg.initialType;
@@ -215,16 +249,20 @@ export function toSummary(raw: Raw, imgSrc: ImgSrc): EventSummary {
   const dts: Raw = raw.dateAndTimeSettings ?? {};
   const dateTbd = dts.dateAndTimeTbd === true;
   const registrationType = (reg.type ?? reg.initialType ?? "NONE") as RegistrationType;
+  const startDateIso = dateTbd ? "" : isoOf(dts.startDate);
+  const endDateIso = dateTbd ? "" : isoOf(dts.endDate);
+  // UK style from the instants ("Sat 21 Nov 2026, 9:00am"); Wix's own text (US style) only when there's nothing to format.
+  const uk = ukSchedule(startDateIso, endDateIso, dts.timeZoneId ?? "", dts.hideEndDate === true).label;
   return {
     id: rawId(raw), // _id on the SDK, id on REST — never a bare .id on the SDK (undefined there)
     slug: raw.slug ?? "",
     title: raw.title ?? "",
     shortDescription: raw.shortDescription ?? "",
     status: (raw.status ?? "UPCOMING") as EventStatus,
-    // Wix's server-formatted schedule (site locale, event zone); the organizer's TBD message when there is no date.
-    dateLabel: dateTbd ? dts.dateAndTimeTbdMessage || dts.formatted?.dateAndTime || "" : (dts.formatted?.dateAndTime ?? ""),
-    startDateIso: dateTbd ? "" : isoOf(dts.startDate),
-    endDateIso: dateTbd ? "" : isoOf(dts.endDate),
+    // The organizer's TBD message when there is no date.
+    dateLabel: dateTbd ? dts.dateAndTimeTbdMessage || dts.formatted?.dateAndTime || "" : uk || (dts.formatted?.dateAndTime ?? ""),
+    startDateIso,
+    endDateIso,
     timeZoneId: dts.timeZoneId ?? "",
     dateTbd,
     dateTbdMessage: dts.dateAndTimeTbdMessage ?? "",
@@ -345,16 +383,20 @@ export function toDetail(raw: Raw, imgSrc: ImgSrc): EventDetail {
   const paused = reg.registrationPaused === true || reg.registrationDisabled === true;
   const opensAt = status === "SCHEDULED_RSVP" ? isoOf(reg.rsvp?.startDate) : "";
   const formatted: Raw = raw.dateAndTimeSettings?.formatted ?? {};
+  const uk = ukSchedule(summary.startDateIso, summary.endDateIso, summary.timeZoneId, summary.hideEndDate);
   const limit = Number(reg.tickets?.ticketLimitPerOrder);
   return {
     ...summary,
     aboutParagraphs: toParagraphs(raw.description, raw.detailedDescription),
-    formatted: {
-      startDate: formatted.startDate ?? "",
-      startTime: formatted.startTime ?? "",
-      endDate: formatted.endDate ?? "",
-      endTime: formatted.endTime ?? "",
-    },
+    // UK style when there's a date to format; Wix's parts otherwise.
+    formatted: uk.label
+      ? { startDate: uk.startDate, startTime: uk.startTime, endDate: uk.endDate, endTime: uk.endTime }
+      : {
+          startDate: formatted.startDate ?? "",
+          startTime: formatted.startTime ?? "",
+          endDate: formatted.endDate ?? "",
+          endTime: formatted.endTime ?? "",
+        },
     address: summary.locationType === "VENUE" ? formattedAddress(raw.location?.address) : "",
     coordinates: summary.locationType === "VENUE" ? coordinatesOf(raw.location?.address) : null,
     registrationStatus: status,

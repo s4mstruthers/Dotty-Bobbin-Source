@@ -8,6 +8,11 @@
 // Landing here with an orderId IS the success signal (Wix only uses this URL after the order
 // completes). Without one (a direct visit) the page says so plainly; it never shows a fake
 // confirmation. No order details are invented: the confirmation email carries those.
+//
+// Which panels show: the cart's checkout keeps what kinds of item it sent (src/wix/storefront/
+// checkout-kinds.ts) and a class booking keeps the class (src/lib/calendar.ts); only the matching
+// panels show, and all of them when nothing was kept. Both sections stay hidden until the script
+// has decided, so neither flashes.
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { BUSINESS } from "../content/site";
 import BookedClassCalendar from "../components/bookings/BookedClassCalendar";
@@ -20,27 +25,27 @@ const address = BUSINESS.address.join(", ");
     <section id="order-confirmed" class="py-10 text-center" hidden>
       <p class="eyebrow">Order confirmed</p>
       <h1 class="mt-2 text-4xl text-sage">Thank you!</h1>
+      <BookedClassCalendar client:only="react" />
       <p class="mt-4 leading-relaxed">
         Your order has been placed and a confirmation email is on its way to you.
       </p>
 
       <div class="mt-10 grid gap-4 text-left sm:grid-cols-2">
-        <div class="rounded-lg bg-secondary p-5">
+        <div class="rounded-lg bg-secondary p-5" data-panel="shop">
           <h2 class="text-lg text-sage">Bought from the shop?</h2>
           <p class="mt-2 text-sm leading-relaxed">
             Shop orders are collected from {address}. Please call or text {`${BUSINESS.owner.split(" ")[0]} on `}<a href={`tel:${BUSINESS.phone.replace(/\s/g, "")}`}>{BUSINESS.phone}</a> to arrange a
             time, or pick it up at your next class.
           </p>
         </div>
-        <div class="rounded-lg bg-secondary p-5">
+        <div class="rounded-lg bg-secondary p-5" data-panel="class">
           <h2 class="text-lg text-sage">Booked a class?</h2>
           <p class="mt-2 text-sm leading-relaxed">
             Your booking is confirmed. You can see your classes, and change or cancel them where
             the booking policy allows, in <a href="/account">My account</a>.
           </p>
-          <BookedClassCalendar client:only="react" />
         </div>
-        <div class="rounded-lg bg-secondary p-5 sm:col-span-2">
+        <div class="rounded-lg bg-secondary p-5" data-panel="gift">
           <h2 class="text-lg text-sage">Bought a gift card?</h2>
           <p class="mt-2 text-sm leading-relaxed">
             The gift card code is on its way by email — to the person you chose, or to you. It's entered at checkout, for classes, retreats and anything in the shop.
@@ -55,7 +60,7 @@ const address = BUSINESS.address.join(", ");
     </section>
 
     <!-- Shown on a direct visit with no order in the address -->
-    <section id="no-order" class="py-16 text-center">
+    <section id="no-order" class="py-16 text-center" hidden>
       <p class="text-lg font-semibold">No order to show</p>
       <p class="mt-2 text-sm text-muted-foreground">
         If you've just placed an order, check your email for the confirmation.
@@ -66,9 +71,22 @@ const address = BUSINESS.address.join(", ");
 </SiteLayout>
 
 <script>
-  // Wix appends ?orderId= only after a completed checkout; switch to the confirmation view.
+  import { takeCheckoutKinds } from "../wix/storefront/checkout-kinds";
+  import { bookedClass } from "../components/bookings/BookedClassCalendar";
+
+  // Wix appends ?orderId= only after a completed checkout; without one, say there's no order.
   if (new URLSearchParams(window.location.search).get("orderId")) {
+    const kinds = takeCheckoutKinds();
+    const booked = bookedClass();
+    const show = { shop: !!kinds?.shop, gift: !!kinds?.giftCard, class: !!booked };
+    const known = show.shop || show.gift || show.class; // nothing kept: show every panel
+    const panels = [...document.querySelectorAll<HTMLElement>("[data-panel]")];
+    for (const panel of panels) panel.hidden = known && !show[panel.dataset.panel as keyof typeof show];
+    // Two columns from sm up: an odd one out at the end spans both.
+    const shown = panels.filter((p) => !p.hidden);
+    if (shown.length % 2 === 1) shown[shown.length - 1].classList.add("sm:col-span-2");
     document.getElementById("order-confirmed")?.removeAttribute("hidden");
-    document.getElementById("no-order")?.setAttribute("hidden", "");
+  } else {
+    document.getElementById("no-order")?.removeAttribute("hidden");
   }
 </script>

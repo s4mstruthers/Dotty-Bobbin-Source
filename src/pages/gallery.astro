@@ -1,9 +1,11 @@
 ---
 // Gallery: Saskia's photos of makes, classes and retreats. The list is in src/content/gallery.ts.
 // Photos are shown uncropped (fit) in flowing columns, so portrait and landscape shots both fit.
+// They load eagerly: inside CSS `columns` Chromium never starts lazy images. A tap opens the
+// photo in the in-page viewer (a native <dialog>); without JavaScript the tile opens the photo.
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { GALLERY } from "../content/gallery";
-import { imgFitAttrs } from "../wix/media-fit";
+import { imgFitAttrs, imgFitSrc } from "../wix/media-fit";
 ---
 <SiteLayout title="Gallery" description="Photos of makes, classes and retreats at Dotty Bobbin in Felden, Hemel Hempstead.">
   <div class="wrap">
@@ -12,11 +14,79 @@ import { imgFitAttrs } from "../wix/media-fit";
       <h1 class="mt-2 text-4xl text-sage sm:text-5xl">Gallery</h1>
     </header>
     <div class="columns-2 gap-3 sm:gap-4 md:columns-3 xl:columns-4">
-      {GALLERY.map((url) => (
-        <a href={url} target="_blank" rel="noopener" class="mb-3 block break-inside-avoid overflow-hidden rounded-md bg-secondary sm:mb-4">
-          <img {...imgFitAttrs(url, "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw")} alt="A Dotty Bobbin make or class" class="block h-auto w-full transition-transform duration-500 hover:scale-[1.02]" />
+      {GALLERY.map((url, i) => (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener"
+          data-photo
+          data-full={imgFitSrc(url, 1600, 1600) || url}
+          aria-label={`Open photo ${i + 1} of ${GALLERY.length}`}
+          class="mb-3 block break-inside-avoid overflow-hidden rounded-md bg-secondary sm:mb-4"
+        >
+          <img {...imgFitAttrs(url, "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw", undefined, { eager: true })} alt="" class="block h-auto w-full transition-transform duration-500 hover:scale-[1.02]" />
         </a>
       ))}
     </div>
   </div>
+
+  <dialog id="lightbox" aria-label="Photo viewer" class="lightbox m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-white">
+    <div class="flex h-full w-full items-center justify-center p-4 sm:p-14">
+      <img alt="" class="max-h-full max-w-full rounded-md object-contain shadow-2xl" />
+    </div>
+    <p data-count class="absolute left-1/2 top-4 -translate-x-1/2 rounded-control bg-black/50 px-3 py-1 text-sm font-semibold" aria-live="polite"></p>
+    <button type="button" data-close aria-label="Close" class="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 hover:bg-black/70">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+    <button type="button" data-prev aria-label="Previous photo" class="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 hover:bg-black/70">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+    </button>
+    <button type="button" data-next aria-label="Next photo" class="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 hover:bg-black/70">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+    </button>
+  </dialog>
 </SiteLayout>
+
+<style>
+  .lightbox::backdrop {
+    background: rgb(20 19 19 / 0.88);
+  }
+</style>
+
+<script>
+  // The photo viewer: previous / next / close buttons, arrow keys, Escape (the dialog's own) and
+  // a tap on the dark background to close. Focus goes back to the last photo viewed.
+  const dialog = document.getElementById("lightbox") as HTMLDialogElement | null;
+  const tiles = [...document.querySelectorAll<HTMLAnchorElement>("a[data-photo]")];
+  if (dialog && typeof dialog.showModal === "function" && tiles.length) {
+    const img = dialog.querySelector("img")!;
+    const count = dialog.querySelector<HTMLElement>("[data-count]")!;
+    let current = 0;
+    const show = (i: number) => {
+      current = (i + tiles.length) % tiles.length;
+      img.src = tiles[current].dataset.full || tiles[current].href;
+      img.alt = `Photo ${current + 1} of ${tiles.length}`;
+      count.textContent = img.alt;
+    };
+    tiles.forEach((tile, i) =>
+      tile.addEventListener("click", (e) => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // new tab still works
+        e.preventDefault();
+        show(i);
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector("[data-prev]")!.addEventListener("click", () => show(current - 1));
+    dialog.querySelector("[data-next]")!.addEventListener("click", () => show(current + 1));
+    dialog.querySelector("[data-close]")!.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") show(current - 1);
+      if (e.key === "ArrowRight") show(current + 1);
+    });
+    // The picture's surround is the dialog itself: a tap there (not on the photo or a button) closes.
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog || e.target === img.parentElement) dialog.close();
+    });
+    dialog.addEventListener("close", () => tiles[current]?.focus());
+  }
+</script>

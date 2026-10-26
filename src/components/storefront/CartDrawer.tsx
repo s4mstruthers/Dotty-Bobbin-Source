@@ -1,11 +1,13 @@
 // Slide-over cart with quantity stepper (capped at the stock left), remove, struck line prices
 // on discounted lines, per-line availability, a coupon field, the totals
 // breakdown from the cart estimate (subtotal, named discounts, fees, taxes when prices exclude
-// them, the total before shipping), and Wix-hosted checkout. Mount ONCE per page, as-is; opens via
-// useCart().openCart() / CartButton. Styled from the @theme tokens.
+// them, the total), and Wix-hosted checkout. Shop orders are collected, never posted. Mount ONCE
+// per page, as-is; opens via useCart().openCart() / CartButton. Styled from the @theme tokens.
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "../../hooks/storefront/useCart";
 import type { CartLine } from "../../wix/storefront/types";
+import { inertOutside } from "./inert-outside";
+import { GIFT_CARDS_APP_ID } from "../../wix/gift-cards/gift-card-core";
 
 // Wix's line statuses in buyer words; IN_STOCK says nothing.
 function lineStatusCopy(line: CartLine): string | null {
@@ -24,20 +26,23 @@ export default function CartDrawer() {
   const [codeOpen, setCodeOpen] = useState(false);
 
   // The overlay contract, done here rather than assumed from CSS: Escape closes (the backdrop
-  // click is pointer-only), the page behind stops scrolling, focus moves into the panel on open
-  // and returns to whatever opened it on close. Hooks run before the early return below.
+  // click is pointer-only), the page behind stops scrolling and goes inert (Tab stays in the
+  // panel), focus moves into the panel on open and returns to whatever opened it on close. Hooks
+  // run before the early return below.
   const panelRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!open) return;
     const opener = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const release = panelRef.current ? inertOutside(panelRef.current) : () => {};
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeCart();
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previousOverflow;
+      release();
       if (opener instanceof HTMLElement) opener.focus();
     };
   }, [open, closeCart]);
@@ -45,6 +50,8 @@ export default function CartDrawer() {
   if (!open) return null;
   const lines = cart?.lines ?? [];
   const row = "flex justify-between gap-3 text-sm";
+  // A 44px tap area around a small glyph button, without changing how it looks or sits.
+  const tapArea = "relative before:absolute before:-inset-x-3.5 before:-inset-y-2.5";
 
   return (
     <div
@@ -68,13 +75,15 @@ export default function CartDrawer() {
             type="button"
             aria-label="Close cart"
             onClick={closeCart}
-            className="text-xl leading-none text-muted-foreground transition-colors hover:text-foreground"
+            className="relative text-xl leading-none text-muted-foreground transition-colors before:absolute before:-inset-x-4 before:-inset-y-3 hover:text-foreground"
           >
             ×
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
+          {/* A first add that failed leaves the cart empty: say why above "empty", not only in the footer. */}
+          {lines.length === 0 && error && <p className="mb-2 text-sm text-destructive" role="alert">{error}</p>}
           {lines.length === 0 && (
             <p className="py-16 text-center text-sm text-muted-foreground">Your cart is empty.</p>
           )}
@@ -108,26 +117,27 @@ export default function CartDrawer() {
                     <div className="inline-flex items-center gap-3 rounded-control border border-border px-2 py-0.5">
                       <button
                         type="button"
-                        aria-label="Decrease quantity"
+                        aria-label={`Decrease quantity of ${line.productName}`}
                         disabled={busy || line.quantity <= 1}
                         onClick={() => updateQuantity(line.lineItemId, line.quantity - 1).catch(() => {})}
-                        className="px-1 text-base disabled:opacity-40"
+                        className={`${tapArea} px-1 text-base disabled:opacity-40`}
                       >
                         −
                       </button>
                       <span className="text-sm tabular-nums">{line.quantity}</span>
                       <button
                         type="button"
-                        aria-label="Increase quantity"
+                        aria-label={`Increase quantity of ${line.productName}`}
                         disabled={busy || atMax}
                         onClick={() => updateQuantity(line.lineItemId, line.quantity + 1).catch(() => {})}
-                        className="px-1 text-base disabled:opacity-40"
+                        className={`${tapArea} px-1 text-base disabled:opacity-40`}
                       >
                         +
                       </button>
                     </div>
                     <button
                       type="button"
+                      aria-label={`Remove ${line.productName}`}
                       disabled={busy}
                       onClick={() => removeLine(line.lineItemId).catch(() => {})}
                       className="ml-3 text-xs text-muted-foreground underline transition-colors hover:text-foreground disabled:opacity-40"
@@ -168,6 +178,8 @@ export default function CartDrawer() {
               ) : (
                 <button type="button" onClick={() => setCodeOpen(true)} className="self-start text-sm underline">Have a promo code?</button>
               )}
+              {/* A gift card code isn't a promo code: Wix takes it in its own box at checkout. */}
+              <p className="-mt-2 text-xs text-muted-foreground">Got a gift card? You'll enter its code at checkout.</p>
             </div>
           )}
         </div>
@@ -207,7 +219,9 @@ export default function CartDrawer() {
               )}
             </div>
             <p className="mb-4 text-xs text-muted-foreground">
-              {cart?.pricesIncludeTax ? "Prices include tax. Shipping is calculated at checkout." : cart?.taxes.length ? "Shipping is calculated at checkout." : "Shipping and taxes are calculated at checkout."}
+              {/* A gift card is emailed; only shop items are collected. */}
+              {lines.some((l) => l.appId !== GIFT_CARDS_APP_ID) ? "No postage: collect your order from Hemel Hempstead, or at your next class." : "Gift cards are emailed as soon as your order is paid."}
+              {cart?.pricesIncludeTax ? " Prices include tax." : cart?.taxes.length ? "" : " Any tax is added at checkout."}
             </p>
             {error && <p className="mb-3 text-xs text-destructive">{error}</p>}
             <button
@@ -218,9 +232,12 @@ export default function CartDrawer() {
             >
               {busy ? "One moment…" : "Continue to secure checkout"}
             </button>
+            <button type="button" onClick={closeCart} className="mt-1 w-full py-3 text-center text-sm underline">
+              Keep shopping
+            </button>
             {/* Wix's hosted checkout can't be reworded: after Apple Pay / Google Pay it shows a review
                 page, and the card is only charged when "Place Order & Pay" is pressed there. */}
-            <p className="mt-3 text-center text-xs text-muted-foreground">
+            <p className="mt-1 text-center text-xs text-muted-foreground">
               Paying with Apple Pay or Google Pay? You'll then see a "Review and place your order" page. Tap{" "}
               <span className="font-semibold">Place Order &amp; Pay</span> to finish. You're only charged once, at that step.
             </p>

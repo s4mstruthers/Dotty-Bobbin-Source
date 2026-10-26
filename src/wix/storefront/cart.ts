@@ -16,6 +16,8 @@ import { redirects as redirectsModule } from "@wix/redirects";
 import { productsV3 } from "@wix/stores";
 import { wixModule } from "../sdk";
 import { imgSrc } from "../media";
+import { giftCardImageUrl } from "../gift-cards/gift-card";
+import { isGiftCardLine } from "../gift-cards/gift-card-core";
 import { EMPTY_TOTALS, WIX_STORES_APP_ID, addOptions, assertAdded, assertCheckoutable, cartErrorMessage, rawId, summaryTotals, toCart } from "./cart-core";
 import type { Raw } from "./catalog-core";
 import type { Cart } from "./types";
@@ -49,12 +51,18 @@ async function loud<T>(op: () => Promise<T>): Promise<T> {
 
 // The V2 cart does NOT return line-item images (attributes.image is typed but comes back
 // absent — verified against a live cart), so images are joined from the catalog by the
-// line's catalogItemId and cached for the session.
+// line's catalogItemId and cached for the session. A gift card line isn't in the Stores
+// catalog: it takes the gift card product's own photo (read once, see giftCardImageUrl).
 const lineImageCache = new Map<string, string>();
 async function fillLineImages(cart: Cart, raws: Raw[]): Promise<void> {
   const wanted = new Map<string, number[]>(); // productId -> line indexes
+  const giftCards: number[] = [];
   raws.forEach((raw, i) => {
     if (cart.lines[i].imageUrl) return;
+    if (isGiftCardLine(raw)) {
+      giftCards.push(i);
+      return;
+    }
     const pid = raw.source?.catalogReference?.catalogItemId;
     if (!pid) return;
     const cached = lineImageCache.get(pid);
@@ -64,17 +72,24 @@ async function fillLineImages(cart: Cart, raws: Raw[]): Promise<void> {
     }
     wanted.set(pid, [...(wanted.get(pid) ?? []), i]);
   });
-  if (!wanted.size) return;
-  try {
-    const res = await productsApi.queryProducts().in("_id", [...wanted.keys()]).find();
-    for (const p of (res.items ?? []) as Raw[]) {
-      const url = imgSrc(p.media?.main, 300, 300);
-      lineImageCache.set(rawId(p), url);
-      for (const i of wanted.get(rawId(p)) ?? []) cart.lines[i].imageUrl = url;
+  const giftCardImage = giftCards.length
+    ? giftCardImageUrl().then((url) => {
+        for (const i of giftCards) cart.lines[i].imageUrl = url;
+      })
+    : null;
+  if (wanted.size) {
+    try {
+      const res = await productsApi.queryProducts().in("_id", [...wanted.keys()]).find();
+      for (const p of (res.items ?? []) as Raw[]) {
+        const url = imgSrc(p.media?.main, 300, 300);
+        lineImageCache.set(rawId(p), url);
+        for (const i of wanted.get(rawId(p)) ?? []) cart.lines[i].imageUrl = url;
+      }
+    } catch {
+      /* images are a nicety — the cart stays correct without them */
     }
-  } catch {
-    /* images are a nicety — the cart stays correct without them */
   }
+  await giftCardImage;
 }
 
 async function readCart(raw: Raw | null): Promise<Cart> {
@@ -178,8 +193,9 @@ export async function checkoutUrl(): Promise<string> {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const session = await redirects.createRedirectSession({
     ecomCheckout: { checkoutId: rawId(raw) },
-    // Completed orders land on the thank-you page (Wix appends ?orderId=); abandoned ones go home.
-    callbacks: { postFlowUrl: origin ? `${origin}/` : undefined, thankYouPageUrl: origin ? `${origin}/order-confirmation` : undefined },
+    // Completed orders land on the thank-you page (Wix appends ?orderId=); leaving the checkout
+    // goes back to the page the buyer was on.
+    callbacks: { postFlowUrl: origin ? window.location.href : undefined, thankYouPageUrl: origin ? `${origin}/order-confirmation` : undefined },
   });
   const url = session?.redirectSession?.fullUrl;
   if (!url) throw new Error("Checkout couldn't start: no redirect URL returned.");
