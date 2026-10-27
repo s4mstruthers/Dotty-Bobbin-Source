@@ -20,7 +20,7 @@ export const BUSINESS = {
   hours: "By appointment: come at your class time, or get in touch first.",
   // The site's currency (Wix dashboard › Settings › Language & region). A gift card line sends it.
   currency: "GBP",
-  facebook: "https://www.facebook.com/dottybobbin1/",
+  facebook: "https://www.facebook.com/dottybobbin",
   // Used for the small map on the Contact page and its Get directions button.
   mapQuery: "Felden Lane, Hemel Hempstead HP3 0BA",
   // The house itself, from Google Maps (press and hold on the house, copy the two numbers). Google
@@ -177,7 +177,7 @@ export const POLICIES: { title: string; paragraphs: string[] }[] = [
     title: "10. Contact",
     paragraphs: [
       "If you have any questions about your booking, please get in touch:",
-      "Email: dottybobbin@icloud.com Facebook: facebook.com/dottybobbin1",
+      "Email: dottybobbin@icloud.com Facebook: facebook.com/dottybobbin",
     ],
   },
 ];
