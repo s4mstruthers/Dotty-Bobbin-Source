@@ -20,6 +20,11 @@ const chip = (selected: boolean, disabled = false) =>
         : "border-border text-foreground hover:border-sage hover:bg-secondary"
   }`;
 
+const addOnCard = (selected: boolean, disabled: boolean) =>
+  `max-w-md overflow-hidden rounded-md border-[1.5px] transition-colors ${
+    disabled ? "border-border opacity-60" : selected ? "border-sage bg-secondary ring-2 ring-sage/30" : "border-border hover:border-sage hover:bg-secondary"
+  }`;
+
 const dayTile = (selected: boolean) =>
   `w-[68px] shrink-0 rounded-md border-[1.5px] px-1 py-2 text-center transition-colors ${selected ? "border-sage bg-secondary text-sage-deep ring-2 ring-sage/30" : "border-border text-foreground hover:border-sage hover:bg-secondary"}`;
 const pager = "w-[68px] shrink-0 rounded-md border-[1.5px] border-dashed border-border px-1 py-2 text-center text-xs leading-tight text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent";
@@ -123,7 +128,6 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
     setPayDeposit,
     addOnGroups,
     addOns,
-    addOnsTotal,
     toggleAddOn,
     setAddOnQuantity,
     canSelectMore,
@@ -395,35 +399,55 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
       )}
 
       {addOnGroups.length > 0 && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-5">
           {addOnGroups.map((g) => (
             <div key={g.id}>
-              <p className={heading}>{g.prompt || g.name}</p>
-              <div className="flex flex-wrap gap-2">
+              <p className={heading}>{g.addOns.length > 1 && g.prompt ? g.prompt : "Extras"}</p>
+              <div className="space-y-2">
                 {g.addOns.map((a) => {
                   const q = addOns[a.id] ?? 0;
-                  const blocked = q === 0 && !canSelectMore(g.id);
+                  const on = q > 0;
+                  const blocked = !on && !canSelectMore(g.id);
+                  const note = g.addOns.length === 1 && g.prompt ? g.prompt : a.durationMinutes ? `Adds ${a.durationMinutes} min to the session` : "";
                   return (
-                    <span key={a.id} className="inline-flex items-center gap-1">
-                      <button type="button" disabled={blocked} className={chip(q > 0, blocked)} onClick={() => toggleAddOn(a.id)}>
-                        {a.name}
-                        {a.price ? ` · ${a.price}` : ""}
-                        {a.durationMinutes ? ` · +${a.durationMinutes} min` : ""}
+                    <div key={a.id} className={addOnCard(on, blocked)}>
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={on}
+                        disabled={blocked}
+                        onClick={() => toggleAddOn(a.id)}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-left disabled:cursor-not-allowed"
+                      >
+                        <span aria-hidden className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-colors ${on ? "border-sage bg-sage text-white" : "border-border bg-background"}`}>
+                          {on && (
+                            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3.5 8.5l3 3 6-7" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold text-foreground">{a.name}</span>
+                          {note && <span className="block text-sm text-muted-foreground">{note}</span>}
+                        </span>
+                        {a.price && <span className={`shrink-0 font-semibold ${on ? "text-sage-deep" : "text-foreground"}`}>+ {a.price}</span>}
                       </button>
-                      {q > 0 && a.maxQuantity && a.maxQuantity > 1 && (
-                        <select value={q} aria-label={`How many: ${a.name}`} onChange={(e) => setAddOnQuantity(a.id, Number(e.target.value))} className="rounded-md border border-border bg-background px-2 py-1 text-sm">
-                          {Array.from({ length: a.maxQuantity }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>{n}</option>
-                          ))}
-                        </select>
+                      {on && a.maxQuantity && a.maxQuantity > 1 && (
+                        <label className="flex items-center justify-end gap-2 border-t border-sage/30 px-4 py-2 text-sm text-muted-foreground">
+                          How many
+                          <select value={q} onChange={(e) => setAddOnQuantity(a.id, Number(e.target.value))} className="rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground">
+                            {Array.from({ length: a.maxQuantity }, (_, i) => i + 1).map((n) => (
+                              <option key={n} value={n}>{n}</option>
+                            ))}
+                          </select>
+                        </label>
                       )}
-                    </span>
+                    </div>
                   );
                 })}
               </div>
             </div>
           ))}
-          {addOnsTotal && <p className="text-sm text-muted-foreground">Add-ons: {addOnsTotal}, added to this booking</p>}
         </div>
       )}
 
