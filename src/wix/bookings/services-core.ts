@@ -148,6 +148,8 @@ export interface ResolvedPrice {
   basePrice: string;
   discountName: string;
   calculatedAtCheckout: boolean;
+  priceAmount: number;
+  currency: string;
   hasPricingPlans: boolean;
   free: boolean;
 }
@@ -195,6 +197,8 @@ export function resolvePrice(raw: Raw): ResolvedPrice {
     basePrice: after ? price : "",
     discountName,
     calculatedAtCheckout: !!discountName && !after,
+    priceAmount: rateType === "FIXED" && !(discountName && !after) ? Number((after ? payment.discountInfo?.priceAfterDiscount : payment.fixed?.price)?.value ?? 0) || 0 : 0,
+    currency: rateType === "FIXED" ? payment.fixed?.price?.currency ?? "" : "",
     hasPricingPlans,
     free,
   };

@@ -200,10 +200,10 @@ export async function bookService(
   service: ServiceDetail,
   slot: Slot | null,
   formValues: Record<string, unknown>,
-  { staffId, timeZone = defaultTimeZone(), participants, depositSelected }: Omit<BookingOptions, "idKey"> = {},
+  { staffId, timeZone = defaultTimeZone(), participants, depositSelected, addOns }: Omit<BookingOptions, "idKey"> = {},
 ): Promise<BookingResult> {
   const created: Raw = await bookings.createBooking(
-    bookingRequest(service, slot, { staffId, timeZone, participants, depositSelected, idKey: "_id" }) as any,
+    bookingRequest(service, slot, { staffId, timeZone, participants, depositSelected, addOns, idKey: "_id" }) as any,
     bookingOptions(formValues) as any,
   );
   const bookingId = bookingIdOf(created);

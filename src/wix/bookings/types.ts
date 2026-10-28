@@ -58,6 +58,9 @@ export interface ServiceSummary {
   discountName: string;
   /** True when a discount applies but the amount is only known at checkout (VARIED, add-ons). */
   calculatedAtCheckout: boolean;
+  /** The FIXED price as a number (0 for any other rate, or when a discount is only known at checkout) with its currency — for totals; never render these. */
+  priceAmount: number;
+  currency: string;
   /** True when the service can be paid with a pricing plan / membership. */
   hasPricingPlans: boolean;
   /** NO_FEE (or a FIXED price of 0): books without a checkout. */

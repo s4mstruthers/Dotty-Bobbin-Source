@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useBookingFlow } from "../../hooks/bookings/useBookingFlow";
 import { useMember } from "../../hooks/members/useMember";
 import type { BookingFormField, CtaState, ServiceDetail, Slot } from "../../wix/bookings/types";
-import { startOfDay } from "../../wix/bookings/booking-core";
+import { priceWithAddOns, startOfDay } from "../../wix/bookings/booking-core";
 import AddToCalendar from "../ui/AddToCalendar";
 import { calendarLinks, forgetBookedEvent, slotCalendarEvent } from "../../lib/calendar";
 
@@ -82,12 +82,13 @@ const dateLabel = (iso: string | null): string => {
   }
 };
 
-/** The CTA label follows ctaState, then the money: the deposit when one is being paid, else the price. */
-function ctaLabel(service: ServiceDetail, ctaState: CtaState, payDeposit: boolean): string {
+/** The CTA label follows ctaState, then the money: the deposit when one is being paid, else the price (with any add-ons picked). */
+function ctaLabel(service: ServiceDetail, ctaState: CtaState, payDeposit: boolean, total: string): string {
   if (ctaState === "viewCourse") return "Not available";
   const verb = ctaState === "requestToBook" ? "Request to book" : "Book";
   if (service.free) return `${verb} — free`;
   if (service.deposit && payDeposit && service.deposit.amount) return `${verb} · deposit ${service.deposit.amount}`;
+  if (total) return `${verb} · ${total}`;
   if (!service.price) return verb;
   return `${verb} · ${service.priceFrom ? "from " : ""}${service.price}`;
 }
@@ -422,7 +423,7 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
               </div>
             </div>
           ))}
-          {addOnsTotal && <p className="text-sm text-muted-foreground">Add-ons: {addOnsTotal} (added at the venue)</p>}
+          {addOnsTotal && <p className="text-sm text-muted-foreground">Add-ons: {addOnsTotal}, added to this booking</p>}
         </div>
       )}
 
@@ -495,7 +496,7 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
             onClick={() => book().catch(() => {})}
             className="btn mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none sm:w-auto"
           >
-            {booking ? "Booking…" : ctaLabel(service, ctaState, payDeposit)}
+            {booking ? "Booking…" : ctaLabel(service, ctaState, payDeposit, priceWithAddOns(service, addOnGroups, addOns))}
           </button>
           {bookHint && <p className="mt-2 text-sm text-muted-foreground">{bookHint}</p>}
         </>

@@ -23,6 +23,7 @@ import { ctaStateOf } from "./services-core";
 import {
   addOnsDuration,
   addOnsTotal,
+  bookedAddOnsOf,
   canSelectMore,
   friendlyBookingError,
   groupSlotsByDay,
@@ -78,7 +79,7 @@ export interface BookingFlowState {
   /** Add-on groups (empty unless service.hasAddOns), the selection (quantity by add-on id), and its totals. */
   addOnGroups: AddOnGroup[];
   addOns: AddOnSelection;
-  /** Formatted extra price of the selected add-ons ("" when none). Shown, not yet booked — see INSTRUCTIONS. */
+  /** Formatted extra price of the selected add-ons ("" when none); booked with the session as `bookedAddOns`. */
   addOnsTotal: string;
   addOnsMinutes: number;
   /** Schema-driven form fields (never empty once loaded — contact basics fallback; [] until formLoaded). */
@@ -412,6 +413,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
           timeZone: zoneForBooking(),
           participants,
           depositSelected: service.deposit?.fullUpfrontAllowed ? payDeposit : undefined,
+          addOns: bookedAddOnsOf(addOnGroups, addOns),
         });
         if (result.kind === "redirect") {
           forgetCheckoutKinds(); // a cart checkout left earlier mustn't add shop panels to this one

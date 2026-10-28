@@ -415,8 +415,19 @@ export function withAddOnQuantity(groups: AddOnGroup[], selection: AddOnSelectio
   return next;
 }
 
-/** Price × quantity over the selection, formatted ("" when nothing priced is selected or currencies are missing). */
-export function addOnsTotal(groups: AddOnGroup[], selection: AddOnSelection): string {
+/** The selection as Create Booking's `bookedAddOns` ({ id, groupId, quantity }); duration add-ons carry no quantity. */
+export function bookedAddOnsOf(groups: AddOnGroup[], selection: AddOnSelection): Raw[] {
+  const out: Raw[] = [];
+  for (const g of groups)
+    for (const a of g.addOns) {
+      const q = selection[a.id] ?? 0;
+      if (q > 0) out.push({ id: a.id, groupId: g.id, ...(a.durationMinutes ? {} : { quantity: q }) });
+    }
+  return out;
+}
+
+/** Price × quantity over the selection, as a number with its currency (0 / "" when nothing priced is selected). */
+function addOnsAmount(groups: AddOnGroup[], selection: AddOnSelection): { total: number; currency: string } {
   let total = 0;
   let currency = "";
   for (const g of groups)
@@ -427,7 +438,23 @@ export function addOnsTotal(groups: AddOnGroup[], selection: AddOnSelection): st
         currency ||= a.currency;
       }
     }
+  return { total, currency };
+}
+
+/** Price × quantity over the selection, formatted ("" when nothing priced is selected or currencies are missing). */
+export function addOnsTotal(groups: AddOnGroup[], selection: AddOnSelection): string {
+  const { total, currency } = addOnsAmount(groups, selection);
   return total > 0 ? money({ value: String(total), currency }) : "";
+}
+
+/**
+ * A FIXED price plus the selected add-ons, formatted — what the booking will cost ("" when no priced
+ * add-on is picked, the price isn't a plain fixed amount, or the currencies differ).
+ */
+export function priceWithAddOns(service: Pick<ServiceDetail, "priceAmount" | "currency">, groups: AddOnGroup[], selection: AddOnSelection): string {
+  const { total, currency } = addOnsAmount(groups, selection);
+  if (total <= 0 || service.priceAmount <= 0 || currency !== service.currency) return "";
+  return money({ value: String(service.priceAmount + total), currency });
 }
 
 /** Extra minutes the selection adds to the session. */
@@ -527,6 +554,8 @@ export interface BookingOptions {
   participants?: number;
   /** Pay the deposit only (true) or the full price now (false); sent only when the service lets the visitor choose. */
   depositSelected?: boolean;
+  /** The add-ons picked (from bookedAddOnsOf), sent as the booking's `bookedAddOns` so their price is charged with it. */
+  addOns?: Raw[];
 }
 
 /** A slot's location type → the booking's: BUSINESS → OWNER_BUSINESS, CUSTOMER → CUSTOM, CUSTOM → OWNER_CUSTOM. */
@@ -549,13 +578,18 @@ export function bookingLocationType(type: ServiceLocation["type"] | undefined): 
 export function bookingRequest(
   service: Pick<ServiceDetail, "id" | "type" | "paymentOption" | "scheduleId" | "deposit">,
   slot: Slot | null,
-  { staffId, timeZone = defaultTimeZone(), idKey = "id", participants = 1, depositSelected }: BookingOptions = {},
+  { staffId, timeZone = defaultTimeZone(), idKey = "id", participants = 1, depositSelected, addOns }: BookingOptions = {},
 ): Raw {
   const deposit =
     depositSelected !== undefined && service.paymentOption === "ONLINE" && service.deposit && service.deposit.fullUpfrontAllowed
       ? { depositSelected }
       : {};
-  const base = { selectedPaymentOption: service.paymentOption, ...deposit, totalParticipants: Math.max(1, Math.floor(participants)) };
+  const base = {
+    selectedPaymentOption: service.paymentOption,
+    ...deposit,
+    totalParticipants: Math.max(1, Math.floor(participants)),
+    ...(addOns?.length ? { bookedAddOns: addOns } : {}),
+  };
   if (service.type === "COURSE" || !slot) {
     if (!service.scheduleId) throw new Error("This course has no schedule to book.");
     return { ...base, bookedEntity: { schedule: { scheduleId: service.scheduleId, serviceId: service.id, timezone: timeZone } } };
