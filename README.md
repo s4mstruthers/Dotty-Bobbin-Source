@@ -104,6 +104,10 @@ agreement** booking policy, whose custom description is the agreement text shown
   then the Wix checkout takes the first £45 by card and sets up the remaining monthly payments.
   Online card payment only (the booking is sent as an online payment even though the service also
   allows in person). The £500 paid-in-full option is handled by Saskia with an invoice, not online.
+- **The phone number is required** on this form and on every class booking form, whatever the Wix
+  form says: the Wix checkout needs it ("Phone*"), and a booking made by a logged-in member without
+  one never opened the checkout ("We couldn't load the checkout", 2 Nov 2026). The rule is
+  `requirePhone()` in `src/wix/bookings/phone-required.ts`.
 - **The agreement checkbox**: the visitor must tick "I have read and agree to the Portfolio
   Course 1 Agreement shown above" before the Book button works. When a booking form with a
   **checkbox** field is connected to the services (Bookings → Settings → Booking form), the page

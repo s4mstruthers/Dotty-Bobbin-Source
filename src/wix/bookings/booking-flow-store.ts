@@ -7,6 +7,7 @@
 // eventId vs a course's schedule, ANY_RESOURCE, the slot's location, formSubmission, payment option,
 // checkout-or-place) lives in the data layer; this store orchestrates. A late response from a
 // superseded window is dropped. One store per booking surface: createBookingFlowStore(service).
+import { requirePhone } from "./phone-required";
 import {
   bookService,
   fetchAddOnGroups,
@@ -316,7 +317,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
         requestZone = resolveDisplayTimeZone(s);
         loadForZone();
       });
-      fetchBookingForm(service.formId).then((f) => { if (started) { formFields = f; formLoaded = true; emit(); } });
+      fetchBookingForm(service.formId).then((f) => { if (started) { formFields = requirePhone(f); formLoaded = true; emit(); } });
       if (service.hasAddOns) fetchAddOnGroups(service.id).then((g) => { if (started) { addOnGroups = g; emit(); } });
     },
     stop() {

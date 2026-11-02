@@ -10,6 +10,7 @@ import type { BookingFormField, Session } from "../../wix/bookings/types";
 import { bookService } from "../../wix/bookings/booking";
 import { friendlyBookingError, normalizeFormValues } from "../../wix/bookings/booking-core";
 import { coursePlaces, fetchCourseForm, fetchCourseSessions, type AgreementField, type CourseDetail } from "../../wix/bookings/course";
+import { requirePhone } from "../../wix/bookings/phone-required";
 import { BUSINESS_TIME_ZONE } from "../../wix/account/client";
 import { forgetBookedEvent, rememberBookedEvent, STUDIO_ADDRESS, zonedToUtcIso } from "../../lib/calendar";
 import { forgetCheckoutKinds } from "../../wix/storefront/checkout-kinds";
@@ -76,7 +77,7 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
     }
     fetchCourseForm(service.formId).then((f) => {
       if (!on) return;
-      setFields(f.fields);
+      setFields(requirePhone(f.fields));
       setAgreementField(f.agreement);
       setFormLoaded(true);
     });
