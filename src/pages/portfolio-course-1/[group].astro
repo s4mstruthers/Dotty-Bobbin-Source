@@ -1,0 +1,138 @@
+---
+// Portfolio Course 1: one page per group (/portfolio-course-1/morning, /portfolio-course-1/afternoon).
+// Each is a Wix Bookings COURSE service read BY ID (src/wix/bookings/course.ts), so the page
+// works while Saskia keeps the service hidden; `hidden` only decides whether the course appears
+// in the classes list. The page shows the course, its 12 sessions, the price as monthly payments,
+// the course agreement from the booking policy, and the booking panel (client:only — places
+// left and the form are per visitor). The booking books the whole course and pays through the
+// Wix checkout, which sets up the monthly payments.
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import CourseBooking from "../../components/bookings/CourseBooking";
+import NoPhoto from "../../components/ui/NoPhoto";
+import { PORTFOLIO_COURSE_1, coursePlaces, fetchCourseById, fetchCourseSessions, isCourseGroup, type CourseDetail } from "../../wix/bookings/course";
+import type { Session } from "../../wix/bookings/types";
+import { heroFitAttrs } from "../../wix/media-fit";
+
+const group = Astro.params.group;
+if (!isCourseGroup(group)) return new Response(null, { status: 404 });
+const page = PORTFOLIO_COURSE_1[group];
+const otherKey = group === "morning" ? "afternoon" : "morning";
+const otherGroup = { path: PORTFOLIO_COURSE_1[otherKey].path, label: PORTFOLIO_COURSE_1[otherKey].label };
+
+let service: CourseDetail | null = null;
+let sessions: Session[] = [];
+try {
+  service = await fetchCourseById(page.serviceId);
+  if (service?.scheduleId) sessions = await fetchCourseSessions(service.scheduleId);
+} catch {
+  // Guarded: an unhandled SSR throw truncates the response mid-stream.
+}
+if (!service) return new Response(null, { status: 404 });
+
+const places = coursePlaces(sessions, service.defaultCapacity);
+const upcoming = sessions.filter((s) => !s.isCancelled);
+
+// Session labels in the studio's own words: "Saturday 23 January 2027 · 9am – 1pm".
+const ZONE = "Europe/London";
+const fmtDay = (local: string) => new Date(local).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const fmtTime = (local: string) => {
+  const d = new Date(local);
+  const h = d.getHours() % 12 || 12;
+  const m = d.getMinutes();
+  return `${h}${m ? `:${String(m).padStart(2, "0")}` : ""}${d.getHours() < 12 ? "am" : "pm"}`;
+};
+const sessionLabel = (s: Session) => ({ day: fmtDay(s.startLocal), time: `${fmtTime(s.startLocal)} – ${fmtTime(s.endLocal)}` });
+const firstDay = upcoming[0] ? fmtDay(upcoming[0].startLocal) : "";
+const lastDay = upcoming[upcoming.length - 1] ? fmtDay(upcoming[upcoming.length - 1].startLocal) : "";
+
+const facts = [
+  upcoming.length ? `${upcoming.length} Saturday sessions` : "",
+  upcoming[0] ? sessionLabel(upcoming[0]).time : "",
+  service.defaultCapacity ? `Up to ${service.defaultCapacity} people` : "",
+].filter(Boolean);
+---
+
+<SiteLayout title={service.name} description={service.tagLine || service.description.slice(0, 160)}>
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm text-muted-foreground">
+      <a href="/services" class="no-underline hover:underline">Classes</a>
+      <span aria-hidden="true"> › </span>
+      <span class="text-foreground">{service.name}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-12">
+      <section class="min-w-0 lg:col-start-1">
+        <div class:list={[!service.imageUrl && "hidden lg:block", "relative max-h-[38vh] overflow-hidden rounded-lg lg:max-h-none"]}>
+          <div class="aspect-[16/9] lg:aspect-[4/3]">
+            {service.imageUrl ? (
+              <img {...heroFitAttrs(service.imageUrl, "(min-width: 1024px) 40vw, 100vw")} alt={service.name} class="h-full w-full object-cover object-[50%_25%]" />
+            ) : (
+              <NoPhoto motif="spool" />
+            )}
+          </div>
+        </div>
+        <p class:list={["eyebrow", service.imageUrl ? "mt-6" : "lg:mt-6"]}>Course · {page.label}</p>
+        <h1 class="mt-1 text-3xl text-sage sm:text-4xl">{service.name}</h1>
+        {service.tagLine && <p class="mt-2 text-lg">{service.tagLine}</p>}
+        {service.subscription && (
+          <p class="mt-3 text-lg font-bold">
+            {service.subscription.amountPerCycle} a month
+            <span class="text-base font-normal text-muted-foreground"> for {service.subscription.totalPayments} months{service.subscription.firstPaymentAtCheckout ? ", first payment when you book" : ""}</span>
+          </p>
+        )}
+        {facts.length > 0 && (
+          <ul class="mt-3 flex flex-wrap gap-2 text-sm">
+            {facts.map((f) => <li class="rounded-control bg-secondary px-3 py-1">{f}</li>)}
+          </ul>
+        )}
+        <p class="mt-4 text-sm text-muted-foreground">
+          Two groups run the same course on the same Saturdays: <a href={otherGroup.path} class="underline">{otherGroup.label}</a> is the other one.
+        </p>
+      </section>
+
+      <section class="min-w-0 rounded-lg border border-border p-5 sm:p-8 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:self-start" aria-label="Book">
+        <h2 class="mb-5 text-2xl text-sage">Book the course</h2>
+
+        {service.policyText && (
+          <details class="mb-5 rounded-lg bg-secondary p-4 text-sm" open>
+            <summary class="cursor-pointer font-display text-base font-bold text-sage">{service.policyName || "Course agreement"}</summary>
+            <p class="mt-3 whitespace-pre-line leading-relaxed">{service.policyText}</p>
+          </details>
+        )}
+
+        <CourseBooking client:only="react" service={service} initialSessions={sessions} otherGroup={otherGroup} />
+      </section>
+
+      {service.description && (
+        <section class="min-w-0 lg:col-start-1">
+          <h2 class="text-xl text-sage">About this course</h2>
+          <p class="mt-2 whitespace-pre-line leading-relaxed">{service.description}</p>
+        </section>
+      )}
+
+      <section class="min-w-0 lg:col-start-1" aria-labelledby="dates-title">
+        <h2 id="dates-title" class="text-xl text-sage">Dates</h2>
+        {upcoming.length > 0 ? (
+          <>
+            <p class="mt-2 text-sm text-muted-foreground">
+              {firstDay && lastDay ? `From ${firstDay} to ${lastDay}, ` : ""}one Saturday a month{places.left != null && !places.full ? ` · ${places.left} of ${places.capacity ?? places.left} places left` : places.full ? " · Full" : ""}.
+            </p>
+            <ol class="mt-3 divide-y divide-border rounded-lg border border-border text-sm">
+              {upcoming.map((s, i) => {
+                const l = sessionLabel(s);
+                return (
+                  <li class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-2.5">
+                    <span><span class="mr-2 text-xs font-bold text-sage-deep">{i + 1}</span>{l.day}</span>
+                    <span class="text-muted-foreground">{l.time}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          </>
+        ) : (
+          <p class="mt-2 text-sm text-muted-foreground">The dates are being added — <a href="/contact" class="underline">get in touch</a> for them.</p>
+        )}
+      </section>
+    </div>
+  </div>
+</SiteLayout>

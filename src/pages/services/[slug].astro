@@ -7,6 +7,7 @@ import ClassBooking from "../../components/bookings/ClassBooking";
 import NoPhoto from "../../components/ui/NoPhoto";
 import { ServicePrice } from "../../components/bookings/ClassCard";
 import { fetchServiceBySlug } from "../../wix/bookings/services";
+import { coursePathForSlug } from "../../wix/bookings/course";
 import { heroFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
@@ -22,6 +23,11 @@ export const wixMetadata = {
 };
 
 const slug = Astro.params.slug!;
+
+// Portfolio Course 1 has its own pages (monthly payments, all the dates, the course agreement):
+// its two services go there, so the classes list's link works once Saskia unhides them.
+const coursePath = coursePathForSlug(slug);
+if (coursePath) return Astro.redirect(coursePath, 302);
 
 // Behind Wix's proxy the request URL is internal — the real public page URL arrives on
 // x-wix-forwarded-url; the SEO service needs the public one.

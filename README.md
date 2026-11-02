@@ -11,6 +11,7 @@ Wix dashboard**. Classes, retreats/events and shop products are never typed into
 | You want to change… | Where |
 |---|---|
 | A class, its times, price or capacity | Wix dashboard → **Bookings → Services / Calendar** |
+| Portfolio Course 1 (the two groups): dates, price, capacity, the course agreement, hidden or shown | Wix dashboard → **Bookings → Services** (see *Portfolio Course 1* below). The pages are `/portfolio-course-1/morning` and `/portfolio-course-1/afternoon` |
 | A retreat, day out or tickets | Wix dashboard → **Events**. New events: Wix's ticket service fee is **added at checkout** (customer pays it). The events already up in Oct 2026 have it included. |
 | Shop products, prices, stock, categories | Wix dashboard → **Store Products / Categories** |
 | Photos for any of the above | Add them to the item in the dashboard; the site shows them automatically (until then it shows a dotted placeholder) |
@@ -50,7 +51,8 @@ start an edit from anywhere else, and never edit only the live site.
 |---|---|---|
 | `/` | `src/pages/index.astro` | Hero, live classes, next 3 retreats/events, 4 shop items, Meet Saskia, reviews spot, get in touch |
 | `/services` (also `/classes`) | `src/pages/services.astro` | All classes (Wix Bookings) |
-| `/services/<class>` | `src/pages/services/[slug].astro` | One class: details, dates/times and booking |
+| `/services/<class>` | `src/pages/services/[slug].astro` | One class: details, dates/times and booking. The two Portfolio Course 1 slugs redirect to the course pages below |
+| `/portfolio-course-1/morning`, `/portfolio-course-1/afternoon` | `src/pages/portfolio-course-1/[group].astro` → `src/wix/bookings/course.ts`, `src/components/bookings/CourseBooking.tsx` | One Portfolio Course 1 group: the 12 dates, places left, £45-a-month price, the course agreement and booking (works while the service is hidden) |
 | `/events` (also `/retreats`) | `src/pages/events.astro` | Upcoming retreats & days out (past ones disappear automatically) |
 | `/events/<event>` | `src/pages/events/[slug].astro` | One event with ticket booking |
 | `/order-confirmation` | `src/pages/order-confirmation.astro` | Thank-you page after a shop or class-booking checkout (keep this address) |
@@ -79,6 +81,37 @@ start an edit from anywhere else, and never edit only the live site.
   "UK - collection only"; the "International" region is switched off). Turn shipping back on there, not in code.
 - **Colours**: the brand colours are tokens in `src/styles/global.css`. Hot pink (`--color-primary`) is
   for buttons only; sage is for headings and accents; pale sage for soft backgrounds.
+
+## Portfolio Course 1
+
+A 12-month course, booked as a whole and paid monthly. It is two Wix Bookings **course** services
+(Morning group, Afternoon group) with **subscription** pricing (£45 a month, 12 payments, the first
+at checkout, then on the 1st of each month from January 2027) and the **Portfolio Course 1
+agreement** booking policy, whose custom description is the agreement text shown on the page.
+
+- **The pages**: `/portfolio-course-1/morning` and `/portfolio-course-1/afternoon`. They read the
+  two services **by id** (`PORTFOLIO_COURSE_1` in `src/wix/bookings/course.ts`), so they work while
+  the services are **hidden**; hiding only keeps a course out of the `/services` list. To put a
+  course in the classes list, untick "Hide from site" on the service in the dashboard — nothing to
+  release. Its card then links to `/services/<slug>`, which sends visitors on to the course page.
+- **What the page shows, and where it comes from**: name, tagline, description and photo (the
+  service); the 12 dates and times (the schedule's calendar sessions); places left (the sessions'
+  remaining capacity, so a booking lowers it straight away; "Full — ask Saskia about the other
+  group" replaces the form when it reaches 0); the price (the service's subscription payment,
+  worded "£45 a month for 12 months, first payment when you book"); the agreement (the booking
+  policy's custom description). Edit any of these in the dashboard; nothing is typed into the code.
+- **Booking**: one booking enrols the visitor in every session (a course booking on the schedule),
+  then the Wix checkout takes the first £45 by card and sets up the remaining monthly payments.
+  Online card payment only (the booking is sent as an online payment even though the service also
+  allows in person). The £500 paid-in-full option is handled by Saskia with an invoice, not online.
+- **The agreement checkbox**: the visitor must tick "I have read and agree to the Portfolio
+  Course 1 Agreement shown above" before the Book button works. When a booking form with a
+  **checkbox** field is connected to the services (Bookings → Settings → Booking form), the page
+  shows that checkbox's own label and stores the tick with the booking's form submission; until
+  then the services use the default booking form and the tick is checked on the page only.
+- **Cancelling a course booking**: dashboard → Bookings list; cancelling the booking frees the
+  place on every session. The monthly payments are a subscription on the booking's order
+  (dashboard → Subscriptions); cancel it there too.
 
 ## Pattern testers
 
