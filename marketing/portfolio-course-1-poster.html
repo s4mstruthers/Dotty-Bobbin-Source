@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8" />
+<title>Portfolio Course 1 — Dotty Bobbin</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  /* Dotty Bobbin brand tokens (src/styles/global.css) */
+  :root {
+    --bg: #ffffff; --fg: #4e4c4c; --pink: #f571a0; --pink-fg: #2b2929;
+    --sage: #6c8a60; --sage-deep: #4f6a45; --pale: #eef2ea; --blush: #fbbcca; --blush-soft: #fde8ee;
+    --muted: #6b6868; --border: #dfe6d9;
+  }
+  @page { size: 1080px 1080px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body { width: 1080px; height: 1080px; overflow: hidden; color: var(--fg); font-family: 'DM Sans', system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .dots {
+    background-color: var(--pale);
+    background-image: radial-gradient(var(--blush) 18%, transparent 19%), radial-gradient(rgba(108,138,96,0.22) 18%, transparent 19%);
+    background-size: 28px 28px; background-position: 0 0, 14px 14px;
+  }
+  .poster { position: relative; width: 1080px; height: 1080px; padding: 44px 56px 40px; display: flex; flex-direction: column; }
+  .card { position: absolute; inset: 24px; border-radius: 40px; background: var(--bg); box-shadow: 0 24px 60px -30px rgba(78,76,76,0.45); }
+  .inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; }
+  .logo { height: 64px; }
+  .eyebrow { font-size: 17px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sage-deep); text-align: right; line-height: 1.3; }
+
+  h1 { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 104px; line-height: 0.98; letter-spacing: -0.015em; color: var(--sage); margin: 30px 0 0; }
+  h1 .num { color: var(--pink); }
+  .sub { font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 34px; color: var(--fg); margin: 14px 0 0; line-height: 1.2; }
+
+  .when { margin-top: 26px; display: flex; gap: 14px; align-items: stretch; }
+  .when .box { background: var(--pale); border-radius: 22px; padding: 16px 22px; flex: 1; }
+  .when .lab { font-size: 15px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sage-deep); }
+  .when .val { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 29px; color: var(--fg); margin-top: 4px; line-height: 1.15; }
+  .when .val small { display: block; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 19px; color: var(--muted); margin-top: 3px; }
+
+  .body { margin-top: 26px; display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start; }
+  .text p { font-size: 22.5px; line-height: 1.42; margin: 0 0 14px; }
+  .text ul { margin: 0; padding: 0; list-style: none; }
+  .text li { font-size: 21px; line-height: 1.4; padding-left: 30px; position: relative; margin-bottom: 6px; }
+  .text li::before { content: ""; position: absolute; left: 4px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--pink); }
+
+  .price { background: var(--pink); color: var(--pink-fg); border-radius: 30px; padding: 26px 24px 24px; text-align: center; }
+  .price .big { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 84px; line-height: 1; letter-spacing: -0.02em; }
+  .price .per { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 26px; margin-top: 4px; }
+  .price .note { font-size: 17px; line-height: 1.35; margin-top: 10px; font-weight: 500; }
+  .places { margin-top: 14px; background: var(--blush-soft); border-radius: 22px; padding: 14px 18px; text-align: center; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 23px; color: var(--sage-deep); line-height: 1.2; }
+
+  .cta { margin-top: auto; border-top: 2px dashed var(--border); padding-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .cta .book { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 30px; color: var(--sage); line-height: 1.15; }
+  .cta .book span { display: block; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 21px; color: var(--fg); margin-top: 4px; }
+  .cta .contact { text-align: right; font-size: 18px; line-height: 1.45; white-space: nowrap; color: var(--muted); font-weight: 500; }
+  .cta .contact b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="poster dots">
+  <div class="card"></div>
+  <div class="inner">
+    <div class="top">
+      <img class="logo" src="dotty-bobbin-logo.png" alt="Dotty Bobbin" />
+      <div class="eyebrow">New for 2027<br />Felden, Hemel Hempstead</div>
+    </div>
+
+    <h1>Portfolio<br />Course <span class="num">1</span></h1>
+    <p class="sub">A 12-month course in garment construction</p>
+
+    <div class="when">
+      <div class="box">
+        <div class="lab">When</div>
+        <div class="val">One Saturday a month<small>January to December 2027 · starts 23 January</small></div>
+      </div>
+      <div class="box">
+        <div class="lab">Two groups</div>
+        <div class="val">Morning 9am–1pm<small>or Afternoon 2pm–6pm</small></div>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="text">
+        <p>One family of techniques each month — stitches and seams, shaping, zips, fastenings, sleeves, collars, pockets, waistbands and more — sewn as samples for your own portfolio folder.</p>
+        <ul>
+          <li>All materials and your A4 portfolio folder included</li>
+          <li>Printed notes for every session</li>
+          <li>A certificate when you complete the course</li>
+          <li>Bring your own sewing machine and basic kit</li>
+        </ul>
+      </div>
+      <div>
+        <div class="price">
+          <div class="big">£45</div>
+          <div class="per">a month</div>
+          <div class="note">for 12 months · first payment when you book</div>
+        </div>
+        <div class="places">Only 6 places<br />in each group</div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="book">Book online at dottybobbin.com<span>Portfolio Course 1 · morning or afternoon group</span></div>
+      <div class="contact"><b>Saskia Struthers</b><br />dottybobbin@icloud.com<br />07703 854647<br />facebook.com/dottybobbin</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
