@@ -94,9 +94,14 @@ Saskia runs pattern tests from the Wix dashboard → **CMS** (https://manage.wix
   `Feedback received`, `Done`, `Not this time`), add **My notes**, filter by Pattern or Status, and
   save a view (e.g. "New applicants"). Export to CSV from More Actions if you want a spreadsheet.
 - **Close a call**: un-tick **Open for applications**. Its page stays up with a "closed" note.
-- **Emails**: set up in Wix dashboard → Automations with the trigger *Wix CMS → Item added* on
-  **Tester applications** (email Saskia; optionally a thank-you to the applicant using the Email
-  field). Not code: nothing in this project sends email.
+- **Being told about a new application**: the Wix automation **"Pattern tester application: add
+  contact and show in Inbox"** (dashboard → Automations, active since 2 Nov 2026) runs on *Wix CMS
+  → Item added* for **Tester applications**. It adds the applicant to Contacts (name and email) and
+  posts the application into **Inbox** as a form message, so it shows in the Inbox badge, the Wix
+  mobile app, and Inbox's own email notification (dashboard → Settings → Notifications). To email
+  the applicant a thank-you as well, open the automation in the builder and add a **Send an email**
+  step after "Show the application in Inbox": Wix only lets that step be set up in the builder, not
+  by code. Edit link: https://manage.wix.com/dashboard/ee8de818-a542-40d2-8da5-5fc6f251a2ff/triggers/edit/4af28560-a62c-47c8-b24e-c6fef149998c
 - The collections' schema is `seed/pattern-testing.plan.json`; re-running
   `node .agents/skills/wix-headless-kit/templates/cms/seed/seed-cms.mjs seed/pattern-testing.plan.json`
   recreates a missing collection and never touches existing rows. Applications are only ever
