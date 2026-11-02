@@ -1,0 +1,82 @@
+---
+// Pattern testing (/pattern-testing) — every call for testers that is open, read SERVER-SIDE from
+// the Wix CMS collection "Pattern tests" (Saskia ticks "Open for applications" on a row to show it
+// here). Each card links to the call's own page, where the apply form is. Wording: PATTERN_TESTING
+// in src/content/site.ts.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import NoPhoto from "../components/ui/NoPhoto";
+import { BUSINESS, PATTERN_TESTING as T } from "../content/site";
+import { listOpenPatternTests } from "../wix/pattern-testing/pattern-tests";
+import { formatDate } from "../wix/cms/items-core";
+import { imgAttrs } from "../wix/media";
+import type { PatternTest } from "../wix/pattern-testing/types";
+
+let tests: PatternTest[] = [];
+let failed = false;
+try {
+  tests = await listOpenPatternTests();
+} catch {
+  // Guarded: an SSR throw would cut the page off mid-stream. The page shows the empty state.
+  failed = true;
+}
+---
+<SiteLayout title={T.title} description={`Apply to test a new Dotty Bobbin sewing pattern before it goes on sale. ${BUSINESS.name}, Felden, Hemel Hempstead.`}>
+  <div class="wrap">
+    <header class="mb-8 max-w-2xl sm:mb-10">
+      <p class="eyebrow">{T.kicker}</p>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">{T.title}</h1>
+      <p class="mt-3 text-lg">{T.intro}</p>
+    </header>
+
+    {tests.length === 0 ? (
+      <div class="max-w-2xl rounded-lg border-2 border-dashed border-blush bg-blush-soft/50 p-6 sm:p-8">
+        <p class="font-display text-lg font-bold">{failed ? "The pattern tests aren't loading just now" : T.emptyTitle}</p>
+        <p class="mt-1 text-sm text-muted-foreground">{failed ? "Please try again in a moment." : T.emptyText}</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          {BUSINESS.facebook && <a href={BUSINESS.facebook} target="_blank" rel="noopener" class="link-pill bg-background">Follow on Facebook</a>}
+          <a href="/contact" class="link-pill bg-background">Get in touch</a>
+        </div>
+      </div>
+    ) : (
+      <ul class="grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+        {tests.map((t) => {
+          const img = imgAttrs(t.photo, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw", 2 / 3);
+          const hasPhoto = "src" in img;
+          const due = formatDate(t.deadlineIso, "en-GB", { day: "numeric", month: "long", year: "numeric" });
+          return (
+            <li>
+              <a
+                href={`/pattern-testing/${encodeURIComponent(t.slug)}`}
+                class="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-background no-underline transition-shadow hover:shadow-[0_18px_40px_-24px_rgba(78,76,76,0.45)]"
+              >
+                <div class={`relative overflow-hidden ${hasPhoto ? "aspect-[3/2]" : "aspect-[16/7]"}`}>
+                  {hasPhoto ? (
+                    <img {...img} alt={t.title} class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                  ) : (
+                    <NoPhoto motif="needle" tone="sage" />
+                  )}
+                </div>
+                <div class="flex flex-1 flex-col p-5 sm:p-6">
+                  {due && <p class="text-sm font-semibold text-sage-deep">Feedback by {due}</p>}
+                  <h2 class="mt-1.5 break-words text-xl text-foreground">{t.title}</h2>
+                  {t.summary && <p class="mt-2 text-sm text-muted-foreground">{t.summary}</p>}
+                  {t.sizes.length > 0 && (
+                    <p class="mt-3 flex flex-wrap gap-1.5">
+                      {t.sizes.map((s) => (
+                        <span class="rounded-control bg-secondary px-2.5 py-0.5 text-xs font-semibold">{s}</span>
+                      ))}
+                    </p>
+                  )}
+                  <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+                    <span class="text-sm font-semibold">{t.skillLevel}</span>
+                    <span class="btn px-5 py-2 text-sm">Apply</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </div>
+</SiteLayout>

@@ -40,6 +40,7 @@ export const NAV = [
   { label: "Retreats & Events", href: "/events" },
   { label: "Shop", href: "/shop" },
   { label: "Gallery", href: "/gallery" },
+  { label: "Pattern testing", href: "/pattern-testing" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   // Later: digital patterns sold on Payhip. Uncomment and paste the Payhip link.
@@ -77,6 +78,23 @@ export const HOME = {
 };
 
 /** Shown on the shop and every product page. Shop orders are collected, never posted. */
+/**
+ * The pattern-testing pages (/pattern-testing). The calls for testers themselves live in the Wix
+ * dashboard › CMS › Pattern tests; applications land in CMS › Tester applications.
+ */
+export const PATTERN_TESTING = {
+  kicker: "Help shape the next pattern",
+  title: "Pattern testing",
+  intro:
+    "Before a new pattern goes on sale I ask a few sewists to make it up first and tell me how it went: the instructions, the fit, anything that puzzled you. Testers get the pattern free and a credit when it launches. Pick a pattern below and apply.",
+  emptyTitle: "Nothing to test just now",
+  emptyText: "The next call for testers will appear here. Follow along on Facebook or get in touch and I'll let you know.",
+  applyTitle: "Apply to test this pattern",
+  applyText: "Tell me a little about you and which size you'd sew. I read every application and reply by email.",
+  closedText: "Applications for this pattern have closed. Thank you to everyone who applied.",
+  successText: "Thanks, your application is in. I'll be in touch by email.",
+};
+
 export const SHOP_COLLECTION_NOTE =
   "Collection only: there's no postage. Orders are collected from Felcote, Felden Lane, Hemel Hempstead HP3 0BA.";
 

@@ -1,0 +1,90 @@
+---
+// One call for testers (/pattern-testing/<slug>): the pattern, what testers need to know, sizes
+// and the deadline, then the apply form. The slug is the dashboard field (or the row's id when it
+// is empty). A call Saskia has un-ticked still has a page, with a "closed" note instead of the form.
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import ApplyForm from "../../components/pattern-testing/ApplyForm";
+import NoPhoto from "../../components/ui/NoPhoto";
+import { BUSINESS, PATTERN_TESTING as T } from "../../content/site";
+import { getPatternTest } from "../../wix/pattern-testing/pattern-tests";
+import { formatDate } from "../../wix/cms/items-core";
+import { imgAttrs, imgRatio } from "../../wix/media";
+import type { PatternTest } from "../../wix/pattern-testing/types";
+
+let test: PatternTest | null = null;
+try {
+  test = await getPatternTest(Astro.params.slug ?? "");
+} catch {
+  // Guarded: an unhandled SSR throw truncates the response mid-stream.
+}
+// A missing slug is a real 404 — never a fallback to another call.
+if (!test) return new Response(null, { status: 404 });
+
+const img = imgAttrs(test.photo, "(min-width: 1024px) 40vw, 100vw", imgRatio(test.photo) ?? 0.75);
+const hasPhoto = "src" in img;
+const due = formatDate(test.deadlineIso, "en-GB", { day: "numeric", month: "long", year: "numeric" });
+---
+<SiteLayout title={`Test ${test.title}`} description={test.summary || `Apply to test the ${test.title} sewing pattern from ${BUSINESS.name}.`}>
+  <div class="wrap">
+    <p class="mb-6"><a href="/pattern-testing" class="text-sm font-semibold underline decoration-blush decoration-2 underline-offset-4">← All pattern tests</a></p>
+
+    <div class="grid gap-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
+      <div class="overflow-hidden rounded-lg border border-border">
+        {hasPhoto ? (
+          <img {...img} alt={test.title} class="block h-auto w-full" loading="eager" />
+        ) : (
+          <div class="aspect-[4/3]"><NoPhoto motif="needle" tone="sage" /></div>
+        )}
+      </div>
+
+      <div>
+        <p class="eyebrow">{T.kicker}</p>
+        <h1 class="mt-2 break-words text-4xl text-sage sm:text-5xl">{test.title}</h1>
+        {test.summary && <p class="mt-3 text-lg">{test.summary}</p>}
+
+        <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+          {test.sizes.length > 0 && (
+            <div class="rounded-lg bg-secondary p-4">
+              <dt class="text-xs font-bold uppercase tracking-wider text-sage-deep">Sizes offered</dt>
+              <dd class="mt-1.5 flex flex-wrap gap-1.5">
+                {test.sizes.map((s) => (
+                  <span class="rounded-control bg-background px-2.5 py-0.5 text-sm font-semibold">{s}</span>
+                ))}
+              </dd>
+            </div>
+          )}
+          {test.skillLevel && (
+            <div class="rounded-lg bg-secondary p-4">
+              <dt class="text-xs font-bold uppercase tracking-wider text-sage-deep">Skill level</dt>
+              <dd class="mt-1.5 font-semibold">{test.skillLevel}</dd>
+            </div>
+          )}
+          {due && (
+            <div class="rounded-lg bg-secondary p-4">
+              <dt class="text-xs font-bold uppercase tracking-wider text-sage-deep">Feedback by</dt>
+              <dd class="mt-1.5 font-semibold">{due}</dd>
+            </div>
+          )}
+        </dl>
+
+        {test.detailsHtml && (
+          <div class="mt-6 max-w-none leading-relaxed [&_a]:underline [&_h2]:text-2xl [&_h2]:text-sage [&_h3]:text-xl [&_li]:ml-5 [&_li]:list-disc [&_p]:mt-3" set:html={test.detailsHtml} />
+        )}
+      </div>
+    </div>
+
+    <section class="mt-12 max-w-3xl rounded-lg border border-border p-6 sm:p-8" aria-labelledby="apply-title">
+      <h2 id="apply-title" class="text-2xl text-sage sm:text-3xl">{T.applyTitle}</h2>
+      {test.open ? (
+        <>
+          <p class="mt-2 text-muted-foreground">{T.applyText}</p>
+          <div class="mt-6">
+            <ApplyForm client:load patternTestId={test.id} patternTitle={test.title} sizes={test.sizes} successText={T.successText} fallbackEmail={BUSINESS.email} />
+          </div>
+        </>
+      ) : (
+        <p class="mt-2">{T.closedText}</p>
+      )}
+    </section>
+  </div>
+</SiteLayout>

@@ -1,0 +1,39 @@
+{
+  "collections": [
+    {
+      "id": "patternTests",
+      "displayName": "Pattern tests",
+      "fields": [
+        { "key": "title", "displayName": "Pattern", "type": "TEXT" },
+        { "key": "slug", "displayName": "Web address (slug)", "type": "TEXT" },
+        { "key": "open", "displayName": "Open for applications", "type": "BOOLEAN" },
+        { "key": "photo", "displayName": "Photo", "type": "IMAGE" },
+        { "key": "summary", "displayName": "Short description", "type": "TEXT" },
+        { "key": "details", "displayName": "What testers need to know", "type": "RICH_TEXT" },
+        { "key": "sizes", "displayName": "Sizes offered", "type": "ARRAY_STRING" },
+        { "key": "skillLevel", "displayName": "Skill level", "type": "TEXT" },
+        { "key": "deadline", "displayName": "Feedback due by", "type": "DATE" }
+      ],
+      "items": []
+    },
+    {
+      "id": "testerApplications",
+      "displayName": "Tester applications",
+      "permissions": { "read": "ADMIN", "insert": "ADMIN", "update": "ADMIN", "remove": "ADMIN" },
+      "fields": [
+        { "key": "name", "displayName": "Name", "type": "TEXT" },
+        { "key": "email", "displayName": "Email", "type": "TEXT" },
+        { "key": "patternName", "displayName": "Pattern", "type": "TEXT" },
+        { "key": "pattern", "displayName": "Pattern test", "type": "REFERENCE", "referencedCollectionId": "patternTests" },
+        { "key": "size", "displayName": "Size", "type": "TEXT" },
+        { "key": "measurements", "displayName": "Measurements", "type": "TEXT" },
+        { "key": "experience", "displayName": "Sewing experience", "type": "TEXT" },
+        { "key": "instagram", "displayName": "Instagram", "type": "TEXT" },
+        { "key": "message", "displayName": "Message", "type": "TEXT" },
+        { "key": "status", "displayName": "Status", "type": "TEXT" },
+        { "key": "notes", "displayName": "My notes", "type": "TEXT" }
+      ],
+      "items": []
+    }
+  ]
+}

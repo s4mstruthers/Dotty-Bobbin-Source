@@ -14,6 +14,7 @@ Wix dashboard**. Classes, retreats/events and shop products are never typed into
 | A retreat, day out or tickets | Wix dashboard → **Events**. New events: Wix's ticket service fee is **added at checkout** (customer pays it). The events already up in Oct 2026 have it included. |
 | Shop products, prices, stock, categories | Wix dashboard → **Store Products / Categories** |
 | Photos for any of the above | Add them to the item in the dashboard; the site shows them automatically (until then it shows a dotted placeholder) |
+| A call for pattern testers, and the applications that come in | Wix dashboard → **CMS → Pattern tests** / **Tester applications** (see *Pattern testers* below) |
 | Any wording on the site, the menu, email, address, About text, "Meet Saskia", reviews heading and Google place ID, policies | `src/content/site.ts` |
 | Colours, fonts, rounded corners | `src/styles/global.css` (the `@theme` block) |
 | Header, footer | `src/layouts/SiteLayout.astro` |
@@ -55,6 +56,9 @@ start an edit from anywhere else, and never edit only the live site.
 | `/order-confirmation` | `src/pages/order-confirmation.astro` | Thank-you page after a shop or class-booking checkout (keep this address) |
 | `/event-confirmation` | `src/pages/event-confirmation.astro` | Thank-you page after buying tickets (keep this address) |
 | `/shop`, `/category/<cat>`, `/products/<item>` | `src/pages/shop.astro`, `category/[slug].astro`, `products/[slug].astro` | The studio shop; the cart opens as a drawer |
+| `/pattern-testing` | `src/pages/pattern-testing.astro` | Every pattern test with "Open for applications" ticked (Wix CMS) |
+| `/pattern-testing/<slug>` | `src/pages/pattern-testing/[slug].astro` | One pattern test: details, sizes, deadline and the apply form |
+| `/api/pattern-testing/apply` | `src/pages/api/pattern-testing/apply.ts` → `src/wix/pattern-testing/server.ts` | Server-only: files an application into the private Tester applications collection |
 | `/about`, `/contact`, `/policies` | `src/pages/*.astro` | Text from `src/content/site.ts` |
 | `/login`, `/account` | `src/pages/login.astro`, `account.astro` | Customer accounts: my classes (cancel / change time where the booking policy allows), retreat & event tickets, shop orders |
 | `/api/account/reset-password` | `src/pages/api/account/reset-password.ts` | "Forgot or never set a password?": Wix emails a link to its own password page, which returns to `/login` |
@@ -75,6 +79,29 @@ start an edit from anywhere else, and never edit only the live site.
   "UK - collection only"; the "International" region is switched off). Turn shipping back on there, not in code.
 - **Colours**: the brand colours are tokens in `src/styles/global.css`. Hot pink (`--color-primary`) is
   for buttons only; sage is for headings and accents; pale sage for soft backgrounds.
+
+## Pattern testers
+
+Saskia runs pattern tests from the Wix dashboard → **CMS** (https://manage.wix.com/dashboard/ee8de818-a542-40d2-8da5-5fc6f251a2ff/wix-cms); nothing here needs a release.
+
+- **Open a call**: CMS → **Pattern tests** → Add item. Fill in the pattern name, a photo, a short
+  description, "What testers need to know" (fabric, time, what feedback you want), the **Sizes
+  offered** (one tag per size), skill level and **Feedback due by**. Tick **Open for applications**
+  and it appears on `/pattern-testing` straight away. Give it a **slug** (e.g. `wrap-dress`) for a
+  tidy address; without one the page still works, at a longer address.
+- **Applications** land in CMS → **Tester applications**, one row each, with **Status** set to
+  `New`. Work through them in the table: change Status (`New`, `Chosen`, `Pattern sent`,
+  `Feedback received`, `Done`, `Not this time`), add **My notes**, filter by Pattern or Status, and
+  save a view (e.g. "New applicants"). Export to CSV from More Actions if you want a spreadsheet.
+- **Close a call**: un-tick **Open for applications**. Its page stays up with a "closed" note.
+- **Emails**: set up in Wix dashboard → Automations with the trigger *Wix CMS → Item added* on
+  **Tester applications** (email Saskia; optionally a thank-you to the applicant using the Email
+  field). Not code: nothing in this project sends email.
+- The collections' schema is `seed/pattern-testing.plan.json`; re-running
+  `node .agents/skills/wix-headless-kit/templates/cms/seed/seed-cms.mjs seed/pattern-testing.plan.json`
+  recreates a missing collection and never touches existing rows. Applications are only ever
+  written by the server (`src/wix/pattern-testing/server.ts`): the collection is private
+  (every permission ADMIN), so nobody can read applicants from a browser.
 
 ## Rules this site follows
 

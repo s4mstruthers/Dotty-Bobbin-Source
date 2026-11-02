@@ -30,3 +30,9 @@ pnpm-debug.log*
 
 # Import data with client personal details: never commit
 migration/*.json
+
+# Wix skills (reinstall: npx skills add wix/skills --skill wix-headless-kit --skill wix-docs --skill wix-manage)
+.agents/
+.claude/skills/
+.install-exit
+.seed-exit
