@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMember } from "../../hooks/members/useMember";
 import type { BookingFormField, Session } from "../../wix/bookings/types";
-import { bookService } from "../../wix/bookings/booking";
+import { bookService, openCheckout } from "../../wix/bookings/booking";
 import { friendlyBookingError, normalizeFormValues } from "../../wix/bookings/booking-core";
 import { coursePlaces, fetchCourseForm, fetchCourseSessions, type AgreementField, type CourseDetail } from "../../wix/bookings/course";
 import { requirePhone } from "../../wix/bookings/phone-required";
@@ -145,7 +145,11 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
         // Stay "Booking…" while the checkout loads, so a second tap can't hold another place.
         // Coming back with the browser's Back button restores this page as it was: free it then.
         window.addEventListener("pageshow", (e) => { if (e.persisted) { forgetBookedEvent(); setBooking(false); } }, { once: true });
-        window.location.href = result.url;
+        // A Home Screen app keeps this page under a Safari sheet: free the button when the sheet closes.
+        if (openCheckout(result.url)) {
+          const back = () => { if (document.visibilityState === "visible") { document.removeEventListener("visibilitychange", back); forgetBookedEvent(); setBooking(false); } };
+          document.addEventListener("visibilitychange", back);
+        }
         return;
       }
       setConfirmed(true);

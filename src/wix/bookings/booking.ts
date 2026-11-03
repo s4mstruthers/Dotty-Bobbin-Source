@@ -196,6 +196,31 @@ export async function fetchBookingForm(formId: string | null): Promise<BookingFo
  * formSubmission DIRECTLY. Throws with a friendly message on refusal (slot taken, invalid form) —
  * surface it, don't swallow it.
  */
+/**
+ * True when the site is running as a Home Screen web app (the manifest's standalone display, or an
+ * icon added with iOS's "Open as Web App"): no browser chrome, and pages the app navigates to open
+ * inside it.
+ */
+export function inHomeScreenApp(): boolean {
+  if (typeof window === "undefined") return false;
+  return (window.navigator as { standalone?: boolean }).standalone === true || window.matchMedia?.("(display-mode: standalone)").matches === true;
+}
+
+/**
+ * Send the browser to the hosted checkout. Wix's checkout never loads INSIDE a Home Screen web app
+ * ("We couldn't load the checkout" every time: two customers, 3 Nov 2026), but it loads fine in the
+ * Safari sheet iOS opens for any address outside the app's scope (verified in the iOS 27 Simulator).
+ * The checkout lives at www.dottybobbin.com, the app's own address, so a Home Screen app is sent via
+ * the bare domain instead: outside the scope, iOS opens the sheet, and the site's own redirect to
+ * www happens in there. Returns true when this page stays open underneath (a sheet), so the caller
+ * can free its Book button once the sheet is closed.
+ */
+export function openCheckout(url: string): boolean {
+  const sheet = inHomeScreenApp();
+  window.location.href = sheet ? url.replace("://www.", "://") : url;
+  return sheet;
+}
+
 export async function bookService(
   service: ServiceDetail,
   slot: Slot | null,
