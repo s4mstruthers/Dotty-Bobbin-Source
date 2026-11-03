@@ -42,8 +42,9 @@ const backHref = (item && PARENTS[section]) || "/";
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <!-- Standalone: an icon on an iPhone's Home Screen opens the site as a web app (what clients had
-         with SimplyBook). The checkout is handed to a Safari sheet, see openCheckout in src/wix/bookings/booking.ts. -->
+    <!-- "display": "browser": an icon added to an iPhone's Home Screen opens the site in Safari, never
+         as a standalone web app: Wix's hosted checkout can't load inside one (see inHomeScreenApp in
+         src/wix/bookings/booking.ts). -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
     <slot name="seo-tags" />

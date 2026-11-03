@@ -18,7 +18,6 @@ import {
   fetchOfferedDays,
   fetchSessions,
   fetchSlots,
-  openCheckout,
   resolveDisplayTimeZone,
 } from "./booking";
 import { ctaStateOf } from "./services-core";
@@ -425,11 +424,7 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
           // Coming back with the browser's Back button restores this page as it was: free it then
           // (and forget the class, as that checkout was left).
           window.addEventListener("pageshow", (e) => { if (e.persisted) { forgetBookedEvent(); booking = false; emit(); } }, { once: true });
-          // A Home Screen app keeps this page under a Safari sheet: free the button when the sheet closes.
-          if (openCheckout(result.url)) {
-            const back = () => { if (document.visibilityState === "visible") { document.removeEventListener("visibilitychange", back); forgetBookedEvent(); booking = false; emit(); } };
-            document.addEventListener("visibilitychange", back);
-          }
+          window.location.href = result.url;
           return result;
         }
         confirmed = result;

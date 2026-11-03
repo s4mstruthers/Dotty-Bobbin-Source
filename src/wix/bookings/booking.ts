@@ -197,29 +197,20 @@ export async function fetchBookingForm(formId: string | null): Promise<BookingFo
  * surface it, don't swallow it.
  */
 /**
- * True when the site is running as a Home Screen web app (the manifest's standalone display, or an
- * icon added with iOS's "Open as Web App"): no browser chrome, and pages the app navigates to open
- * inside it.
+ * True when the site is running as a Home Screen web app on iOS (no Safari chrome). Wix's hosted
+ * checkout never loads inside one: "We couldn't load the checkout" every time (3 Nov 2026: two
+ * customers, then Sam's own iPhone, even when the checkout was sent via the bare domain; the iOS
+ * Simulator did NOT reproduce it). The manifest opens new icons in Safari; icons added before it,
+ * or with iOS's "Open as Web App", still run as web apps, so they are stopped here.
  */
-export function inHomeScreenApp(): boolean {
+function inHomeScreenApp(): boolean {
   if (typeof window === "undefined") return false;
   return (window.navigator as { standalone?: boolean }).standalone === true || window.matchMedia?.("(display-mode: standalone)").matches === true;
 }
 
-/**
- * Send the browser to the hosted checkout. Wix's checkout never loads INSIDE a Home Screen web app
- * ("We couldn't load the checkout" every time: two customers, 3 Nov 2026), but it loads fine in the
- * Safari sheet iOS opens for any address outside the app's scope (verified in the iOS 27 Simulator).
- * The checkout lives at www.dottybobbin.com, the app's own address, so a Home Screen app is sent via
- * the bare domain instead: outside the scope, iOS opens the sheet, and the site's own redirect to
- * www happens in there. Returns true when this page stays open underneath (a sheet), so the caller
- * can free its Book button once the sheet is closed.
- */
-export function openCheckout(url: string): boolean {
-  const sheet = inHomeScreenApp();
-  window.location.href = sheet ? url.replace("://www.", "://") : url;
-  return sheet;
-}
+/** Said before any booking is created, so the visitor isn't left with a held-then-abandoned seat. */
+export const HOME_SCREEN_APP_MESSAGE =
+  "Payment can't open from the Home Screen shortcut. Please open dottybobbin.com in Safari (or another browser) and book from there.";
 
 export async function bookService(
   service: ServiceDetail,
@@ -227,6 +218,7 @@ export async function bookService(
   formValues: Record<string, unknown>,
   { staffId, timeZone = defaultTimeZone(), participants, depositSelected, addOns }: Omit<BookingOptions, "idKey"> = {},
 ): Promise<BookingResult> {
+  if (inHomeScreenApp()) throw new Error(HOME_SCREEN_APP_MESSAGE);
   const created: Raw = await bookings.createBooking(
     bookingRequest(service, slot, { staffId, timeZone, participants, depositSelected, addOns, idKey: "_id" }) as any,
     bookingOptions(formValues) as any,

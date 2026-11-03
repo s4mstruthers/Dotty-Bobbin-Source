@@ -2,7 +2,7 @@
   "name": "Dotty Bobbin",
   "short_name": "Dotty Bobbin",
   "start_url": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [
