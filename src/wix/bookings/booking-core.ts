@@ -537,10 +537,25 @@ export function friendlyBookingError(e: unknown): string {
   } catch {
     // not JSON — use as-is
   }
+  if (isRevokedSession(e)) return "Your login has expired — please log in again to book.";
   if (/phone/i.test(message)) return "Please check your phone number — include the country code, e.g. +44 7700 900123.";
   if (/^validation failed/i.test(message)) return "Some details in the form weren't accepted — please check them and try again.";
   return message;
 }
+
+/**
+ * True when Wix refused a call because the member's login was cancelled on Wix's side
+ * ("\"session status\" access session revoked", seen 3 Nov 2026). The site's session cookie still
+ * says logged in, so every call fails until the member logs out and in again.
+ */
+export function isRevokedSession(e: unknown): boolean {
+  const raw = e instanceof Error ? e.message : String(e);
+  return /session revoked|access session/i.test(raw);
+}
+
+/** Where to send a member whose login was revoked: log in again and come back to this page. */
+export const loginAgainPath = (): string =>
+  typeof window === "undefined" ? "/login" : `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
 
 // ---- createBooking → cart → checkout-or-place --------------------------------------------------------
 

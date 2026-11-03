@@ -6,6 +6,7 @@
 // type-only; the money/date formatters come from ./events-core (the same file both transports ship).
 import type { EventDetail, RegistrationResult, RsvpForm, RsvpFormInput, SelectionTotals, TaxSettings, TicketSelection, TicketTier } from "./types";
 import { formatAmount, formatInZone, formatMoney, type Raw } from "./events-core";
+import { viaCheckoutDoor } from "../checkout-door";
 
 const tierId = (raw: Raw | undefined | null): string => raw?._id ?? raw?.id ?? "";
 
@@ -307,7 +308,7 @@ export function checkoutCallbacks(origin: string, slug: string, paths: CheckoutP
 export function redirectResult(session: Raw | null | undefined): RegistrationResult {
   const url = session?.redirectSession?.fullUrl;
   if (!url) throw new Error("Checkout couldn't start — please try again.");
-  return { kind: "redirect", url };
+  return { kind: "redirect", url: viaCheckoutDoor(url) };
 }
 
 // ---- RSVP ---------------------------------------------------------------------------------------

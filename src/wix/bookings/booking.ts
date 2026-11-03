@@ -18,6 +18,7 @@ import { availabilityTimeSlots, eventTimeSlots, bookings as bookingsModule, book
 import { createCart, calculateCart, placeOrder } from "@wix/auto_sdk_ecom_cart-v-2";
 import { redirects as redirectsModule } from "@wix/redirects";
 import { wixFetch, wixModule } from "../sdk";
+import { viaCheckoutDoor } from "../checkout-door";
 import { DEFAULT_BOOKINGS_SETTINGS, toBookingsSettings } from "./services-core";
 import {
   FALLBACK_FIELDS,
@@ -238,7 +239,7 @@ export async function bookService(
     const session: Raw = await redirects.createRedirectSession(checkoutRedirectRequest(cartId, origin, here));
     const url = session?.redirectSession?.fullUrl;
     if (!url) throw new Error("Checkout couldn't start — please try again.");
-    return { kind: "redirect", url };
+    return { kind: "redirect", url: viaCheckoutDoor(url) };
   }
 
   const order: Raw = await cart.placeOrder(cartId);

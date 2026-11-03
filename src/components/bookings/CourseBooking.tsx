@@ -8,7 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useMember } from "../../hooks/members/useMember";
 import type { BookingFormField, Session } from "../../wix/bookings/types";
 import { bookService } from "../../wix/bookings/booking";
-import { friendlyBookingError, normalizeFormValues } from "../../wix/bookings/booking-core";
+import { friendlyBookingError, isRevokedSession, loginAgainPath, normalizeFormValues } from "../../wix/bookings/booking-core";
+import { logoutMember } from "../../wix/members/auth";
 import { coursePlaces, fetchCourseForm, fetchCourseSessions, type AgreementField, type CourseDetail } from "../../wix/bookings/course";
 import { requirePhone } from "../../wix/bookings/phone-required";
 import { BUSINESS_TIME_ZONE } from "../../wix/account/client";
@@ -153,6 +154,8 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
     } catch (e) {
       setError(friendlyBookingError(e));
       setBooking(false);
+      // A revoked login fails every call until it is replaced: log out cleanly, then log in again.
+      if (isRevokedSession(e)) void logoutMember(loginAgainPath());
     }
   }
 

@@ -21,6 +21,7 @@ import {
   resolveDisplayTimeZone,
 } from "./booking";
 import { ctaStateOf } from "./services-core";
+import { logoutMember } from "../members/auth";
 import {
   addOnsDuration,
   addOnsTotal,
@@ -28,6 +29,8 @@ import {
   canSelectMore,
   friendlyBookingError,
   groupSlotsByDay,
+  isRevokedSession,
+  loginAgainPath,
   maxParticipants,
   normalizeFormValues,
   showsNextAvailability,
@@ -435,6 +438,8 @@ export function createBookingFlowStore(service: ServiceDetail): BookingFlowStore
         error = friendlyBookingError(e);
         booking = false;
         emit();
+        // A revoked login fails every call until it is replaced: log out cleanly, then log in again.
+        if (isRevokedSession(e)) void logoutMember(loginAgainPath());
         throw e;
       }
     },

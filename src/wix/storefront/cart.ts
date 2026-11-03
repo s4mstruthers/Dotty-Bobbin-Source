@@ -15,6 +15,7 @@ import { currentCartV2 } from "@wix/ecom";
 import { redirects as redirectsModule } from "@wix/redirects";
 import { productsV3 } from "@wix/stores";
 import { wixModule } from "../sdk";
+import { viaCheckoutDoor } from "../checkout-door";
 import { imgSrc } from "../media";
 import { giftCardImageUrl } from "../gift-cards/gift-card";
 import { isGiftCardLine } from "../gift-cards/gift-card-core";
@@ -199,5 +200,5 @@ export async function checkoutUrl(): Promise<string> {
   });
   const url = session?.redirectSession?.fullUrl;
   if (!url) throw new Error("Checkout couldn't start: no redirect URL returned.");
-  return url;
+  return viaCheckoutDoor(url);
 }

@@ -6,6 +6,7 @@
 // or `id` (REST); the mapper accepts both.
 // docs: https://dev.wix.com/docs/api-reference/crm/forms/form-submissions/about-submission-values.md
 import { humanizeSub, type Raw } from "./forms-core";
+import { viaCheckoutDoor } from "../checkout-door";
 import type { FormDto, FormFieldDto, FormValues, SubmissionDto, UploadedFile } from "./types";
 
 /**
@@ -231,7 +232,7 @@ export function redirectSessionBody(checkoutId: string, origin: string): Record<
 export function redirectSessionUrl(res: Raw | null | undefined): string {
   const url: string | undefined = res?.redirectSession?.fullUrl;
   if (!url) throw new Error("forms: checkout could not start (no redirect URL returned).");
-  return url;
+  return viaCheckoutDoor(url);
 }
 
 /** The `details` block of a failed call, wherever the transport left it. */
