@@ -110,6 +110,8 @@ export interface CourseSpan {
 export interface ServiceDetail extends ServiceSummary {
   /** Description HTML/text as stored. */
   description: string;
+  /** The service's extra photos (`media.items`) as resolved https URLs, without the main picture; [] when it has none. */
+  gallery: string[];
   /** The @wix/forms booking-form id (null → the contact-basics fallback form). */
   formId: string | null;
   /** Derived payment option the booking must send ("ONLINE" | "OFFLINE"). */

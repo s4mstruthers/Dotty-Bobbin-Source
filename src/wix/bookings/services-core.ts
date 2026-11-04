@@ -338,9 +338,14 @@ export function toDetail(raw: Raw, imgSrc: ImgSrc): ServiceDetail {
   // Derive — never hardcode "ONLINE": a free/pay-in-person service booked ONLINE gets rejected by the
   // cart with INSUFFICIENT_INVENTORY. Online-only → ONLINE; in-person-only → OFFLINE; both/neither → ONLINE.
   const paymentOption: "ONLINE" | "OFFLINE" = !online && inPerson ? "OFFLINE" : "ONLINE";
+  // The dashboard's picture gallery, minus the main picture the page already shows at the top.
+  const galleryUrl = (m: Raw | undefined) => imgSrc(mediaValue(m?.image), 1200, 1200);
+  const mainUrl = galleryUrl(raw.media?.mainMedia);
+  const gallery = [...new Set(((raw.media?.items ?? []) as Raw[]).map(galleryUrl))].filter((url) => url && url !== mainUrl);
   return {
     ...summary,
     description: raw.description ?? "",
+    gallery,
     formId: rawId(raw.form) || null,
     paymentOption,
     cancellationFeeEnabled: raw.bookingPolicy?.cancellationFeePolicy?.enabled === true,

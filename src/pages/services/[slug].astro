@@ -8,7 +8,7 @@ import NoPhoto from "../../components/ui/NoPhoto";
 import { ServicePrice } from "../../components/bookings/ClassCard";
 import { fetchServiceBySlug } from "../../wix/bookings/services";
 import { coursePathForSlug } from "../../wix/bookings/course";
-import { heroFitAttrs } from "../../wix/media-fit";
+import { heroFitAttrs, imgFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
 import { loadSEOTagsServiceConfig } from "@wix/seo/services";
@@ -103,10 +103,23 @@ const facts = [
         <ClassBooking client:only="react" service={service} />
       </section>
 
-      {service.description && (
+      {(service.description || service.gallery.length > 0) && (
         <section class="min-w-0 lg:col-start-1">
-          <h2 class="text-xl text-sage">About this class</h2>
-          <p class="mt-2 whitespace-pre-line leading-relaxed">{service.description}</p>
+          {service.description && (
+            <>
+              <h2 class="text-xl text-sage">About this class</h2>
+              <p class="mt-2 whitespace-pre-line leading-relaxed">{service.description}</p>
+            </>
+          )}
+          {service.gallery.length > 0 && (
+            <ul class:list={["grid list-none grid-cols-2 gap-3 p-0 sm:gap-4", service.description && "mt-6"]}>
+              {service.gallery.map((url, i) => (
+                <li class="aspect-square overflow-hidden rounded-md bg-secondary">
+                  <img {...imgFitAttrs(url, "(min-width: 1024px) 20vw, 50vw")} alt={`Photo ${i + 1} for ${service.name}`} class="h-full w-full object-contain" />
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </div>
