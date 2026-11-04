@@ -8,7 +8,7 @@ import NoPhoto from "../../components/ui/NoPhoto";
 import { BUSINESS, PATTERN_TESTING as T } from "../../content/site";
 import { getPatternTest } from "../../wix/pattern-testing/pattern-tests";
 import { formatDate } from "../../wix/cms/items-core";
-import { imgAttrs, imgRatio } from "../../wix/media";
+import { imgFitAttrs } from "../../wix/media-fit";
 import type { PatternTest } from "../../wix/pattern-testing/types";
 
 let test: PatternTest | null = null;
@@ -20,7 +20,7 @@ try {
 // A missing slug is a real 404 — never a fallback to another call.
 if (!test) return new Response(null, { status: 404 });
 
-const img = imgAttrs(test.photo, "(min-width: 1024px) 40vw, 100vw", imgRatio(test.photo) ?? 0.75);
+const img = imgFitAttrs(test.photo, "(min-width: 1024px) 40vw, 100vw", undefined, { eager: true });
 const hasPhoto = "src" in img;
 const due = formatDate(test.deadlineIso, "en-GB", { day: "numeric", month: "long", year: "numeric" });
 ---
@@ -31,7 +31,7 @@ const due = formatDate(test.deadlineIso, "en-GB", { day: "numeric", month: "long
     <div class="grid gap-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
       <div class="overflow-hidden rounded-lg border border-border">
         {hasPhoto ? (
-          <img {...img} alt={test.title} class="block h-auto w-full" loading="eager" />
+          <img {...img} alt={test.title} class="block h-auto w-full" />
         ) : (
           <div class="aspect-[4/3]"><NoPhoto motif="needle" tone="sage" /></div>
         )}

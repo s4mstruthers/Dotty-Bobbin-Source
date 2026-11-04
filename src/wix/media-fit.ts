@@ -18,8 +18,10 @@ type MediaLike = Parameters<typeof mediaKey>[0];
 export function imgFitSrc(value: MediaLike, width = 640, height = 640): string {
   const key = mediaKey(value);
   if (!key) return "";
-  // Only Wix media files (id like `abc_123~mv2.png`) go through the scaler; anything else is returned as-is.
-  if (!/~mv2\.[a-z0-9]+$/i.test(key)) return typeof value === "string" ? value : "";
+  // Only Wix media files (id like `abc_123~mv2.png`, or any raw wix:image value, which a browser
+  // can't load unscaled) go through the scaler; anything else is returned as-is.
+  const isWixImage = typeof value === "string" && value.startsWith("wix:image://");
+  if (!isWixImage && !/~mv2\.[a-z0-9]+$/i.test(key)) return typeof value === "string" ? value : "";
   try {
     return media.getScaledToFitImageUrl(`wix:image://v1/${key}/${key}`, width, height, {});
   } catch {
