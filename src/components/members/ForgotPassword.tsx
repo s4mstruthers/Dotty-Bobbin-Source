@@ -1,9 +1,20 @@
 // "Forgot or never set a password?" under the login form. Posts the email to this site's
 // /api/account/reset-password, which asks Wix to email a link to its own password page. The
 // reply is the same whether or not the email has an account (so nobody can probe who's a member).
+// Wix sends nothing when there is no account, and logins from the old booking site didn't move
+// across, so both the failed-login prompt and the "sent" message point those people to sign-up.
 import { type FormEvent, useEffect, useState } from "react";
 
-export default function ForgotPassword({ initialEmail = "", prompt = false }: { initialEmail?: string; prompt?: boolean }) {
+export interface ForgotPasswordProps {
+  initialEmail?: string;
+  prompt?: boolean;
+  /** Moves the login form to sign-up with this email. Left out when sign-up is already showing. */
+  onCreateAccount?: (email: string) => void;
+}
+
+const LINK = "font-semibold underline decoration-blush decoration-2 underline-offset-4";
+
+export default function ForgotPassword({ initialEmail = "", prompt = false, onCreateAccount }: ForgotPasswordProps) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(initialEmail);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -34,22 +45,52 @@ export default function ForgotPassword({ initialEmail = "", prompt = false }: { 
     }
   }
 
-  if (!open)
+  if (!open) {
+    if (prompt && onCreateAccount)
+      return (
+        <div className="mt-4 space-y-2 rounded-md bg-blush-soft px-4 py-3 text-sm">
+          <p>
+            <span className="font-semibold">No account on this website yet?</span> Logins from our old booking site didn't move across, even if you've booked
+            with us before.{" "}
+            <button type="button" onClick={() => onCreateAccount(email)} className={LINK}>
+              Create an account
+            </button>{" "}
+            with the email you book with.
+          </p>
+          <p>
+            Already have one?{" "}
+            <button type="button" onClick={() => setOpen(true)} className={LINK}>
+              Set a new password by email
+            </button>
+          </p>
+        </div>
+      );
     return (
       <p className={`mt-4 text-sm ${prompt ? "rounded-md bg-blush-soft px-4 py-3" : ""}`}>
-        {prompt && "Booked with us before, or never set a password? "}
-        <button type="button" onClick={() => setOpen(true)} className="font-semibold underline decoration-blush decoration-2 underline-offset-4">
+        <button type="button" onClick={() => setOpen(true)} className={LINK}>
           {prompt ? "Set your password by email" : "Forgot or never set a password?"}
         </button>
       </p>
     );
+  }
 
   if (state === "sent")
     return (
-      <p className="mt-4 rounded-md bg-secondary px-4 py-3 text-sm" role="status">
-        If there's an account for <span className="font-semibold">{email}</span>, we've emailed a link to set a new password. Check your inbox (and
-        spam), then come back and sign in.
-      </p>
+      <div className="mt-4 space-y-2 rounded-md bg-secondary px-4 py-3 text-sm" role="status">
+        <p>
+          If there's an account for <span className="font-semibold">{email}</span>, we've emailed a link to set a new password. Check your inbox (and
+          spam), then come back and sign in.
+        </p>
+        {onCreateAccount && (
+          <p>
+            <span className="font-semibold">Nothing after a few minutes?</span> You may not have an account on this website yet, as logins from our old
+            booking site didn't move across.{" "}
+            <button type="button" onClick={() => onCreateAccount(email)} className={LINK}>
+              Create an account
+            </button>
+          </p>
+        )}
+      </div>
     );
 
   return (

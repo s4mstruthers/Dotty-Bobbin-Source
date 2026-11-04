@@ -72,6 +72,13 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     clearError();
   }
 
+  // From the "no account yet?" prompts: sign-up with the email they tried, and not the old password.
+  function createAccount(withEmail: string) {
+    setEmail(withEmail);
+    setPassword("");
+    switchMode("register");
+  }
+
   // Back from the code step to the first form, to start again with another address.
   function differentEmail() {
     setVerification(false);
@@ -196,7 +203,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         {busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}
       </button>
     </form>
-    <ForgotPassword initialEmail={email} prompt={needsPassword} />
+    <ForgotPassword key={mode} initialEmail={email} prompt={needsPassword} onCreateAccount={mode === "login" ? createAccount : undefined} />
     </>
   );
 }
