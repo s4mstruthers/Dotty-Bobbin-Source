@@ -8,7 +8,7 @@ import NoPhoto from "../components/ui/NoPhoto";
 import { BUSINESS, PATTERN_TESTING as T } from "../content/site";
 import { listOpenPatternTests } from "../wix/pattern-testing/pattern-tests";
 import { formatDate } from "../wix/cms/items-core";
-import { imgFitAttrs } from "../wix/media-fit";
+import { imgAttrs } from "../wix/media";
 import type { PatternTest } from "../wix/pattern-testing/types";
 
 let tests: PatternTest[] = [];
@@ -40,8 +40,7 @@ try {
     ) : (
       <ul class="grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
         {tests.map((t) => {
-          // The whole picture, whatever its shape: fitted inside the same 3:2 frame on every card.
-          const img = imgFitAttrs(t.photo, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw");
+          const img = imgAttrs(t.photo, "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw", 2 / 3);
           const hasPhoto = "src" in img;
           const due = formatDate(t.deadlineIso, "en-GB", { day: "numeric", month: "long", year: "numeric" });
           return (
@@ -50,9 +49,9 @@ try {
                 href={`/pattern-testing/${encodeURIComponent(t.slug)}`}
                 class="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-background no-underline transition-shadow hover:shadow-[0_18px_40px_-24px_rgba(78,76,76,0.45)]"
               >
-                <div class={`relative overflow-hidden ${hasPhoto ? "aspect-[3/2] bg-secondary" : "aspect-[16/7]"}`}>
+                <div class={`relative overflow-hidden ${hasPhoto ? "aspect-[3/2]" : "aspect-[16/7]"}`}>
                   {hasPhoto ? (
-                    <img {...img} alt={t.title} class="h-full w-full object-contain" />
+                    <img {...img} alt={t.title} class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
                   ) : (
                     <NoPhoto motif="needle" tone="sage" />
                   )}
