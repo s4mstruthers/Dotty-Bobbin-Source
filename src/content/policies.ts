@@ -1,12 +1,24 @@
 // ─── Dotty Bobbin: the policy pages ────────────────────────────────────────────────────────
-// Saskia's own wording, from her final "Website policies" PDF (11 Nov 2026). One entry per page; each
+// Saskia's own wording, from her "Website policies" PDF and the "Policy page updates" PDF (Nov 2026: Terms §9, Delivery rewritten). One entry per page; each
 // is shown at /<slug> and linked from the footer. Reword freely, then rebuild and release.
 //
-// A block is an optional heading, paragraphs, a bulleted list, then any paragraphs after it. The email
+// A block is an optional heading, paragraphs, a table or bulleted list, then any paragraphs after it. The email
 // address and phone number are turned into links wherever they appear.
 
-/** `paragraphs` come before the list, `after` below it. */
-export type PolicyBlock = { heading?: string; paragraphs?: string[]; bullets?: string[]; after?: string[] };
+/**
+ * `paragraphs` come before the list, `after` below it. `subheading` is a smaller heading inside a
+ * section. `labelled` bullets start "Label: text" and show the label in bold. `table` is shown as
+ * a table on wider screens and as a stacked list on phones.
+ */
+export type PolicyBlock = {
+  heading?: string;
+  subheading?: string;
+  paragraphs?: string[];
+  bullets?: string[];
+  labelled?: boolean;
+  table?: { head: string[]; rows: string[][] };
+  after?: string[];
+};
 export type Policy = {
   slug: string;
   /** The page heading and the footer link text. */
@@ -78,7 +90,7 @@ export const TERMS: Policy = {
     {
       heading: "9. Digital patterns",
       paragraphs: [
-        "When you buy a digital pattern you receive a personal licence to download, print and use it to sew items for yourself and as gifts. You may not copy, share, resell or publish the pattern files or instructions, in whole or in part. You may also sell small numbers of finished items you have sewn yourself from the pattern, as long as you credit Dotty Bobbin as the pattern designer (for example “Made from a Dotty Bobbin pattern” on the listing or label). Factory or large-scale production is not allowed without our written permission. The design, instructions and images remain the property of Dotty Bobbin.",
+        "When you buy a digital pattern you receive a personal licence to download, print or project and use it to sew items for yourself and as gifts. You may also sell small numbers of finished items you have sewn yourself from the pattern, as long as you credit Dotty Bobbin as the pattern designer (for example “Made from a Dotty Bobbin pattern” on the listing or label). Factory or large-scale production is not allowed without our written permission. You may not copy, share, resell or publish the pattern files or instructions, in whole or in part. The design, instructions and images remain the property of Dotty Bobbin.",
       ],
     },
     {
@@ -217,36 +229,99 @@ export const DELIVERY: Policy = {
   slug: "delivery",
   title: "Delivery & Collection Policy",
   shortTitle: "Delivery & Collection",
-  description: "How Dotty Bobbin shop orders are collected, and how gift cards, digital patterns and booking confirmations are delivered.",
+  description: "What you receive from Dotty Bobbin, how and when: shop items collected in person, digital patterns and gift cards by email, and classes and events in person.",
   lastUpdated: UPDATED,
   blocks: [
     {
-      heading: "Shop items: collection only",
       paragraphs: [
-        "We don't post shop items, so there are no shipping charges. All orders are collected from Felcote, Felden Lane, Hemel Hempstead HP3 0BA. We will email you when your order is ready, normally within 7 days. You can collect at your next class, or at a time we arrange together. If an order hasn't been collected within 30 days, we will contact you to arrange collection or a refund.",
+        "This is our fulfilment and delivery policy. It explains exactly what you receive, how you receive it, when, and at what cost, for everything you can buy from Dotty Bobbin (Saskia Struthers): physical shop items, digital products (digital patterns and gift cards) and bookings. We do not post or ship anything, so there are never any delivery or shipping charges.",
       ],
     },
     {
-      heading: "Gift cards",
-      paragraphs: [
-        "Gift cards are delivered by email, to you or straight to the person you're giving it to, as soon as payment is made or on the date you choose at checkout.",
+      heading: "At a glance",
+      table: {
+        head: ["What you buy", "How you receive it", "When you receive it", "Delivery cost"],
+        rows: [
+          ["Shop items (haberdashery, kits, folders)", "Collected in person from our studio in Felden, Hemel Hempstead", "Ready within 7 days; we email you when it's ready", "Free (no postage)"],
+          ["Digital patterns", "Download link on screen and by email", "Immediately after payment", "Free"],
+          ["Gift cards", "Gift card code by email", "Immediately after payment, or on the date you choose", "Free"],
+          ["Classes, retreats, events and courses", "Booking confirmation by email; the class or event takes place in person", "Confirmation immediately; the class or event on the date booked", "Free"],
+          ["Class add-ons (machine hire, project packs)", "Handed to you at your class", "At the class you booked", "Included in the price"],
+        ],
+      },
+    },
+    {
+      heading: "1. Physical shop items: collection only",
+      labelled: true,
+      bullets: [
+        "Where: all shop orders are collected from Felcote, Felden Lane, Hemel Hempstead, Hertfordshire HP3 0BA. We do not post or ship items to any address, in the UK or abroad.",
+        "Processing time: we prepare your order and email you when it's ready to collect, normally within 7 days of purchase.",
+        "When to collect: at your next class, or at a time we arrange with you by email or phone.",
+        "Someone else collecting: let us know their name in advance.",
+        "Out of stock: if an item turns out to be unavailable, we will tell you within 7 days of your order and offer you an alternative or a full refund.",
+        "Not collected: if an order hasn't been collected within 30 days of our “ready” email, we will contact you to arrange collection or a full refund.",
       ],
     },
     {
-      heading: "Digital patterns",
-      paragraphs: [
-        "Digital patterns are delivered by download. You'll get a download link straight after payment, and a copy by email. Your download link can be used up to 5 times within 30 days of purchase. Please check your junk folder if the email doesn't arrive, and contact us if you have any trouble.",
+      heading: "2. Digital products: digital patterns",
+      labelled: true,
+      bullets: [
+        "What you receive: the pattern as downloadable PDF files: a print-at-home version, a projector file for use with a sewing projector, and the sewing instructions. Nothing is posted to you.",
+        "How: a download link is shown on screen straight after payment, and the same link is emailed to the address you gave at checkout.",
+        "When: immediately after payment; the email normally arrives within a few minutes.",
+        "Download limit: your link can be used up to 5 times within 30 days of purchase, so please save your pattern somewhere safe once downloaded.",
+        "What you need: a device that can open PDF files, and either a printer (or a print shop) to print the pattern, or a projector set up for sewing to use the projector file.",
+        "If it doesn't arrive: check your junk or spam folder first. If you still haven't received it within 24 hours, contact us and we will send it to you by email within 2 working days.",
+        "Faulty files: if a file is faulty or won't open, we will replace it or refund you (see our Refund & Cancellation Policy).",
+        "Cancellation: because the download starts straight away, you agree at checkout that you lose your right to cancel once the download has started (see our Refund & Cancellation Policy).",
       ],
     },
     {
-      heading: "Classes, retreats and events",
-      paragraphs: [
-        "Your booking confirmation and reminders are sent by email. Classes and retreats take place at our home studio in Felden unless the event details say otherwise.",
+      heading: "3. Digital products: gift cards",
+      labelled: true,
+      bullets: [
+        "What you receive: an e-gift card with a unique code for the amount you chose. Nothing is posted.",
+        "How: the gift card is emailed to the recipient (or to you, if you prefer to pass it on yourself).",
+        "When: immediately after payment, or on the date you choose at checkout.",
+        "Validity: 12 months from the date of purchase.",
+        "How to use it: enter the code at checkout on dottybobbin.com.",
+        "If it doesn't arrive: check the junk or spam folder, then contact us and we will resend it within 2 working days.",
       ],
     },
     {
-      heading: "Problems with an order",
-      paragraphs: ["If anything is missing or not right, please email dottybobbin@icloud.com or call 07703 854647."],
+      heading: "4. Services: how classes, lessons, retreats, events and courses are delivered",
+      subheading: "In person (all our services at present)",
+      labelled: true,
+      bullets: [
+        "Where: all classes, private lessons, retreats and the Portfolio Course are taught in person at our home studio at Felcote, Felden Lane, Hemel Hempstead HP3 0BA. Days out and social events take place at the venue shown in the event details.",
+        "How they are run: each session is taught face to face by Saskia Struthers. You work on your sewing at your own table with a sewing machine (your own, or one hired from us), with demonstrations and one-to-one help throughout the session.",
+        "When: on the date and at the start and finish times shown on your booking.",
+        "Confirmation: you receive a booking confirmation by email as soon as your booking is made, and a reminder before your session.",
+        "What's provided: sewing machine hire and project packs booked with a class are provided at that class. At retreats, coffee, tea and biscuits are provided. For the Portfolio Course, materials, printed notes and your portfolio folder are provided at the sessions, as set out in the course agreement.",
+        "What to bring: for classes and retreats, your own fabric and sewing kit, and your own sewing machine unless you have booked machine hire or reserved one of ours.",
+        "Changes: if we need to cancel or move a booking, see our Refund & Cancellation Policy.",
+      ],
+    },
+    {
+      subheading: "Online",
+      bullets: [
+        "We do not currently sell any online classes, lessons or courses; every service we sell is delivered in person as described above.",
+        "We may publish free sewing videos and tutorials online (for example on YouTube). These are free to watch and are not sold through this website.",
+        "If we start selling online services in future, we will update this policy to explain how they are delivered before they go on sale.",
+      ],
+    },
+    {
+      heading: "5. Where we deliver",
+      labelled: true,
+      bullets: [
+        "Services (classes, lessons, retreats, events and courses): in person only, at our studio in Felden or the event venue.",
+        "Physical items: collection from Hemel Hempstead only.",
+        "Digital patterns and gift cards: anywhere you can receive email and access the internet. Prices are in pounds sterling.",
+      ],
+    },
+    {
+      heading: "6. Problems with an order",
+      paragraphs: ["If anything is missing, late or not right, please email dottybobbin@icloud.com or call 07703 854647. We aim to reply within 2 working days."],
     },
   ],
 };
