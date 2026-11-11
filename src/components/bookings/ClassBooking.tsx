@@ -10,6 +10,7 @@ import type { BookingFormField, CtaState, ServiceDetail, Slot } from "../../wix/
 import { priceWithAddOns, startOfDay } from "../../wix/bookings/booking-core";
 import AddToCalendar from "../ui/AddToCalendar";
 import { calendarLinks, forgetBookedEvent, slotCalendarEvent } from "../../lib/calendar";
+import PolicyNote from "../ui/PolicyNote";
 
 const chip = (selected: boolean, disabled = false) =>
   `rounded-control border-[1.5px] px-4 py-2 text-sm font-semibold transition-colors ${
@@ -523,6 +524,7 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
             {booking ? "Booking…" : ctaLabel(service, ctaState, payDeposit, priceWithAddOns(service, addOnGroups, addOns))}
           </button>
           {bookHint && <p className="mt-2 text-sm text-muted-foreground">{bookHint}</p>}
+          <PolicyNote />
         </>
       )}
     </div>

@@ -15,6 +15,7 @@ import { requirePhone } from "../../wix/bookings/phone-required";
 import { BUSINESS_TIME_ZONE } from "../../wix/account/client";
 import { forgetBookedEvent, rememberBookedEvent, STUDIO_ADDRESS, zonedToUtcIso } from "../../lib/calendar";
 import { forgetCheckoutKinds } from "../../wix/storefront/checkout-kinds";
+import PolicyNote from "../ui/PolicyNote";
 
 const input = "w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25";
 const heading = "mb-2 block text-xs font-bold uppercase tracking-wider text-sage-deep";
@@ -269,7 +270,8 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
             {ctaLabel}
           </button>
           {bookHint && <p className="mt-2 text-sm text-muted-foreground">{bookHint}</p>}
-          <p className="mt-3 text-xs text-muted-foreground">
+          <PolicyNote />
+          <p className="mt-2 text-xs text-muted-foreground">
             Paid by card online{price ? `: ${price.amountPerCycle} now, then ${price.amountPerCycle} on the 1st of each month until all ${price.totalPayments} payments are made` : ""}. You'll be taken to a secure Wix checkout.
           </p>
         </>

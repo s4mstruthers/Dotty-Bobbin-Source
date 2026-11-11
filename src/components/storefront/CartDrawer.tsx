@@ -8,6 +8,7 @@ import { useCart } from "../../hooks/storefront/useCart";
 import type { CartLine } from "../../wix/storefront/types";
 import { inertOutside } from "./inert-outside";
 import { GIFT_CARDS_APP_ID } from "../../wix/gift-cards/gift-card-core";
+import PolicyNote from "../ui/PolicyNote";
 
 // Wix's line statuses in buyer words; IN_STOCK says nothing.
 function lineStatusCopy(line: CartLine): string | null {
@@ -232,6 +233,7 @@ export default function CartDrawer() {
             >
               {busy ? "One moment…" : "Continue to secure checkout"}
             </button>
+            <PolicyNote verb="ordering" className="mt-2 text-center" />
             <button type="button" onClick={closeCart} className="mt-1 w-full py-3 text-center text-sm underline">
               Keep shopping
             </button>

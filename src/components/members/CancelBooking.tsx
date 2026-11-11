@@ -24,7 +24,7 @@ export default function CancelBooking({ booking, onDone, onClose }: { booking: A
     <div className="mt-4 rounded-md bg-blush-soft p-4 text-sm" role="group" aria-label="Cancel booking">
       <p className="font-semibold">Cancel {booking.serviceName} on {whenLabel(booking.startIso)}?</p>
       <p className="mt-1">
-        Bookings are non-refundable (see the <a href="/policies" className="underline">Terms &amp; Conditions</a>). If you'd rather keep your place for
+        Bookings are non-refundable (see the <a href="/refunds" className="underline">Refund &amp; Cancellation Policy</a>). If you'd rather keep your place for
         another day, use <span className="font-semibold">Change time</span> instead.
       </p>
       {error && <p className="mt-2 font-semibold text-destructive">{error}</p>}

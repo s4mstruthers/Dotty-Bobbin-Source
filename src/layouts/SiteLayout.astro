@@ -13,6 +13,7 @@ import CartButton from "../components/storefront/CartButton";
 import CartDrawer from "../components/storefront/CartDrawer";
 import AccountLink from "../components/AccountLink";
 import { BUSINESS, NAV } from "../content/site";
+import { ALL_POLICIES } from "../content/policies";
 import "../styles/global.css";
 
 interface Props {
@@ -147,9 +148,17 @@ const backHref = (item && PARENTS[section]) || "/";
         </div>
       </div>
       <div class="border-t border-border">
-        <div class="wrap flex flex-col gap-2 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <!-- The trader's details as text, which Wix Payments asks for: business name, owner, address. -->
+        <div class="wrap space-y-3 py-6 text-xs text-muted-foreground">
+          <p>
+            <span class="block">{BUSINESS.name} is the trading name of {BUSINESS.owner}</span>
+            <span class="block">{BUSINESS.address.join(", ")}</span>
+            <span class="block">{BUSINESS.email} · {BUSINESS.phone}</span>
+          </p>
+          <ul class="flex flex-wrap gap-x-4 gap-y-1">
+            {ALL_POLICIES.map((p) => <li><a href={`/${p.slug}`} class="underline-offset-4 hover:underline">{p.title}</a></li>)}
+          </ul>
           <p>© {year} {BUSINESS.name}</p>
-          <a href="/policies" class="no-underline hover:underline">Terms &amp; Conditions</a>
         </div>
       </div>
     </footer>

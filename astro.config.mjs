@@ -28,6 +28,9 @@ export default defineConfig({
       // Google Places API (New) key for the home page's Google reviews (/api/google-reviews). Set on
       // Wix's servers with `wix env set`; without it the section is just a link to the reviews.
       GOOGLE_PLACES_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // The secret in the URL the monthly "delete old tester applications" automation calls
+      // (/api/pattern-testing/purge?token=…). Set with `wix env set`; without it the route is off.
+      TESTER_PURGE_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

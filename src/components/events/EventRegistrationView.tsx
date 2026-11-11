@@ -10,6 +10,7 @@
 // visitor-session SDK calls and redirects.
 import { useEventRegistration } from "../../hooks/events/useEventRegistration";
 import type { EventDetail, RsvpFormControl, RsvpFormInput, TicketTier } from "../../wix/events/types";
+import PolicyNote from "../ui/PolicyNote";
 
 const input =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-primary";
@@ -312,6 +313,7 @@ export default function EventRegistrationView({ event }: { event: EventDetail })
         <button type="button" disabled={!canCheckout || submitting} onClick={() => checkout().catch(() => {})} className={cta}>
           {submitting ? "Reserving…" : ticketCount > 0 ? `Get ${ticketCount} ticket${ticketCount > 1 ? "s" : ""}` : "Get tickets"}
         </button>
+        <PolicyNote />
       </div>
     );
   }

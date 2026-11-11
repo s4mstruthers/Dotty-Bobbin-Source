@@ -204,7 +204,7 @@ export default function AccountView({ initialMember }: AccountViewProps) {
           <p className="text-sm text-muted-foreground">
             Need to change something else? <a href="/contact" className="font-semibold underline decoration-blush decoration-2 underline-offset-4">Get in touch</a>.
             {" "}
-            <a href="/policies" className="underline decoration-blush decoration-2 underline-offset-4">Terms &amp; Conditions</a>
+            <a href="/refunds" className="underline decoration-blush decoration-2 underline-offset-4">Refund &amp; Cancellation Policy</a>
           </p>
         </>
       )}
