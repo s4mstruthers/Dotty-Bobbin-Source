@@ -5,6 +5,10 @@
 // numbers: Apple Calendar turns the first number in the notes into the event's "Call" button, which
 // then looks like the studio's own number.
 //
+// A course booking (Portfolio Course 1) covers the whole course, first session to last, so its own
+// start and end would draw one block across most of a year. Its people are put on each of the
+// course's sessions instead (the calendar events with the booking's `schedule.scheduleId`).
+//
 // Group class sessions nobody has booked yet are in it too ("(0 booked)"), so Saskia can decide
 // whether to run or cancel a class. One-to-ones aren't: an unbooked 1-1 isn't a session at all.
 //
@@ -46,7 +50,8 @@ async function queryBookings(now: Date): Promise<Raw[]> {
           // rejected as INVALID_FILTER).
           filter: {
             $and: [
-              { startDate: { $gte: new Date(now.getTime() - LOOK_BACK_DAYS * DAY).toISOString() } },
+              // By end date, so a course that started before the look-back still counts.
+              { endDate: { $gte: new Date(now.getTime() - LOOK_BACK_DAYS * DAY).toISOString() } },
               { startDate: { $lte: new Date(now.getTime() + LOOK_AHEAD_DAYS * DAY).toISOString() } },
               // CREATED is a checkout that wasn't finished; CANCELED and DECLINED aren't coming.
               { status: { $in: ["CONFIRMED", "PENDING"] } },
@@ -107,23 +112,47 @@ async function querySessions(now: Date): Promise<Raw[]> {
   return out.filter((e) => GROUP_TYPES.has(e.type) && e.status !== "CANCELLED" && e.id && e.start?.utcDate && e.end?.utcDate);
 }
 
+const sessionLocation = (e: Raw): string =>
+  !e.location?.type || e.location.type === "BUSINESS" ? STUDIO_ADDRESS : e.location.address ?? e.location.name ?? "";
+
 /** One event per session (a class session's event id; otherwise the service at that time). */
 export async function rosterEvents(now = new Date()): Promise<FeedEvent[]> {
   const [bookings, classSessions] = await Promise.all([queryBookings(now), querySessions(now)]);
   const sessions = new Map<string, Raw[]>();
+  const courses = new Map<string, Raw[]>();
   for (const b of bookings) {
+    const scheduleId = b.bookedEntity?.schedule?.scheduleId;
+    if (scheduleId) {
+      courses.set(scheduleId, [...(courses.get(scheduleId) ?? []), b]);
+      continue;
+    }
     const slot: Raw = b.bookedEntity?.slot ?? {};
     const key = slot.eventId || `${slot.serviceId ?? b.bookedEntity?.title}-${toIso(b.startDate)}`;
     sessions.set(key, [...(sessions.get(key) ?? []), b]);
   }
+  const courseSessions: FeedEvent[] = classSessions
+    .filter((e) => courses.has(e.scheduleId) && !sessions.has(e.id))
+    .map((e) => {
+      const group = courses.get(e.scheduleId)!;
+      const total = group.reduce((n, b) => n + places(b), 0);
+      const people = [...group].sort((a, b) => personLine(a).localeCompare(personLine(b))).map(personLine);
+      return {
+        uid: `roster-${String(e.id).replace(/[^a-z0-9-]/gi, "")}@dottybobbin`,
+        title: `${e.title || group[0].bookedEntity?.title || "Course"} (${total} booked)`,
+        startIso: e.start.utcDate,
+        endIso: e.end.utcDate,
+        location: sessionLocation(e),
+        description: [`${total} booked:`, ...people].join("\n"),
+      };
+    });
   const empty: FeedEvent[] = classSessions
-    .filter((e) => !sessions.has(e.id))
+    .filter((e) => !sessions.has(e.id) && !courses.has(e.scheduleId))
     .map((e) => ({
       uid: `roster-${String(e.id).replace(/[^a-z0-9-]/gi, "")}@dottybobbin`,
       title: `${e.title || e.scheduleName || "Class"} (0 booked)`,
       startIso: e.start.utcDate,
       endIso: e.end.utcDate,
-      location: !e.location?.type || e.location.type === "BUSINESS" ? STUDIO_ADDRESS : e.location.address ?? e.location.name ?? "",
+      location: sessionLocation(e),
       description: "Nobody booked yet.",
     }));
   const booked = [...sessions.entries()].map(([key, group]) => {
@@ -140,5 +169,5 @@ export async function rosterEvents(now = new Date()): Promise<FeedEvent[]> {
       description: [`${total} booked:`, ...people].join("\n"),
     };
   });
-  return [...booked, ...empty].sort((a, b) => a.startIso.localeCompare(b.startIso));
+  return [...booked, ...courseSessions, ...empty].sort((a, b) => a.startIso.localeCompare(b.startIso));
 }
