@@ -74,7 +74,7 @@ start an edit from anywhere else, and never edit only the live site.
 - **Google reviews**: read live from Google (`/api/google-reviews`) with the place ID in `BUSINESS.googlePlaceId` and the `GOOGLE_PLACES_API_KEY` secret (`wix env set`). Google allows no caching, so each visitor who scrolls to them is one billed call; the key's daily quota in Google Cloud caps the cost. Never write reviews by hand.
 - **Policies**: fill `POLICIES` in `src/content/site.ts`.
 - **Show the phone number**: set `showPhone: true` in `BUSINESS`.
-- **Add a "Patterns" menu link** (once digital patterns are on sale; how they're sold isn't decided yet): uncomment the `Patterns` line in `NAV` and paste the address.
+- **Patterns**: the menu's Patterns link opens the Wix Stores category with the slug in `SHOP.patternsCategorySlug` (`patterns`). That page shows the patterns for sale, a digital-download note and the way in to Pattern testing; the Shop page shows a door to it beside Gift cards. A product is a pattern when Saskia puts it in the Patterns category. The words are in `SHOP` in `src/content/site.ts`. Pattern testing is no longer in the menu.
 - **Change which shop category shows on the home page**: `HOME.shopCategorySlug`.
 - **Collection-only wording** on the shop and product pages: `SHOP_COLLECTION_NOTE`. The checkout itself
   offers only free collection (Wix dashboard → Settings → Shipping & fulfillment: region

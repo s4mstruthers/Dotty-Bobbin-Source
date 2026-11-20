@@ -12,7 +12,7 @@
 import CartButton from "../components/storefront/CartButton";
 import CartDrawer from "../components/storefront/CartDrawer";
 import AccountLink from "../components/AccountLink";
-import { BUSINESS, NAV } from "../content/site";
+import { BUSINESS, NAV, SHOP } from "../content/site";
 import { ALL_POLICIES } from "../content/policies";
 import "../styles/global.css";
 
@@ -26,7 +26,10 @@ interface Props {
 }
 const { bare = false, noindex = false } = Astro.props;
 const path = Astro.url.pathname;
-const isActive = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
+// Pattern testing has no menu entry of its own: it belongs to Patterns, which lights up for it.
+const patternsHref = `/category/${SHOP.patternsCategorySlug}`;
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`) || (href === patternsHref && (path === "/pattern-testing" || path.startsWith("/pattern-testing/")));
 const year = new Date().getFullYear();
 // Where "Back" goes when there is no page of this site to go back to (a link from an email or
 // search): the page's parent section, else home.
