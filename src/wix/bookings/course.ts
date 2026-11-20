@@ -196,3 +196,52 @@ export async function fetchCourseForm(formId: string | null): Promise<{ fields: 
     return { fields: FALLBACK_FIELDS, agreement: null };
   }
 }
+
+/** The name the two groups share, as the classes list shows it. */
+export const PORTFOLIO_COURSE_1_TITLE = "Portfolio Course 1";
+
+/** One group as the classes list's text section needs it (plain data, safe to hand to an island). */
+export interface CourseGroupSummary {
+  key: CourseGroup;
+  serviceId: string;
+  label: string;
+  path: string;
+  scheduleId: string | null;
+  categoryId: string | null;
+  defaultCapacity: number | null;
+  /** Started, ended or past its booking deadline: no places are offered. */
+  closed: boolean;
+  sessions: Session[];
+}
+
+/**
+ * Both groups for the classes list (/services), which shows them as one text section instead of
+ * two picture cards. A group that can't be read is left out. Never throws.
+ */
+export async function fetchPortfolioCourseSummary(): Promise<CourseGroupSummary[]> {
+  const groups = await Promise.all(
+    (Object.keys(PORTFOLIO_COURSE_1) as CourseGroup[]).map(async (key): Promise<CourseGroupSummary | null> => {
+      const g = PORTFOLIO_COURSE_1[key];
+      try {
+        const service = await fetchCourseById(g.serviceId);
+        if (!service) return null;
+        const sessions = service.scheduleId ? await fetchCourseSessions(service.scheduleId) : [];
+        const started = !!service.course?.startDate && new Date(service.course.startDate).getTime() <= Date.now();
+        return {
+          key,
+          serviceId: g.serviceId,
+          label: g.label,
+          path: g.path,
+          scheduleId: service.scheduleId ?? null,
+          categoryId: service.categoryId ?? null,
+          defaultCapacity: service.defaultCapacity ?? null,
+          closed: (service.course?.ended ?? false) || started || service.tooLateToBook || !service.scheduleId,
+          sessions,
+        };
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return groups.filter((g): g is CourseGroupSummary => g !== null);
+}

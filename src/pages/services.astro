@@ -1,9 +1,11 @@
 ---
 // Classes listing (/services) — the first page of services fetched SERVER-SIDE (SEO) with the
-// URL's filter, handed to the ClassesList island. Frontmatter is the kit's, unchanged.
+// URL's filter, handed to the ClassesList island. Portfolio Course 1's two groups are read
+// alongside and shown as one text section (places left from the bookings) instead of two cards.
 import SiteLayout from "../layouts/SiteLayout.astro";
 import ClassesList from "../components/bookings/ClassesList";
 import { fetchServices, fetchBookingCategories, fetchLocations } from "../wix/bookings/services";
+import { fetchPortfolioCourseSummary, type CourseGroupSummary } from "../wix/bookings/course";
 import type { BookingCategory, LocationOption, ServiceSummary } from "../wix/bookings/types";
 
 const categoryId = Astro.url.searchParams.get("category") || null;
@@ -13,8 +15,10 @@ let services: ServiceSummary[] = [];
 let hasMore = false;
 let categories: BookingCategory[] = [];
 let locations: { locations: LocationOption[]; hasOtherLocations: boolean } = { locations: [], hasOtherLocations: false };
+let courseGroups: CourseGroupSummary[] = [];
 try {
-  const [page, cats, locs] = await Promise.all([fetchServices({ categoryId, locationId }), fetchBookingCategories(), fetchLocations()]);
+  const [page, cats, locs, course] = await Promise.all([fetchServices({ categoryId, locationId }), fetchBookingCategories(), fetchLocations(), fetchPortfolioCourseSummary()]);
+  courseGroups = course;
   services = page.items;
   hasMore = page.hasMore;
   categories = cats;
@@ -40,6 +44,7 @@ try {
       initialLocations={locations}
       initialCategoryId={categoryId}
       initialLocationId={locationId}
+      courseGroups={courseGroups}
     />
   </div>
 </SiteLayout>
