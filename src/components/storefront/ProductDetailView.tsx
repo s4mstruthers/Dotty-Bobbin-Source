@@ -91,9 +91,10 @@ export default function ProductDetailView(props: { initial?: ProductDetail | nul
           {p.discountNames.length > 0 && <p className="text-sm text-sage-deep">{p.discountNames.join(" · ")}</p>}
 
           <div className="mt-6">
-            <OptionPicker detail={d} showQuantity />
+            {/* A digital download: nobody needs two copies, and there is nothing to collect. */}
+            <OptionPicker detail={d} showQuantity={!p.digital} />
           </div>
-          <p className="mt-4 rounded-md bg-secondary px-4 py-2 text-sm font-semibold">{SHOP_COLLECTION_NOTE}</p>
+          {!p.digital && <p className="mt-4 rounded-md bg-secondary px-4 py-2 text-sm font-semibold">{SHOP_COLLECTION_NOTE}</p>}
 
           {p.descriptionHtml && <div className="prose-db mt-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: p.descriptionHtml }} />}
           {p.infoSections.map((s) => (

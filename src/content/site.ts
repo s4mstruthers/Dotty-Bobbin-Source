@@ -96,7 +96,7 @@ export const PATTERN_TESTING = {
 };
 
 export const SHOP_COLLECTION_NOTE =
-  "Collection only: there's no postage. Orders are collected from Felcote, Felden Lane, Hemel Hempstead HP3 0BA.";
+  "Collection only: there's no postage. Orders are collected from Felden, Hemel Hempstead.";
 
 /**
  * What each gift card amount buys, shown beside the amount on the gift card page ("£17.50 · 1 class").
