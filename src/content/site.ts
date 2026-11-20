@@ -39,12 +39,11 @@ export const NAV = [
   { label: "Classes", href: "/services" },
   { label: "Retreats & Events", href: "/events" },
   { label: "Shop", href: "/shop" },
+  // The Patterns shop category (SHOP.patternsCategorySlug). Pattern testing is reached from it.
+  { label: "Patterns", href: "/category/patterns" },
   { label: "Gallery", href: "/gallery" },
-  { label: "Pattern testing", href: "/pattern-testing" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-  // Later: digital patterns sold on Payhip. Uncomment and paste the Payhip link.
-  // { label: "Patterns", href: "https://payhip.com/..." },
 ];
 
 export const HOME = {
@@ -97,6 +96,27 @@ export const PATTERN_TESTING = {
 
 export const SHOP_COLLECTION_NOTE =
   "Collection only: there's no postage. Orders are collected from Felden, Hemel Hempstead.";
+
+/**
+ * The patterns part of the shop. The patterns themselves are the products in the Wix Stores
+ * category with this slug (dashboard → Store Products → Categories); the words around them are here.
+ */
+export const SHOP = {
+  // The category's address on /category/... . Also the "Patterns" link in NAV above.
+  patternsCategorySlug: "patterns",
+  // The door to the patterns on the Shop page.
+  patternsTitle: "Sewing patterns",
+  patternsText: "My own patterns as PDF downloads, sent by email. Nothing to collect.",
+  patternsButton: "Browse patterns",
+  // Shown at the top of the Patterns page.
+  patternsNote: "Digital download: after you pay, you'll get a download link by email. Nothing is posted.",
+  // The link to pattern testing at the foot of the Patterns page.
+  testingTitle: "Fancy testing a pattern?",
+  testingText: "Before a new pattern goes on sale I ask a few sewists to make it up first. Testers get the pattern free.",
+  testingButton: "Pattern testing",
+  // The link back from the Pattern testing page.
+  shopLinkText: "Looking for a finished pattern? Browse the pattern shop",
+};
 
 /**
  * What each gift card amount buys, shown beside the amount on the gift card page ("£17.50 · 1 class").
