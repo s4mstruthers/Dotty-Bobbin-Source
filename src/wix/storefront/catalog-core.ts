@@ -592,6 +592,7 @@ export function toDetail(raw: Raw, imgSrc: ImgSrc, mediaKey: MediaKey): ProductD
     variants,
     subscriptions: toSubscriptionPlans(raw),
     allowOneTimePurchase: raw.subscriptionDetails?.allowOneTimePurchases === true,
+    digital: raw.productType === "DIGITAL",
   };
 }
 

@@ -192,6 +192,8 @@ export interface ProductDetail extends ProductSummary {
   subscriptions: SubscriptionPlan[];
   /** With plans present: whether a plain one-time purchase is also offered. */
   allowOneTimePurchase: boolean;
+  /** A downloadable product (Wix productType DIGITAL): nothing to collect, and one copy is enough. */
+  digital: boolean;
 }
 
 export interface Category {
