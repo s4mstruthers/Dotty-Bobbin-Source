@@ -266,10 +266,10 @@ export const DELIVERY: Policy = {
       heading: "2. Digital products: digital patterns",
       labelled: true,
       bullets: [
-        "What you receive: the pattern as downloadable PDF files: a print-at-home version, a projector file for use with a sewing projector, and the sewing instructions. Nothing is posted to you.",
+        "What you receive: the pattern as a downloadable PDF with the sewing instructions. Depending on the pattern, this may also include a print-at-home version and a projector file for use with a sewing projector.",
         "How: a download link is shown on screen straight after payment, and the same link is emailed to the address you gave at checkout.",
         "When: immediately after payment; the email normally arrives within a few minutes.",
-        "Download limit: your link can be used up to 5 times within 30 days of purchase, so please save your pattern somewhere safe once downloaded.",
+        "Download link: your link works for 30 days after purchase, so please save your pattern somewhere safe once downloaded. If you have a problem, message me and I can resend it.",
         "What you need: a device that can open PDF files, and either a printer (or a print shop) to print the pattern, or a projector set up for sewing to use the projector file.",
         "If it doesn't arrive: check your junk or spam folder first. If you still haven't received it within 24 hours, contact us and we will send it to you by email within 2 working days.",
         "Faulty files: if a file is faulty or won't open, we will replace it or refund you (see our Refund & Cancellation Policy).",
