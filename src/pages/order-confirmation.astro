@@ -9,7 +9,7 @@
 // completes). Without one (a direct visit) the page says so plainly; it never shows a fake
 // confirmation. No order details are invented: the confirmation email carries those.
 //
-// Which panels show: the cart's checkout keeps what kinds of item it sent (src/wix/storefront/
+// Which panels show (shop collection, digital pattern, class, gift card): the cart's checkout keeps what kinds of item it sent (src/wix/storefront/
 // checkout-kinds.ts) and a class booking keeps the class (src/lib/calendar.ts); only the matching
 // panels show, and all of them when nothing was kept. Both sections stay hidden until the script
 // has decided, so neither flashes.
@@ -36,6 +36,13 @@ const address = BUSINESS.address.join(", ");
           <p class="mt-2 text-sm leading-relaxed">
             Shop orders are collected from {address}. Please call or text {`${BUSINESS.owner.split(" ")[0]} on `}<a href={`tel:${BUSINESS.phoneIntl}`}>{BUSINESS.phone}</a> to arrange a
             time, or pick it up at your next class.
+          </p>
+        </div>
+        <div class="rounded-lg bg-secondary p-5" data-panel="digital">
+          <h2 class="text-lg text-sage">Bought a pattern?</h2>
+          <p class="mt-2 text-sm leading-relaxed">
+            Your download link is on its way by email, and there's nothing to collect. It works for 30 days, so please save
+            your pattern somewhere safe. Not arrived? Check your junk folder, then <a href="/contact">get in touch</a>.
           </p>
         </div>
         <div class="rounded-lg bg-secondary p-5" data-panel="class">
@@ -78,8 +85,8 @@ const address = BUSINESS.address.join(", ");
   if (new URLSearchParams(window.location.search).get("orderId")) {
     const kinds = takeCheckoutKinds();
     const booked = bookedClass();
-    const show = { shop: !!kinds?.shop, gift: !!kinds?.giftCard, class: !!booked };
-    const known = show.shop || show.gift || show.class; // nothing kept: show every panel
+    const show = { shop: !!kinds?.shop, digital: !!kinds?.digital, gift: !!kinds?.giftCard, class: !!booked };
+    const known = show.shop || show.digital || show.gift || show.class; // nothing kept: show every panel
     const panels = [...document.querySelectorAll<HTMLElement>("[data-panel]")];
     for (const panel of panels) panel.hidden = known && !show[panel.dataset.panel as keyof typeof show];
     // Two columns from sm up: an odd one out at the end spans both.

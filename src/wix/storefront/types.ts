@@ -266,6 +266,8 @@ export interface CartLine {
   imageUrl: string;
   /** The catalog the line comes from (`catalogReference.appId`): the Stores app, or another app such as Gift Cards. */
   appId: string;
+  /** A downloadable item (`attributes.itemType.preset` DIGITAL): emailed, nothing to collect. */
+  digital: boolean;
   /** The item's page URL when Wix returned one; "" otherwise (a headless site links by slug). */
   productUrl: string;
   /** Human-readable option/modifier labels, e.g. ["Color: Ink", "Size: M"]. */

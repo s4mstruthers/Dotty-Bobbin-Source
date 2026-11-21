@@ -21,6 +21,21 @@ function lineStatusCopy(line: CartLine): string | null {
   }
 }
 
+/** How the cart's items reach the buyer: collected, emailed, or some of each. */
+function deliveryNote(lines: CartLine[]): string {
+  const gift = lines.some((l) => l.appId === GIFT_CARDS_APP_ID);
+  const digital = lines.some((l) => l.digital);
+  const collected = lines.some((l) => l.appId !== GIFT_CARDS_APP_ID && !l.digital);
+  const emailed = [digital && "patterns", gift && "gift cards"].filter(Boolean).join(" and ");
+  if (!collected) {
+    return digital
+      ? `Digital patterns${gift ? " and gift cards" : ""} are emailed as soon as your order is paid. Nothing to collect.`
+      : "Gift cards are emailed as soon as your order is paid.";
+  }
+  const collect = "No postage: collect your order from Hemel Hempstead, or at your next class.";
+  return emailed ? `${collect} Your ${emailed} are emailed as soon as your order is paid.` : collect;
+}
+
 export default function CartDrawer() {
   const { cart, open, closeCart, busy, error, updateQuantity, removeLine, applyCoupon, removeCoupon, checkout } = useCart();
   const [code, setCode] = useState("");
@@ -220,8 +235,8 @@ export default function CartDrawer() {
               )}
             </div>
             <p className="mb-4 text-xs text-muted-foreground">
-              {/* A gift card is emailed; only shop items are collected. */}
-              {lines.some((l) => l.appId !== GIFT_CARDS_APP_ID) ? "No postage: collect your order from Hemel Hempstead, or at your next class." : "Gift cards are emailed as soon as your order is paid."}
+              {/* Gift cards and digital patterns are emailed; only the other shop items are collected. */}
+              {deliveryNote(lines)}
               {cart?.pricesIncludeTax ? " Prices include tax." : cart?.taxes.length ? "" : " Any tax is added at checkout."}
             </p>
             {error && <p className="mb-3 text-xs text-destructive">{error}</p>}

@@ -287,7 +287,9 @@ function TicketRow({ order: t }: { order: AccountTicketOrder }) {
 }
 
 function OrderRow({ order: o }: { order: AccountShopOrder }) {
-  const state = o.cancelled ? "Cancelled" : o.collected ? "Collected" : "Ready to collect";
+  // A digital pattern is emailed: there is nothing to collect, whatever its fulfilment says.
+  const state = o.cancelled ? "Cancelled" : o.digitalOnly ? "Sent by email" : o.collected ? "Collected" : "Ready to collect";
+  const settled = o.collected || o.digitalOnly;
   return (
     <li className={card}>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -295,7 +297,7 @@ function OrderRow({ order: o }: { order: AccountShopOrder }) {
           <p className="font-semibold">Order {o.number}</p>
           <p className="mt-0.5 text-sm text-muted-foreground">{dateLabel(o.createdIso)}</p>
         </div>
-        <span className={`${pill} ${o.cancelled ? "bg-secondary" : o.collected ? "bg-secondary text-sage-deep" : "bg-blush-soft"}`}>{state}</span>
+        <span className={`${pill} ${o.cancelled ? "bg-secondary" : settled ? "bg-secondary text-sage-deep" : "bg-blush-soft"}`}>{state}</span>
       </div>
       <ul className="mt-3 text-sm">
         {o.items.map((i, n) => (
@@ -306,7 +308,7 @@ function OrderRow({ order: o }: { order: AccountShopOrder }) {
         ))}
       </ul>
       {o.total && <p className="mt-2 text-sm font-bold">{o.total}</p>}
-      {!o.collected && !o.cancelled && <p className="mt-2 text-xs text-muted-foreground">Collect from Felcote, Felden Lane, or at your next class.</p>}
+      {!settled && !o.cancelled && <p className="mt-2 text-xs text-muted-foreground">Collect from Felcote, Felden Lane, or at your next class.</p>}
     </li>
   );
 }

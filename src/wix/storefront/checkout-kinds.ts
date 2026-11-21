@@ -1,11 +1,14 @@
-// What kinds of item went to the Wix checkout (shop products, gift cards), kept for the thank-you
+// What kinds of item went to the Wix checkout (shop products to collect, digital patterns, gift cards), kept for the thank-you
 // page in the visit's session storage: Wix sends only ?orderId= back, so /order-confirmation
 // shows the panels that fit from this. Written by goToCheckout (./cart-store), read once there.
 import { GIFT_CARDS_APP_ID } from "../gift-cards/gift-card-core";
 import type { CartLine } from "./types";
 
 export interface CheckoutKinds {
+  /** Shop items to collect. */
   shop: boolean;
+  /** Digital downloads (patterns): emailed, nothing to collect. */
+  digital: boolean;
   giftCard: boolean;
 }
 
@@ -13,7 +16,8 @@ const KEY = "checkout-kinds";
 
 export function rememberCheckoutKinds(lines: CartLine[]): void {
   const kinds: CheckoutKinds = {
-    shop: lines.some((l) => l.appId !== GIFT_CARDS_APP_ID),
+    shop: lines.some((l) => l.appId !== GIFT_CARDS_APP_ID && !l.digital),
+    digital: lines.some((l) => l.digital),
     giftCard: lines.some((l) => l.appId === GIFT_CARDS_APP_ID),
   };
   try {
@@ -36,7 +40,7 @@ export function takeCheckoutKinds(): CheckoutKinds | null {
     const k = raw ? JSON.parse(raw) : null;
     // A checkout takes minutes; anything older is from a checkout that was left.
     if (!k || Date.now() - k.savedAt > 2 * 60 * 60 * 1000) return null;
-    return { shop: k.shop === true, giftCard: k.giftCard === true };
+    return { shop: k.shop === true, digital: k.digital === true, giftCard: k.giftCard === true };
   } catch {
     return null;
   }

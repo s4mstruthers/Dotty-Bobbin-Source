@@ -81,6 +81,7 @@ export function toLine(raw: Raw, currency: string, imgSrc: ImgSrc): CartLine {
     availableQuantity: typeof raw.quantityInfo?.availableQuantity === "number" ? raw.quantityInfo.availableQuantity : null,
     imageUrl: imgSrc(raw.attributes?.image, 300, 300),
     appId: raw.source?.catalogReference?.appId ?? raw.catalogReference?.appId ?? "",
+    digital: raw.attributes?.itemType?.preset === "DIGITAL",
     productUrl: typeof url === "string" ? url : url?.url ?? "",
     descriptionLines: ((raw.attributes?.descriptionLines ?? []) as Raw[])
       .map((d) => {

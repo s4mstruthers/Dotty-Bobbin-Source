@@ -39,6 +39,8 @@ export interface AccountShopOrder {
   number: string;
   createdIso: string;
   items: { name: string; quantity: number }[];
+  /** Every item is a digital download (line `itemType.preset` DIGITAL): emailed, nothing to collect. */
+  digitalOnly: boolean;
   total: string;
   /** Wix payment status: "PAID", "NOT_PAID", "PARTIALLY_REFUNDED", … */
   paymentStatus: string;

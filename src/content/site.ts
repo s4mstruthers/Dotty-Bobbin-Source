@@ -95,7 +95,7 @@ export const PATTERN_TESTING = {
 };
 
 export const SHOP_COLLECTION_NOTE =
-  "Collection only: there's no postage. Orders are collected from Felden, Hemel Hempstead.";
+  "No postage: shop items are collected from Felden, Hemel Hempstead.";
 
 /**
  * The patterns part of the shop. The patterns themselves are the products in the Wix Stores
@@ -108,6 +108,8 @@ export const SHOP = {
   patternsTitle: "Sewing patterns",
   patternsText: "My own patterns as PDF downloads, sent by email. Nothing to collect.",
   patternsButton: "Browse patterns",
+  // Added to the collection note at the top of the Shop page, which lists the patterns too.
+  patternsShopNote: "Sewing patterns are digital downloads, sent by email.",
   // Shown at the top of the Patterns page.
   patternsNote: "Digital download: after you pay, you'll get a download link by email. Nothing is posted.",
   // The link to pattern testing at the foot of the Patterns page.

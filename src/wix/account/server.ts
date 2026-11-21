@@ -201,6 +201,7 @@ export async function listShopOrders(caller: Caller): Promise<AccountShopOrder[]
         number: String(o.number ?? ""),
         createdIso: toIso(o._createdDate ?? o.createdDate),
         items: items.map((li) => ({ name: li.productName?.translated ?? li.productName?.original ?? "Item", quantity: Number(li.quantity ?? 1) || 1 })),
+        digitalOnly: items.every((li) => li.itemType?.preset === "DIGITAL"),
         total: o.priceSummary?.total?.formattedAmount ?? "",
         paymentStatus: o.paymentStatus ?? "",
         collected: o.fulfillmentStatus === "FULFILLED",
