@@ -90,6 +90,19 @@ export const HOME = {
  * or ?season=halloween on the end of the address; the whole site keeps it in that browser until ?season=off (or the
  * browser is closed).
  */
+// The featured Portfolio Course panel at the top of the classes list and on the home page. The
+// course's description, dates, price and places come from Wix; these are the words around them.
+export const COURSE_FEATURE = {
+  // The small ribbon beside the heading, shown while the course can still be booked.
+  ribbon: "New",
+  kicker: "A course designed and taught by Saskia",
+  groupsTitle: "Choose your group",
+  bookButton: "Book a place",
+  // On a full group: a link to /contact, in case a place comes up.
+  fullLink: "Ask about a place",
+  moreLink: "About the course & all the dates",
+};
+
 export const CHRISTMAS = {
   on: true,
   from: "11-26", // 26 November

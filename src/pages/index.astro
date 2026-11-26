@@ -1,6 +1,6 @@
 ---
 // Home page. Every listing here is live from Wix, fetched server-side:
-//   classes  → Wix Bookings (all visible services)
+//   classes  → Wix Bookings (all visible services; Portfolio Course 1 as one featured panel above them)
 //   retreats → Wix Events (next 3 upcoming; past ones drop off automatically)
 //   shop     → Wix Stores (4 products from the category in HOME.shopCategorySlug)
 // The words are in src/content/site.ts.
@@ -11,6 +11,7 @@ import FeaturedProducts from "../components/storefront/FeaturedProducts";
 import Placeholder from "../components/Placeholder.astro";
 import GoogleReviews from "../components/GoogleReviews";
 import { fetchServices } from "../wix/bookings/services";
+import { fetchPortfolioCourseSummary, type CourseGroupSummary } from "../wix/bookings/course";
 import { fetchEvents } from "../wix/events/events";
 import { fetchCategoryBySlug, fetchProductsByCategory, fetchProducts } from "../wix/storefront/catalog";
 import type { ServiceSummary } from "../wix/bookings/types";
@@ -35,22 +36,26 @@ const reviewsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${enco
 // Each read is guarded on its own: one failing section never takes the page down.
 let services: ServiceSummary[] = [];
 let hasMoreServices = false;
+let courseGroups: CourseGroupSummary[] = [];
 let events: EventSummary[] = [];
 let products: ProductSummary[] = [];
 let shopHref = "/shop";
 let patterns: ProductSummary[] = [];
 
-const [svc, evs, shopCat, patternsCat] = await Promise.allSettled([
+const [svc, evs, shopCat, patternsCat, course] = await Promise.allSettled([
   fetchServices({ limit: 6 }),
   fetchEvents({ limit: 3 }),
   fetchCategoryBySlug(HOME.shopCategorySlug),
   fetchCategoryBySlug(SHOP.patternsCategorySlug),
+  // Portfolio Course 1: one featured panel above the class cards, with each group's places.
+  fetchPortfolioCourseSummary(),
 ]);
 if (svc.status === "fulfilled") {
   services = svc.value.items;
   hasMoreServices = svc.value.hasMore;
 }
 if (evs.status === "fulfilled") events = evs.value;
+if (course.status === "fulfilled") courseGroups = course.value;
 try {
   const cat = shopCat.status === "fulfilled" ? shopCat.value : null;
   if (cat) shopHref = `/category/${cat.slug}`;
@@ -122,7 +127,7 @@ try {
         </div>
         <a href="/services" class="link-pill bg-background">All classes</a>
       </div>
-      <ClassesList client:load compact initialServices={services} initialHasMore={hasMoreServices} />
+      <ClassesList client:load compact initialServices={services} initialHasMore={hasMoreServices} courseGroups={courseGroups} />
     </div>
   </section>
 

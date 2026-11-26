@@ -200,7 +200,7 @@ export async function fetchCourseForm(formId: string | null): Promise<{ fields: 
 /** The name the two groups share, as the classes list shows it. */
 export const PORTFOLIO_COURSE_1_TITLE = "Portfolio Course 1";
 
-/** One group as the classes list's text section needs it (plain data, safe to hand to an island). */
+/** One group as the featured course panel needs it (plain data, safe to hand to an island). */
 export interface CourseGroupSummary {
   key: CourseGroup;
   serviceId: string;
@@ -212,11 +212,15 @@ export interface CourseGroupSummary {
   /** Started, ended or past its booking deadline: no places are offered. */
   closed: boolean;
   sessions: Session[];
+  /** The service's own description, as Saskia wrote it in the dashboard ("" when none). */
+  description: string;
+  /** The monthly payments, when the course is priced that way. */
+  subscription: CourseSubscription | null;
 }
 
 /**
- * Both groups for the classes list (/services), which shows them as one text section instead of
- * two picture cards. A group that can't be read is left out. Never throws.
+ * Both groups for the featured course panel on the classes list (/services) and the home page,
+ * shown there instead of two picture cards. A group that can't be read is left out. Never throws.
  */
 export async function fetchPortfolioCourseSummary(): Promise<CourseGroupSummary[]> {
   const groups = await Promise.all(
@@ -237,6 +241,8 @@ export async function fetchPortfolioCourseSummary(): Promise<CourseGroupSummary[
           defaultCapacity: service.defaultCapacity ?? null,
           closed: (service.course?.ended ?? false) || started || service.tooLateToBook || !service.scheduleId,
           sessions,
+          description: service.description ?? "",
+          subscription: service.subscription,
         };
       } catch {
         return null;

@@ -103,9 +103,14 @@ agreement** booking policy, whose custom description is the agreement text shown
 
 - **The pages**: `/portfolio-course-1/morning` and `/portfolio-course-1/afternoon`. They read the
   two services **by id** (`PORTFOLIO_COURSE_1` in `src/wix/bookings/course.ts`), so they work while
-  the services are **hidden**; hiding only keeps a course out of the `/services` list. To put a
-  course in the classes list, untick "Hide from site" on the service in the dashboard — nothing to
-  release. Its card then links to `/services/<slug>`, which sends visitors on to the course page.
+  the services are **hidden**; hiding only keeps a course out of the `/services` list. Its old
+  `/services/<slug>` address sends visitors on to the course page.
+- **The featured panel**: the classes page (`/services`) and the home page show the course as one
+  panel above the class cards (`PortfolioCourseSummary`), not a card per group: the description,
+  start date, price and group size, then a tile per group with its places — "Full" with a link to
+  the contact page, or a Book button. It reads both services by id, so it shows whether or not
+  they're hidden. The words around the Wix data ("New", "A course designed and taught by Saskia",
+  the button labels) are `COURSE_FEATURE` in `src/content/site.ts`.
 - **What the page shows, and where it comes from**: name, tagline, description and photo (the
   service); the 12 dates and times (the schedule's calendar sessions); places left (the sessions'
   remaining capacity, so a booking lowers it straight away; "Full — ask Saskia about the other

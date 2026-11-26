@@ -19,8 +19,8 @@ export default function ClassesList(props: {
   /** The home page shows the list without the filter row or URL syncing. */
   compact?: boolean;
   /**
-   * Portfolio Course 1's two groups, shown as one text section above the cards instead of a
-   * picture card each (/services passes it; the home page doesn't, so its cards are unchanged).
+   * Portfolio Course 1's two groups, shown as one featured panel above the cards instead of a
+   * picture card each (/services and the home page both pass it).
    */
   courseGroups?: CourseGroupSummary[];
 }) {
@@ -34,7 +34,7 @@ export default function ClassesList(props: {
   const used = new Set((props.initialServices ?? []).map((s) => s.categoryId).filter(Boolean));
   const shownCategories = categories.filter((c) => used.has(c.id));
 
-  // The course groups leave the cards for the text section, which follows the category filter.
+  // The course groups leave the cards for the featured panel, which follows the category filter.
   const courseIds = new Set(courseGroups.map((g) => g.serviceId));
   const cards = services?.filter((s) => !courseIds.has(s.id)) ?? null;
   const showCourse = courseGroups.length > 0 && (activeCategoryId == null || courseGroups.some((g) => g.categoryId === activeCategoryId));
@@ -61,7 +61,7 @@ export default function ClassesList(props: {
 
       {error && <p className="mb-4 text-sm text-destructive">Classes couldn't be loaded just now. Please refresh the page.</p>}
 
-      {showCourse && <PortfolioCourseSummary groups={courseGroups} />}
+      {showCourse && <PortfolioCourseSummary groups={courseGroups} headingLevel={compact ? 3 : 2} />}
 
       {cards === null ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">

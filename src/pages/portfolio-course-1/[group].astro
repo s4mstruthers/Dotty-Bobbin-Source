@@ -4,7 +4,8 @@
 // works while Saskia keeps the service hidden; `hidden` only decides whether the course appears
 // in the classes list. The page shows the course, its 12 sessions, the price as monthly payments,
 // the course agreement from the booking policy, and the booking panel (client:only — places
-// left and the form are per visitor). The booking books the whole course and pays through the
+// left and the form are per visitor). A full group says so beside the title, and its agreement
+// starts folded, so the "Full" panel isn't below a page of small print on a phone. The booking books the whole course and pays through the
 // Wix checkout, which sets up the monthly payments.
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import CourseBooking from "../../components/bookings/CourseBooking";
@@ -77,6 +78,7 @@ const facts = [
         )}
         {facts.length > 0 && (
           <ul class="mt-3 flex flex-wrap gap-2 text-sm">
+            {places.full && <li class="rounded-control bg-foreground px-3 py-1 font-bold text-background">This group is full</li>}
             {facts.map((f) => <li class="rounded-control bg-secondary px-3 py-1">{f}</li>)}
           </ul>
         )}
@@ -89,7 +91,7 @@ const facts = [
         <h2 class="mb-5 text-2xl text-sage">Book the course</h2>
 
         {service.policyText && (
-          <details class="mb-5 rounded-lg bg-secondary p-4 text-sm" open>
+          <details class="mb-5 rounded-lg bg-secondary p-4 text-sm" open={!places.full}>
             <summary class="cursor-pointer font-display text-base font-bold text-sage">{service.policyName || "Course agreement"}</summary>
             <p class="mt-3 whitespace-pre-line leading-relaxed">{service.policyText}</p>
           </details>
