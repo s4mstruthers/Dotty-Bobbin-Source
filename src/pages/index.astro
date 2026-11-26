@@ -18,12 +18,15 @@ import type { EventSummary } from "../wix/events/types";
 import type { ProductSummary } from "../wix/storefront/types";
 import ButtonGarland from "../components/seasonal/ButtonGarland.astro";
 import DotSnow from "../components/seasonal/DotSnow.astro";
-import SantaHat from "../components/seasonal/SantaHat.astro";
+import BirdHat from "../components/seasonal/BirdHat.astro";
 import StitchSnowflake from "../components/seasonal/StitchSnowflake.astro";
+import { DECOR } from "../components/seasonal/palette";
 import { BUSINESS, CHRISTMAS, HOME, MEET_SASKIA, SHOP } from "../content/site";
 import { currentSeason } from "../lib/season";
 
-const christmas = currentSeason(Astro.url, Astro.cookies) === "christmas";
+// The seasonal look (Christmas, winter or none): the hero's garland, snow and the bird's hat.
+const season = currentSeason(Astro.url, Astro.cookies);
+const christmas = season === "christmas";
 
 // Where "Read all our reviews on Google" goes before Google has said (a Maps search URL, from
 // Google's documented Maps URLs; the place ID pins it to the listing once it's set).
@@ -66,15 +69,15 @@ try {
 <SiteLayout title={`${BUSINESS.name} · Sewing classes & retreats in Hemel Hempstead`} description={HOME.heroText} bare>
   <!-- Hero -->
   <section class="relative overflow-hidden">
-    {christmas && (
+    {season && (
       <>
         <!-- Snow falls on the bird's side only, never across the words: the right half on a wide
              screen; on a phone, round the bird (below). -->
-        <div class="pointer-events-none absolute inset-y-0 left-1/2 right-0 hidden lg:block"><DotSnow /></div>
-        <ButtonGarland sew class="absolute inset-x-0 top-0 h-16 sm:h-20" />
+        <div class="pointer-events-none absolute inset-y-0 left-1/2 right-0 hidden lg:block"><DotSnow season={season} /></div>
+        <ButtonGarland season={season} sew class="absolute inset-x-0 top-0 h-16 sm:h-20" />
       </>
     )}
-    <div class:list={["wrap grid items-center gap-10 lg:grid-cols-[1.15fr_1fr]", christmas ? "pb-12 pt-20 sm:pb-16 sm:pt-24 lg:pb-24 lg:pt-28" : "py-12 sm:py-16 lg:py-24"]}>
+    <div class:list={["wrap grid items-center gap-10 lg:grid-cols-[1.15fr_1fr]", season ? "pb-12 pt-20 sm:pb-16 sm:pt-24 lg:pb-24 lg:pt-28" : "py-12 sm:py-16 lg:py-24"]}>
       <div class="relative z-10">
         <p class="eyebrow">{HOME.kicker}</p>
         <h1 class="mt-4 text-5xl text-sage sm:text-6xl lg:text-7xl">
@@ -89,19 +92,20 @@ try {
           <a href={SHOP.patternsHref} class="link-pill">{HOME.heroPatternsButton}</a>
         </div>
       </div>
-      <div class:list={["relative mx-auto w-full max-w-[24rem] lg:max-w-[30rem]", christmas && "hop-on-hover"]} aria-hidden="true">
+      <div class:list={["relative mx-auto w-full max-w-[24rem] lg:max-w-[30rem]", season && "hop-on-hover"]} aria-hidden="true">
         <div class="dots aspect-square rounded-full"></div>
-        {christmas && <div class="pointer-events-none absolute -inset-x-[10%] -bottom-[6%] -top-[12%] lg:hidden"><DotSnow count={20} /></div>}
+        {season && <div class="pointer-events-none absolute -inset-x-[10%] -bottom-[6%] -top-[12%] lg:hidden"><DotSnow season={season} count={20} /></div>}
         <div class="bird absolute inset-[8%]">
           <img src="/dotty-bobbin-icon.png" alt="" width="879" height="879" class="h-full w-full object-contain" />
-          {christmas && <SantaHat wiggle class="absolute left-[37.5%] top-[-14.7%] w-[35%]" />}
+          {/* Band centred on her crown, just above her eye (measured on the 879px icon). */}
+          {season && <BirdHat season={season} wiggle class="absolute left-[33.4%] top-[-17.2%] w-[39.2%]" />}
         </div>
         <span class="absolute right-[6%] top-[10%] h-6 w-6 rounded-full bg-blush"></span>
         <span class="absolute bottom-[12%] left-[2%] h-10 w-10 rounded-full border-4 border-secondary bg-background"></span>
-        {christmas && (
+        {season && (
           <>
-            <StitchSnowflake twinkle class="absolute left-[-4%] top-[24%] w-[14%] text-gold" />
-            <StitchSnowflake twinkle delay={3} class="absolute bottom-[22%] right-[-2%] w-[11%] text-holly/70" />
+            <StitchSnowflake twinkle class:list={["absolute left-[-4%] top-[24%] w-[14%]", DECOR[season].flakes[0]]} />
+            <StitchSnowflake twinkle delay={3} class:list={["absolute bottom-[22%] right-[-2%] w-[11%]", DECOR[season].flakes[1]]} />
           </>
         )}
       </div>
@@ -239,7 +243,7 @@ try {
 </SiteLayout>
 
 <style>
-  /* At Christmas the bird hops when the pointer comes over her (a pointer only; still with "reduce motion"). */
+  /* In a seasonal look the bird hops when the pointer comes over her (a pointer only; still with "reduce motion"). */
   @media (prefers-reduced-motion: no-preference) and (hover: hover) {
     .hop-on-hover:hover .bird {
       animation: hop 0.7s ease-out;

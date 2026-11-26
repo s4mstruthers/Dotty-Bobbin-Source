@@ -1,16 +1,22 @@
 ---
-// A Christmas garland: a red thread strung across in swags, with sewing buttons hanging from it for
-// baubles. Decorative (hidden from screen readers); nothing under it can be clicked.
+// A seasonal garland: a thread strung across in swags, with sewing buttons hanging from it for
+// baubles (red, green and gold at Christmas; navy, ice and silver in winter: ./palette.ts).
+// Decorative (hidden from screen readers); nothing under it can be clicked.
 //   - The buttons sway gently on their threads, and jingle when the pointer passes over one.
 //   - `sew`: the thread sews itself across and the buttons drop on when the page opens (for the
 //     garland at the top of the home page; one further down would finish before anyone saw it).
 //   - With "reduce motion" on, it simply hangs still.
 // It is cropped from the middle on narrow screens, so phones see fewer buttons, never smaller ones.
+import type { Season } from "../../lib/season";
+import { DECOR } from "./palette";
+
 interface Props {
+  season: Season;
   class?: string;
   sew?: boolean;
 }
-const { class: className, sew = false } = Astro.props;
+const { season, class: className, sew = false } = Astro.props;
+const decor = DECOR[season];
 
 const W = 1200;
 const H = 80;
@@ -20,8 +26,6 @@ const SAG = 28;
 const pins = Array.from({ length: W / STEP + 1 }, (_, i) => i * STEP);
 const thread = `M0 ${PIN_Y} ` + pins.slice(1).map((x) => `Q${x - STEP / 2} ${SAG} ${x} ${PIN_Y}`).join(" ");
 
-// Button colours in turn; cream ones read as "snow" buttons.
-const FILLS = ["fill-berry", "fill-holly", "fill-gold", "fill-dotty", "fill-snow", "fill-berry", "fill-holly"];
 const buttons = pins.slice(1, -1).map((x, i) => {
   const r = i % 2 ? 13 : 16;
   const drop = i % 2 ? 34 : 18;
@@ -30,7 +34,7 @@ const buttons = pins.slice(1, -1).map((x, i) => {
     r,
     cy: PIN_Y + drop + r,
     drop,
-    fill: FILLS[i % FILLS.length],
+    fill: decor.buttons[i % decor.buttons.length],
     holes: i % 3 === 1 ? 2 : 4,
     // Out of step with each other, like real ones.
     sway: (3.4 + (i % 3) * 0.5).toFixed(1),
@@ -47,12 +51,12 @@ const buttons = pins.slice(1, -1).map((x, i) => {
   aria-hidden="true"
   focusable="false"
 >
-  <path class="thread stroke-berry" d={thread} fill="none" stroke-width="2.2" stroke-linecap="round" pathLength="1" />
+  <path class:list={["thread", decor.thread]} d={thread} fill="none" stroke-width="2.2" stroke-linecap="round" pathLength="1" />
   {buttons.map((b) => (
     <g class="sway" style={`transform-origin:${b.x}px ${PIN_Y}px;animation-duration:${b.sway}s;animation-delay:${b.swayDelay}s`}>
       <g class="drop" style={`animation-delay:${b.dropDelay}s`}>
         <g class="jingle" style={`transform-origin:${b.x}px ${PIN_Y}px`}>
-          <line x1={b.x} y1={PIN_Y} x2={b.x} y2={PIN_Y + b.drop} class="stroke-berry" stroke-width="1.6" />
+          <line x1={b.x} y1={PIN_Y} x2={b.x} y2={PIN_Y + b.drop} class={decor.thread} stroke-width="1.6" />
           <circle cx={b.x} cy={b.cy} r={b.r} class:list={[b.fill, "stroke-ink"]} stroke-width="1.6" />
           <circle cx={b.x} cy={b.cy} r={b.r - 3.5} fill="none" class="stroke-ink" stroke-width="1" opacity="0.25" />
           {b.holes === 4 ? (
@@ -60,20 +64,20 @@ const buttons = pins.slice(1, -1).map((x, i) => {
               {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([dx, dy]) => (
                 <circle cx={b.x + dx * 3.2} cy={b.cy + dy * 3.2} r="1.7" class="fill-ink" opacity="0.55" />
               ))}
-              <path d={`M${b.x - 3.2} ${b.cy - 3.2}L${b.x + 3.2} ${b.cy + 3.2}M${b.x + 3.2} ${b.cy - 3.2}L${b.x - 3.2} ${b.cy + 3.2}`} class="stroke-snow" stroke-width="1.3" stroke-linecap="round" />
+              <path d={`M${b.x - 3.2} ${b.cy - 3.2}L${b.x + 3.2} ${b.cy + 3.2}M${b.x + 3.2} ${b.cy - 3.2}L${b.x - 3.2} ${b.cy + 3.2}`} class={decor.stitch} stroke-width="1.3" stroke-linecap="round" />
             </>
           ) : (
             <>
               <circle cx={b.x - 3} cy={b.cy} r="1.7" class="fill-ink" opacity="0.55" />
               <circle cx={b.x + 3} cy={b.cy} r="1.7" class="fill-ink" opacity="0.55" />
-              <path d={`M${b.x - 3} ${b.cy}L${b.x + 3} ${b.cy}`} class="stroke-snow" stroke-width="1.3" stroke-linecap="round" />
+              <path d={`M${b.x - 3} ${b.cy}L${b.x + 3} ${b.cy}`} class={decor.stitch} stroke-width="1.3" stroke-linecap="round" />
             </>
           )}
         </g>
       </g>
     </g>
   ))}
-  {pins.map((x) => <circle cx={x} cy={PIN_Y} r="3.6" class="fill-gold stroke-ink" stroke-width="1" />)}
+  {pins.map((x) => <circle cx={x} cy={PIN_Y} r="3.6" class:list={[decor.pins, "stroke-ink"]} stroke-width="1" />)}
 </svg>
 
 <style>

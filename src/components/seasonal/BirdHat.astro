@@ -1,0 +1,83 @@
+---
+// A hat for the Dotty Bobbin bird, drawn like the logo (black outline, flat colour): a Santa hat at
+// Christmas, its tip flopping back behind her head; in winter a knitted bobble hat, navy with white
+// spots and a pink bobble. Both sit level on the same band (x 18–90, bottom at y 71 of the 100×80
+// drawing), so one placement fits both: put it over the bird with `class` (absolute, left/top/width),
+// the band centred on her crown and its lower edge just above her eye. Decorative (hidden from
+// screen readers).
+// `wiggle`: she gives her head a little shake now and then; with "reduce motion" on the hat stays put.
+import type { Season } from "../../lib/season";
+
+interface Props {
+  season: Season;
+  class?: string;
+  wiggle?: boolean;
+}
+const { season, class: className, wiggle = false } = Astro.props;
+const RIBS = [26, 33, 40, 47, 54, 61, 68, 75, 82];
+const SPOTS = [
+  [40, 41],
+  [54, 31],
+  [68, 41],
+  [47, 49],
+  [61, 49],
+];
+---
+
+<svg class:list={["bird-hat", wiggle && "wiggle", className]} viewBox="0 0 100 80" aria-hidden="true" focusable="false">
+  <g class="stroke-ink" stroke-width="2.2" stroke-linejoin="round">
+    {season === "christmas" ? (
+      <>
+        <!-- The hat, its tip folded back to the left. -->
+        <path class="fill-berry" d="M27 58 C29 45 31 37 37 31 C30 31 23 32 16 35 C22 20 35 8 53 7 C70 6 80 20 84 58 Z" />
+        <!-- A shadow under the fold, so the tip reads as hanging over. -->
+        <path d="M37 31 C30 31 23 32 16 35 C24 33 31 34 36 36 Z" class="fill-ink" opacity="0.25" stroke="none" />
+        <!-- The fur brim and the pompom. -->
+        <rect x="18" y="53" width="72" height="18" rx="9" class="fill-snow" />
+        <circle cx="14" cy="37" r="8.5" class="fill-snow" />
+      </>
+    ) : (
+      <>
+        <!-- The knitted crown, with spots. -->
+        <path class="fill-navy" d="M22 58 C20 34 34 18 54 18 C74 18 88 34 86 58 Z" />
+        {SPOTS.map(([x, y]) => <circle cx={x} cy={y} r="3.4" class="fill-white" stroke="none" />)}
+        <!-- The ribbed band. -->
+        <rect x="18" y="52" width="72" height="19" rx="7" class="fill-ice" />
+        {RIBS.map((x) => <path d={`M${x} 56V67`} stroke-width="1.6" opacity="0.35" stroke-linecap="round" />)}
+        <!-- The bobble. -->
+        <circle cx="54" cy="14" r="10" class="fill-dotty" />
+        <path d="M49 10l3 3M57 9l-2 4M50 18l3-2M58 17l-2-2" stroke-width="1.4" opacity="0.4" stroke-linecap="round" />
+      </>
+    )}
+  </g>
+</svg>
+
+<style>
+  .bird-hat {
+    overflow: visible;
+    transform-origin: 54% 78%;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wiggle {
+      animation: wiggle 6s ease-in-out infinite;
+    }
+  }
+  /* Straight most of the time; a quick shake, then straight again. */
+  @keyframes wiggle {
+    0%,
+    78%,
+    100% {
+      transform: rotate(0deg);
+    }
+    84% {
+      transform: rotate(-4deg);
+    }
+    90% {
+      transform: rotate(3deg);
+    }
+    95% {
+      transform: rotate(-1.5deg);
+    }
+  }
+</style>

@@ -1,19 +1,23 @@
 ---
-// "Dotty snow": polka dots in Christmas colours drifting down, slowly and softly, behind whatever
+// "Dotty snow": polka dots in the season's colours (./palette.ts) drifting down, slowly and softly, behind whatever
 // sits on top. Decorative (hidden from screen readers) and never in the way of a click. It fills
 // its positioned parent; phones get half as many dots. With "reduce motion" on there is no snow.
+import type { Season } from "../../lib/season";
+import { DECOR } from "./palette";
+
 interface Props {
+  season: Season;
   class?: string;
   count?: number;
 }
-const { class: className, count = 22 } = Astro.props;
+const { season, class: className, count = 22 } = Astro.props;
+const decor = DECOR[season];
 
 // Fixed "random" values, so the page is the same on every visit (no flicker between server and browser).
 const rand = (i: number, k: number) => {
   const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
   return v - Math.floor(v);
 };
-const COLOURS = ["bg-berry/45", "bg-gold/70", "bg-holly/40", "bg-dotty/50"];
 const dots = Array.from({ length: count }, (_, i) => ({
   left: (rand(i, 1) * 100).toFixed(1),
   size: Math.round(6 + rand(i, 2) * 9),
@@ -21,7 +25,7 @@ const dots = Array.from({ length: count }, (_, i) => ({
   delay: (-rand(i, 4) * 26).toFixed(1),
   drift: Math.round((rand(i, 5) - 0.5) * 50),
   wobble: (2.5 + rand(i, 6) * 2).toFixed(1),
-  colour: COLOURS[i % COLOURS.length],
+  colour: decor.snow[i % decor.snow.length],
   phoneHidden: i % 2 === 1,
 }));
 ---
@@ -33,7 +37,7 @@ const dots = Array.from({ length: count }, (_, i) => ({
       style={`left:${d.left}%;animation-duration:${d.fall}s;animation-delay:${d.delay}s`}
     >
       <span
-        class:list={["block rounded-full", d.colour]}
+        class:list={["block rounded-full", d.colour, decor.snowRing]}
         style={`width:${d.size}px;height:${d.size}px;--drift:${d.drift}px;animation-duration:${d.wobble}s`}
       />
     </span>

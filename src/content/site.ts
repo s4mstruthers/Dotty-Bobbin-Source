@@ -82,11 +82,12 @@ export const HOME = {
 };
 
 /**
- * The Christmas look. It switches itself on and off every year between these two dates (UK time,
- * both days included): nothing to release when it starts or ends. `on: false` keeps it off all year.
+ * The seasonal looks: Christmas, then winter straight after. Each switches itself on and off every
+ * year between its two dates (UK time, both days included): nothing to release when one starts or
+ * ends. `on: false` keeps that one off all year. Outside both, the site wears its usual look.
  *
- * To see it before it starts, open any page with ?season=christmas on the end of the address; the
- * whole site stays Christmassy in that browser until ?season=off (or the browser is closed).
+ * To see one at any time, open any page with ?season=christmas or ?season=winter on the end of the
+ * address; the whole site keeps it in that browser until ?season=off (or the browser is closed).
  */
 export const CHRISTMAS = {
   on: true,
@@ -100,6 +101,17 @@ export const CHRISTMAS = {
   giftTitle: "Give the gift of sewing this Christmas",
   giftText:
     "For the sewist in your life, or someone who'd love to learn. A gift card can be spent on any of my classes, retreats or anything in the studio shop.",
+};
+
+/** The winter look, from the day after Christmas comes down to the end of February. */
+export const WINTER = {
+  on: true,
+  from: "01-06", // 6 January
+  until: "02-29", // the end of February (the 29th covers leap years)
+  // The thin strip above the menu on every page.
+  bannerText: "Learn something new this winter:",
+  bannerLink: "Sewing classes",
+  bannerHref: "/services",
 };
 
 /** Shown on the shop and every product page. Shop orders are collected, never posted. */

@@ -1,0 +1,55 @@
+---
+// The thin strip above the menu in a seasonal look (pine at Christmas, midnight blue in winter),
+// with a running stitch along its foot that sews itself in when the page opens (still, with
+// "reduce motion" on). Words: CHRISTMAS and WINTER in src/content/site.ts; colours: ./palette.ts.
+import { CHRISTMAS, WINTER } from "../../content/site";
+import type { Season } from "../../lib/season";
+import { DECOR } from "./palette";
+import StitchSnowflake from "./StitchSnowflake.astro";
+
+interface Props {
+  season: Season;
+}
+const { season } = Astro.props;
+const words = season === "christmas" ? CHRISTMAS : WINTER;
+const decor = DECOR[season];
+---
+
+<div class:list={["season-banner relative", decor.strip]}>
+  <div class="wrap flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 py-2.5 text-center text-sm">
+    <StitchSnowflake class:list={["h-5 w-5 shrink-0 max-sm:hidden", decor.stripAccent]} twinkle />
+    <span>{words.bannerText}</span>
+    <a href={words.bannerHref} class:list={["inline-flex items-center gap-1 font-bold underline decoration-2 underline-offset-4 hover:decoration-current", decor.stripUnderline]}>
+      {words.bannerLink}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+    </a>
+    <StitchSnowflake class:list={["h-5 w-5 shrink-0 max-sm:hidden", decor.stripAccent]} twinkle delay={3.5} />
+  </div>
+  <span class:list={["stitches", decor.stripAccent]} aria-hidden="true"></span>
+</div>
+
+<style>
+  .stitches {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 4px;
+    height: 2px;
+    background-image: linear-gradient(to right, currentColor 60%, transparent 60%);
+    background-size: 14px 2px;
+    background-repeat: repeat-x;
+    opacity: 0.85;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stitches {
+      animation: sew-in 1.8s steps(40, end) 0.3s both;
+    }
+  }
+  @keyframes sew-in {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+</style>

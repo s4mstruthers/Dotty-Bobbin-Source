@@ -52,6 +52,14 @@
   --color-pine: #22513a;
   --color-gold: #e2b75e;
   --color-snow: #fffaf3;
+  /* …and the winter extras. */
+  --color-midnight: #1f3b57;
+  --color-navy: #27496b;
+  --color-steel: #5f86a6;
+  --color-ice: #9cc4de;
+  --color-ice-light: #b9d8ec;
+  --color-silver: #c3ccd5;
+  --color-white: #ffffff;
 
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -117,6 +125,20 @@ html[data-season='christmas'] {
   --color-sage-deep: #22513a;
   --color-blush: #ebc57a;
   --color-blush-soft: #f9e6e3;
+}
+
+/* ─── Winter ────────────────────────────────────────────────────────────────────────────
+   On <html data-season="winter">, 6 Jan – end of Feb (WINTER in src/content/site.ts). A frosty
+   morning: cool backgrounds and blue headings, with the brand pink kept for buttons and accents.
+     frost  #F5F9FC background        ice   #E6EFF6 sections and cards
+     lake   #2F5F80 headings (6.5:1 on frost)   navy #1F4562 small labels (9.5:1)
+     buttons stay hot pink with charcoal labels (5.3:1) */
+html[data-season='winter'] {
+  --color-background: #f5f9fc;
+  --color-secondary: #e6eff6;
+  --color-border: #d3e1eb;
+  --color-sage: #2f5f80;
+  --color-sage-deep: #1f4562;
 }
 
 /* iPhone Safari zooms the page into any field under 16px; keep phone-sized fields at 16px or more.

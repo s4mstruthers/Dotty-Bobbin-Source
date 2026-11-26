@@ -81,12 +81,15 @@ start an edit from anywhere else, and never edit only the live site.
   "UK - collection only"; the "International" region is switched off). Turn shipping back on there, not in code.
 - **Colours**: the brand colours are tokens in `src/styles/global.css`. Hot pink (`--color-primary`) is
   for buttons only; sage is for headings and accents; pale sage for soft backgrounds.
-- **Christmas look**: switches itself on from 26 November to 5 January (UK time) every year, with no
-  release. The dates, the strip's words and the home page gift-card wording are in `CHRISTMAS` in
-  `src/content/site.ts` (`on: false` keeps it off). To see it at any time, add `?season=christmas`
-  to an address (`?season=off` for the normal look); it lasts until the browser is closed. The colours
-  are the `html[data-season='christmas']` block in `global.css`; the garland, snow, snowflakes and the
-  bird's hat are in `src/components/seasonal/`, and every animation stops when a device asks for reduced motion.
+- **Christmas and winter looks**: Christmas switches itself on from 26 November to 5 January, then
+  winter from 6 January to the end of February (UK time), every year, with no release. The dates
+  and the strip's words are in `CHRISTMAS` and `WINTER` in `src/content/site.ts` (`on: false` keeps
+  one off); the home page's Christmas gift-card wording is in `CHRISTMAS` too. To see either at any
+  time, add `?season=christmas` or `?season=winter` to an address (`?season=off` for the normal
+  look); it lasts until the browser is closed. The page colours are the `html[data-season=…]` blocks
+  in `global.css`; the garland, snow, snowflakes and the bird's hats are in `src/components/seasonal/`
+  (their colours per season in `palette.ts`), and every animation stops when a device asks for
+  reduced motion.
 
 ## Portfolio Course 1
 
