@@ -44,9 +44,9 @@ const within = (base: string) => path === base || path.startsWith(`${base}/`);
 const isActive = (href: string) => (href === "/" ? path === "/" : within(href) || (UNDER[href] ?? []).some(within));
 const patternsHref = SHOP.patternsHref;
 const year = new Date().getFullYear();
-// The holiday look: Christmas 26 Nov – 5 Jan, Easter (two weeks before Easter Sunday to Easter
-// Monday), Halloween 17 – 31 Oct, else none (src/lib/season.ts; dates in CHRISTMAS, EASTER and
-// HALLOWEEN, src/content/site.ts).
+// The holiday look: Christmas 26 Nov – 5 Jan, Valentine's 11 – 14 Feb, Easter (two weeks before
+// Easter Sunday to Easter Monday), Halloween 17 – 31 Oct, else none (src/lib/season.ts; dates in
+// CHRISTMAS, VALENTINES, EASTER and HALLOWEEN, src/content/site.ts).
 const season = currentSeason(Astro.url, Astro.cookies);
 // One back link per page, naming where it goes ("‹ All classes"), and always going there — easier
 // to follow than "Back" plus a breadcrumb trail. Top-level pages have none: the menu is there.
@@ -198,10 +198,10 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
     <CartDrawer client:only="react" />
 
     <script>
-      // The holiday preview (src/lib/season.ts): ?season=christmas, easter, halloween or off is
+      // The holiday preview (src/lib/season.ts): ?season=christmas, valentines, easter, halloween or off is
       // remembered for the rest of the visit, so every page follows until the browser is closed.
       const seasonChoice = new URLSearchParams(location.search).get("season") ?? "";
-      if (["christmas", "easter", "halloween", "off"].includes(seasonChoice)) document.cookie = `db-season=${seasonChoice}; path=/; SameSite=Lax`;
+      if (["christmas", "valentines", "easter", "halloween", "off"].includes(seasonChoice)) document.cookie = `db-season=${seasonChoice}; path=/; SameSite=Lax`;
 
       // Close the mobile menu on Escape, a tap outside it, or after picking a link (delegated: the
       // account link is an island that renders after this runs).

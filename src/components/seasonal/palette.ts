@@ -5,8 +5,8 @@
 import type { Season } from "../../lib/season";
 
 export interface SeasonDecor {
-  /** What hangs on the garland: sewing buttons, or painted eggs. Their colours, in turn. */
-  ornament: "button" | "egg";
+  /** What hangs on the garland: sewing buttons, heart-shaped buttons, or painted eggs. Their colours, in turn. */
+  ornament: "button" | "heart" | "egg";
   buttons: string[];
   thread: string;
   /** The cross stitch through a button's holes, or the zigzag painted round an egg; then the same
@@ -14,15 +14,16 @@ export interface SeasonDecor {
   stitch: string;
   stitchFill: string;
   pins: string;
-  /** What drifts past the bird, in turn: polka-dot snow, blossom petals that twirl as they fall,
-   *  or little bats that flap their way up. Dots and petals take bg-* classes; bats text-*. */
+  /** What drifts past the bird, in turn: polka-dot snow, little hearts, blossom petals that twirl
+   *  as they fall, or little bats that flap their way up. Dots and petals take bg-* classes;
+   *  hearts and bats text-*. */
   snow: string[];
-  snowShape: "dot" | "petal" | "bat";
+  snowShape: "dot" | "heart" | "petal" | "bat";
   /** A faint ring round each dot or petal, so pale ones still show on a pale page. */
   snowRing: string;
   /** The cross-stitch motif (in the strip and beside the bird), its two colours beside the bird,
-   *  and the colour of a flower's centre or a pumpkin's stalk. */
-  motif: "snowflake" | "flower" | "pumpkin";
+   *  and the colour of a flower's centre, a heart's shine or a pumpkin's stalk. */
+  motif: "snowflake" | "heart" | "flower" | "pumpkin";
   flakes: [string, string];
   motifCentre: string;
   /** The strip above the menu: background and text, then its motifs, stitching and link underline. */
@@ -51,6 +52,24 @@ export const DECOR: Record<Season, SeasonDecor> = {
     stripAccent: "text-gold",
     stripUnderline: "decoration-gold",
     themeColor: "#22513a",
+  },
+  valentines: {
+    ornament: "heart",
+    buttons: ["fill-berry", "fill-dotty", "fill-blossom", "fill-rose", "fill-white", "fill-berry", "fill-dotty"],
+    thread: "stroke-raspberry",
+    stitch: "stroke-white",
+    stitchFill: "fill-white",
+    pins: "fill-dotty",
+    snow: ["text-dotty/70", "text-berry/50", "text-rose/60", "text-dotty/45"],
+    snowShape: "heart",
+    snowRing: "",
+    motif: "heart",
+    flakes: ["text-dotty", "text-berry/70"],
+    motifCentre: "text-white",
+    strip: "bg-raspberry text-white",
+    stripAccent: "text-blossom",
+    stripUnderline: "decoration-blossom",
+    themeColor: "#a3224f",
   },
   easter: {
     ornament: "egg",

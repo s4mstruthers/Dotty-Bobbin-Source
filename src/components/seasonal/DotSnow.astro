@@ -1,7 +1,7 @@
 ---
 // What drifts past the bird in a holiday look (./palette.ts): "Dotty snow" at Christmas, polka dots
-// falling slowly and softly; at Easter blossom petals that twirl as they fall; at Halloween a few
-// little bats that flap their way up. Behind whatever sits on top, decorative (hidden from screen
+// falling slowly and softly; at Valentine's little hearts that sway as they fall; at Easter blossom
+// petals that twirl as they fall; at Halloween a few little bats that flap their way up. Behind whatever sits on top, decorative (hidden from screen
 // readers) and never in the way of a click. It fills its positioned parent; phones get half as
 // many. With "reduce motion" on nothing moves and nothing shows.
 import type { Season } from "../../lib/season";
@@ -16,8 +16,9 @@ const { season, class: className, count = 22 } = Astro.props;
 const decor = DECOR[season];
 const petals = decor.snowShape === "petal";
 const bats = decor.snowShape === "bat";
-// Bats are bigger and livelier than snow, so there are half as many.
-const n = bats ? Math.ceil(count / 2) : count;
+const hearts = decor.snowShape === "heart";
+// Bats and hearts are bigger than snow, so there are fewer of them.
+const n = bats ? Math.ceil(count / 2) : hearts ? Math.ceil(count * 0.7) : count;
 
 // Fixed "random" values, so the page is the same on every visit (no flicker between server and browser).
 const rand = (i: number, k: number) => {
@@ -26,7 +27,7 @@ const rand = (i: number, k: number) => {
 };
 const dots = Array.from({ length: n }, (_, i) => ({
   left: (rand(i, 1) * 100).toFixed(1),
-  size: Math.round(6 + rand(i, 2) * 9) + (petals ? 3 : bats ? 4 : 0),
+  size: Math.round(6 + rand(i, 2) * 9) + (petals ? 3 : bats || hearts ? 4 : 0),
   fall: (14 + rand(i, 3) * 12).toFixed(1),
   delay: (-rand(i, 4) * 26).toFixed(1),
   drift: Math.round((rand(i, 5) - 0.5) * 50),
@@ -47,6 +48,12 @@ const dots = Array.from({ length: n }, (_, i) => ({
         <span class:list={["block", d.colour]} style={`--drift:${d.drift * 1.6}px;animation-duration:${d.wobble}s`}>
           <svg class="bat" viewBox="0 0 40 20" width={d.size * 2.2} height={d.size} fill="currentColor" style={`animation-duration:${(0.28 + (d.size % 4) * 0.03).toFixed(2)}s`}>
             <path d="M20 5L21.5 2.5L22.5 6C26 3 32 2 39 4C36 6 35 9 35 12C33 10 30 10 28 13C26 11 24 11 22 14L20 17L18 14C16 11 14 11 12 13C10 10 7 10 5 12C5 9 4 6 1 4C8 2 14 3 17.5 6L18.5 2.5Z" />
+          </svg>
+        </span>
+      ) : hearts ? (
+        <span class:list={["block heart", d.colour]} style={`--drift:${d.drift}px;animation-duration:${d.wobble}s`}>
+          <svg viewBox="0 0 20 18" width={d.size} height={d.size * 0.9} fill="currentColor" class="block">
+            <path d="M10 17C3 11 0 8 0 5C0 2 2 0 5 0C7 0 9 1.5 10 3C11 1.5 13 0 15 0C18 0 20 2 20 5C20 8 17 11 10 17Z" />
           </svg>
         </span>
       ) : (
@@ -85,6 +92,9 @@ const dots = Array.from({ length: n }, (_, i) => ({
     .flake > .petal {
       animation-name: flutter;
     }
+    .flake > .heart {
+      animation-name: sway-heart;
+    }
     /* Bats fly up rather than fall, and flap as they go. */
     .rise {
       animation-direction: reverse;
@@ -116,6 +126,14 @@ const dots = Array.from({ length: n }, (_, i) => ({
     100% {
       transform: translateY(calc(100cqh + 40px));
       opacity: 0;
+    }
+  }
+  @keyframes sway-heart {
+    from {
+      transform: translateX(calc(var(--drift) * -0.5)) rotate(-14deg);
+    }
+    to {
+      transform: translateX(calc(var(--drift) * 0.5)) rotate(14deg);
     }
   }
   @keyframes flap {

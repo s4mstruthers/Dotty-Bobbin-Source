@@ -1,15 +1,16 @@
-// Which holiday look the site wears today: Christmas, Easter, Halloween, or none (the usual look).
-// The pages are rendered on every visit (nothing is cached), so the look changes by itself at
-// midnight UK time on the dates in src/content/site.ts (CHRISTMAS, EASTER, HALLOWEEN). Easter's
+// Which holiday look the site wears today: Christmas, Valentine's Day, Easter, Halloween, or none
+// (the usual look). The pages are rendered on every visit (nothing is cached), so the look changes
+// by itself at midnight UK time on the dates in src/content/site.ts (CHRISTMAS, VALENTINES, EASTER,
+// HALLOWEEN). Easter's
 // dates are counted from Easter Sunday, worked out here for each year.
 //
-// A preview: ?season=christmas, ?season=easter or ?season=halloween on any address shows that look
+// A preview: ?season=christmas, ?season=valentines, ?season=easter or ?season=halloween on any address shows that look
 // whatever the date, and a cookie (set by the script in SiteLayout) keeps it while browsing in that
 // browser. ?season=off turns any look off again, including during the holiday itself.
 import type { AstroCookies } from "astro";
-import { CHRISTMAS, EASTER, HALLOWEEN } from "../content/site";
+import { CHRISTMAS, EASTER, HALLOWEEN, VALENTINES } from "../content/site";
 
-export const SEASONS = ["christmas", "easter", "halloween"] as const;
+export const SEASONS = ["christmas", "valentines", "easter", "halloween"] as const;
 export type Season = (typeof SEASONS)[number];
 
 export const SEASON_PARAM = "season";
@@ -50,7 +51,7 @@ function fromEaster(year: number, offset: number): string {
 /** Each holiday's dates in a given year, both "MM-DD" and inclusive. */
 function range(season: Season, year: number): { on: boolean; from: string; until: string } {
   if (season === "easter") return { on: EASTER.on, from: fromEaster(year, -EASTER.daysBefore), until: fromEaster(year, EASTER.daysAfter) };
-  return season === "christmas" ? CHRISTMAS : HALLOWEEN;
+  return { christmas: CHRISTMAS, valentines: VALENTINES, halloween: HALLOWEEN }[season];
 }
 
 /** Whether `md` falls between `from` and `until` (both "MM-DD", inclusive); the range may cross New Year. */

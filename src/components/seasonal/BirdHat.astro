@@ -1,12 +1,14 @@
 ---
 // A hat for the Dotty Bobbin bird, drawn like the logo (black outline, flat colour): a Santa hat at
-// Christmas, its tip flopping back behind her head; at Easter a straw bonnet with a pink ribbon and
-// a daisy; at Halloween a witch's hat with a pumpkin band, its point bent back. All sit level on the
+// Christmas, its tip flopping back behind her head; at Valentine's a headband with two hearts on
+// springs; at Easter a straw bonnet with a pink ribbon and a daisy; at Halloween a witch's hat with
+// a pumpkin band, its point bent back. All sit level on the
 // same band (x 18–90, bottom at y 71 of the 100×80 drawing), so one placement fits every hat:
 // put it over the bird with `class` (absolute, left/top/width),
 // the band centred on her crown and its lower edge just above her eye. Decorative (hidden from
 // screen readers).
-// `wiggle`: she gives her head a little shake now and then; with "reduce motion" on the hat stays put.
+// `wiggle`: she gives her head a little shake now and then (and the Valentine's hearts bob on their
+// springs); with "reduce motion" on the hat stays put. Only the big bird on the home page wiggles.
 import type { Season } from "../../lib/season";
 
 interface Props {
@@ -15,6 +17,28 @@ interface Props {
   wiggle?: boolean;
 }
 const { season, class: className, wiggle = false } = Astro.props;
+// The Valentine's headband follows the top of her head; two springs rise from it to the hearts.
+const BAND = "M21 70C27 56 42 54 54 54C66 54 79 57 83 67";
+const spring = (x1: number, y1: number, x2: number, y2: number, turns = 7) => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  const [nx, ny] = [-dy / len, dx / len];
+  const pts = Array.from({ length: turns + 1 }, (_, k) => {
+    const t = k / turns;
+    const side = k === 0 || k === turns ? 0 : k % 2 ? 2.4 : -2.4;
+    return `${(x1 + dx * t + nx * side).toFixed(1)} ${(y1 + dy * t + ny * side).toFixed(1)}`;
+  });
+  return `M${pts.join("L")}`;
+};
+const heart = (x: number, top: number, s: number) => {
+  const y = top + 0.35 * s;
+  return `M${x} ${y + 0.9 * s}C${x - 1.35 * s} ${y + 0.05 * s} ${x - 0.65 * s} ${y - 1.1 * s} ${x} ${top}C${x + 0.65 * s} ${y - 1.1 * s} ${x + 1.35 * s} ${y + 0.05 * s} ${x} ${y + 0.9 * s}Z`;
+};
+const BOPPERS = [
+  { base: [42, 55], tip: [36, 22], fill: "fill-dotty", delay: 0 },
+  { base: [66, 55], tip: [72, 22], fill: "fill-berry", delay: -0.9 },
+];
 // The daisy on the bonnet's ribbon: six petals round a yellow middle.
 const DAISY = { x: 70, y: 47 };
 const DAISY_PETALS = Array.from({ length: 6 }, (_, i) => {
@@ -34,6 +58,18 @@ const DAISY_PETALS = Array.from({ length: 6 }, (_, i) => {
         <!-- The fur brim and the pompom. -->
         <rect x="18" y="53" width="72" height="18" rx="9" class="fill-snow" />
         <circle cx="14" cy="37" r="8.5" class="fill-snow" />
+      </>
+    ) : season === "valentines" ? (
+      <>
+        {BOPPERS.map(({ base: [bx, by], tip: [tx, ty], fill, delay }) => (
+          <g class="boing" style={`transform-origin:${bx}px ${by}px;animation-delay:${delay}s`}>
+            <path d={spring(bx, by, tx, ty)} fill="none" stroke-width="1.6" stroke-linecap="round" />
+            <path d={heart(tx, ty - 10, 8)} class={fill} stroke-width="1.8" />
+          </g>
+        ))}
+        <!-- The band itself: an outline, then the colour on top. -->
+        <path d={BAND} fill="none" stroke-width="7" stroke-linecap="round" />
+        <path d={BAND} fill="none" class="stroke-raspberry" stroke-width="4.2" stroke-linecap="round" />
       </>
     ) : season === "easter" ? (
       <>
@@ -71,6 +107,17 @@ const DAISY_PETALS = Array.from({ length: 6 }, (_, i) => {
   @media (prefers-reduced-motion: no-preference) {
     .wiggle {
       animation: wiggle 6s ease-in-out infinite;
+    }
+    .wiggle .boing {
+      animation: boing 1.8s ease-in-out infinite alternate;
+    }
+  }
+  @keyframes boing {
+    from {
+      transform: rotate(-8deg);
+    }
+    to {
+      transform: rotate(8deg);
     }
   }
   /* Straight most of the time; a quick shake, then straight again. */

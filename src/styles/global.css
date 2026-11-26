@@ -60,6 +60,9 @@
   --color-lilac: #c7a8dc;
   --color-sky: #9ccfe8;
   --color-straw: #e8c98b;
+  /* …the Valentine's extras… */
+  --color-raspberry: #a3224f;
+  --color-rose: #e0436b;
   /* …and the Halloween extras. */
   --color-pumpkin: #f28c28;
   --color-night: #2a1b3d;
@@ -130,6 +133,20 @@ html[data-season='christmas'] {
   --color-sage-deep: #22513a;
   --color-blush: #ebc57a;
   --color-blush-soft: #f9e6e3;
+}
+
+/* ─── Valentine's Day ─────────────────────────────────────────────────────────────────
+   On <html data-season="valentines">, 11 – 14 February (VALENTINES in src/content/site.ts). Her own
+   pinks, warmer: rose-white and blush backgrounds, raspberry headings, the hot-pink buttons kept.
+     rose-white #FFFAFB background     blush tint #FDEDF1 sections and cards
+     raspberry  #A3224F headings (7:1)  deep raspberry #7A1A3C small labels (10:1)
+     buttons stay hot pink with charcoal labels (5.3:1) */
+html[data-season='valentines'] {
+  --color-background: #fffafb;
+  --color-secondary: #fdedf1;
+  --color-border: #f5d6de;
+  --color-sage: #a3224f;
+  --color-sage-deep: #7a1a3c;
 }
 
 /* ─── Easter ────────────────────────────────────────────────────────────────────────────

@@ -81,17 +81,18 @@ start an edit from anywhere else, and never edit only the live site.
   "UK - collection only"; the "International" region is switched off). Turn shipping back on there, not in code.
 - **Colours**: the brand colours are tokens in `src/styles/global.css`. Hot pink (`--color-primary`) is
   for buttons only; sage is for headings and accents; pale sage for soft backgrounds.
-- **Holiday looks (Christmas, Easter, Halloween)**: each switches itself on and off every year, UK
-  time, with no release: Christmas 26 November – 5 January; Easter from two weeks before Easter
-  Sunday to Easter Monday (the site works out Easter for each year); Halloween 17 – 31 October. The
-  rest of the year is the usual look. The dates and the strip's words are in `CHRISTMAS`, `EASTER`
-  and `HALLOWEEN` in `src/content/site.ts` (`on: false` keeps one off); the home page's Christmas
-  gift-card wording is in `CHRISTMAS` too. To see one at any time, add `?season=christmas`,
+- **Holiday looks (Christmas, Valentine's, Easter, Halloween)**: each switches itself on and off
+  every year, UK time, with no release: Christmas 26 November – 5 January; Valentine's 11 – 14
+  February; Easter from two weeks before Easter Sunday to Easter Monday (the site works out Easter
+  for each year); Halloween 17 – 31 October. The rest of the year is the usual look. The dates and
+  the strip's words are in `CHRISTMAS`, `VALENTINES`, `EASTER` and `HALLOWEEN` in
+  `src/content/site.ts` (`on: false` keeps one off); the home page's Christmas gift-card wording is
+  in `CHRISTMAS` too. To see one at any time, add `?season=christmas`, `?season=valentines`,
   `?season=easter` or `?season=halloween` to an address (`?season=off` for the usual look); it lasts
   until the browser is closed. The page colours are the `html[data-season=…]` blocks in
-  `global.css`; the garland (buttons or eggs), the snow, petals or bats, the stitched motifs and the
-  bird's hats are in `src/components/seasonal/` (what each holiday uses, in `palette.ts`), and every
-  animation stops when a device asks for reduced motion.
+  `global.css`; the garland (buttons, hearts or eggs), what drifts past the bird (snow, hearts,
+  petals or bats), the stitched motifs and the bird's hats are in `src/components/seasonal/` (what
+  each holiday uses, in `palette.ts`), and every animation stops when a device asks for reduced motion.
 
 ## Portfolio Course 1
 

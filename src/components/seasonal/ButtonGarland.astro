@@ -1,7 +1,7 @@
 ---
 // A holiday garland: a thread strung across in swags, with sewing buttons hanging from it for
-// baubles (red, green and gold at Christmas; pumpkin, plum and black at Halloween), or painted eggs
-// at Easter: ./palette.ts. Decorative (hidden from screen readers); nothing under it can be clicked.
+// baubles (red, green and gold at Christmas; pumpkin, plum and black at Halloween), heart-shaped
+// buttons at Valentine's, or painted eggs at Easter: ./palette.ts. Decorative (hidden from screen readers); nothing under it can be clicked.
 //   - The buttons sway gently on their threads, and jingle when the pointer passes over one.
 //   - `sew`: the thread sews itself across and the buttons drop on when the page opens (for the
 //     garland at the top of the home page; one further down would finish before anyone saw it).
@@ -27,6 +27,12 @@ const pins = Array.from({ length: W / STEP + 1 }, (_, i) => i * STEP);
 const thread = `M0 ${PIN_Y} ` + pins.slice(1).map((x) => `Q${x - STEP / 2} ${SAG} ${x} ${PIN_Y}`).join(" ");
 
 const eggs = decor.ornament === "egg";
+const hearts = decor.ornament === "heart";
+/** A heart `s` wide-ish, hung from the dip between its lobes at (x, top). */
+const heart = (x: number, top: number, s: number) => {
+  const y = top + 0.35 * s;
+  return `M${x} ${y + 0.9 * s}C${x - 1.35 * s} ${y + 0.05 * s} ${x - 0.65 * s} ${y - 1.1 * s} ${x} ${top}C${x + 0.65 * s} ${y - 1.1 * s} ${x + 1.35 * s} ${y + 0.05 * s} ${x} ${y + 0.9 * s}Z`;
+};
 const buttons = pins.slice(1, -1).map((x, i) => {
   const r = i % 2 ? 13 : 16;
   const drop = i % 2 ? 34 : 18;
@@ -38,7 +44,8 @@ const buttons = pins.slice(1, -1).map((x, i) => {
     r,
     rx,
     ry,
-    cy: PIN_Y + drop + ry,
+    // Where its holes go: a heart hangs from its dip, so its middle is just below the thread's end.
+    cy: hearts ? PIN_Y + drop + 0.35 * r * 1.05 : PIN_Y + drop + ry,
     drop,
     fill: decor.buttons[i % decor.buttons.length],
     holes: i % 3 === 1 ? 2 : 4,
@@ -77,6 +84,13 @@ const buttons = pins.slice(1, -1).map((x, i) => {
               />
               {[-1, 0, 1].map((k) => <circle cx={b.x + k * b.rx * 0.42} cy={b.cy - b.ry * 0.5} r="1.3" class={decor.stitchFill} />)}
               {[-1, 1].map((k) => <circle cx={b.x + k * b.rx * 0.3} cy={b.cy + b.ry * 0.52} r="1.3" class={decor.stitchFill} />)}
+            </>
+          ) : hearts ? (
+            <>
+              <path d={heart(b.x, PIN_Y + b.drop, b.r * 1.05)} class:list={[b.fill, "stroke-ink"]} stroke-width="1.6" stroke-linejoin="round" />
+              <circle cx={b.x - 3} cy={b.cy + 1} r="1.7" class="fill-ink" opacity="0.55" />
+              <circle cx={b.x + 3} cy={b.cy + 1} r="1.7" class="fill-ink" opacity="0.55" />
+              <path d={`M${b.x - 3} ${b.cy + 1}L${b.x + 3} ${b.cy + 1}`} class={decor.stitch} stroke-width="1.3" stroke-linecap="round" />
             </>
           ) : (
             <>

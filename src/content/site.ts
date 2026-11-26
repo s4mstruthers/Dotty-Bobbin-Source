@@ -82,12 +82,12 @@ export const HOME = {
 };
 
 /**
- * The holiday looks: Christmas, Easter and Halloween. Each switches itself on and off every year
+ * The holiday looks: Christmas, Valentine's Day, Easter and Halloween. Each switches itself on and off every year
  * (UK time, both end days included): nothing to release when one starts or ends. `on: false` keeps
  * that one off. The rest of the year the site wears its usual look.
  *
- * To see one at any time, open any page with ?season=christmas, ?season=easter or ?season=halloween
- * on the end of the address; the whole site keeps it in that browser until ?season=off (or the
+ * To see one at any time, open any page with ?season=christmas, ?season=valentines, ?season=easter
+ * or ?season=halloween on the end of the address; the whole site keeps it in that browser until ?season=off (or the
  * browser is closed).
  */
 export const CHRISTMAS = {
@@ -102,6 +102,17 @@ export const CHRISTMAS = {
   giftTitle: "Give the gift of sewing this Christmas",
   giftText:
     "For the sewist in your life, or someone who'd love to learn. A gift card can be spent on any of my classes, retreats or anything in the studio shop.",
+};
+
+/** Valentine's Day: kept short on purpose, the three days before and the day itself. */
+export const VALENTINES = {
+  on: true,
+  from: "02-11", // 11 February
+  until: "02-14", // Valentine's Day
+  // The thin strip above the menu on every page.
+  bannerText: "Happy Valentine's! Give the gift of sewing:",
+  bannerLink: "Gift cards",
+  bannerHref: "/gift-card",
 };
 
 /**
