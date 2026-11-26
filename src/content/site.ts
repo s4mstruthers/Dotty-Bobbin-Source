@@ -37,26 +37,31 @@ export const BUSINESS = {
 /** The main menu, in order. `href` is the page address. */
 export const NAV = [
   { label: "Classes", href: "/services" },
+  { label: "Patterns", href: "/patterns" },
   { label: "Retreats & Events", href: "/events" },
+  // Kept short for older customers (26 Nov 2026). Patterns are a business of their own, so they
+  // have their own page (/patterns), not a filtered shop. The Gallery is shown on About (and in
+  // the footer).
   { label: "Shop", href: "/shop" },
-  // The Patterns shop category (SHOP.patternsCategorySlug). Pattern testing is reached from it.
-  { label: "Patterns", href: "/category/patterns" },
-  { label: "Gallery", href: "/gallery" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
 export const HOME = {
-  kicker: "Sewing classes & retreats · Felden, Hemel Hempstead",
+  kicker: "Sewing classes, retreats & patterns · Felden, Hemel Hempstead",
   heroTitleBefore: "Sewing ",
   heroTitleEmphasis: "is",
   heroTitleAfter: " for everyone.",
   heroText:
-    "Friendly sewing classes and retreats at my home in Felden, Hemel Hempstead. Small groups, all abilities, and the kettle's always on.",
+    "Friendly sewing classes and retreats at my home in Felden, Hemel Hempstead, and sewing patterns to download and sew at home. Small groups, all abilities, and the kettle's always on.",
   heroButton: "Book a class",
+  heroPatternsButton: "Sewing patterns",
 
   classesTitle: "Sewing classes",
   classesText: "Weekly small-group classes for all abilities, or a private one-to-one.",
+
+  patternsTitle: "Sewing patterns",
+  patternsText: "PDF sewing patterns, emailed to you as soon as you've paid. Sew them at home, at your own pace.",
 
   retreatsTitle: "Retreats & Days Out",
   retreatsText:
@@ -102,8 +107,18 @@ export const SHOP_COLLECTION_NOTE =
  * category with this slug (dashboard → Store Products → Categories); the words around them are here.
  */
 export const SHOP = {
-  // The category's address on /category/... . Also the "Patterns" link in NAV above.
+  // The Wix Stores category that holds the patterns. Its old address (/category/patterns)
+  // forwards to the Patterns page, /patterns.
   patternsCategorySlug: "patterns",
+  patternsHref: "/patterns",
+  // The Patterns page (/patterns).
+  patternsPageKicker: "PDF patterns to download",
+  patternsPageTitle: "Sewing patterns",
+  patternsPageIntro:
+    "Sewing patterns from Dotty Bobbin, made up by testers before they go on sale. Each one is a PDF: you pay, and the download link is emailed to you straight away. Nothing is posted.",
+  patternsSteps: ["Choose a pattern and add it to your basket", "Pay securely at the checkout", "The download link arrives by email"],
+  // On the Shop page, pointing to the Patterns page.
+  shopPatternsLine: "Looking for sewing patterns? They have their own page:",
   // The door to the patterns on the Shop page.
   patternsTitle: "Sewing patterns",
   patternsText: "My own patterns as PDF downloads, sent by email. Nothing to collect.",
@@ -117,7 +132,7 @@ export const SHOP = {
   testingText: "Before a new pattern goes on sale I ask a few sewists to make it up first. Testers get the pattern free.",
   testingButton: "Pattern testing",
   // The link back from the Pattern testing page.
-  shopLinkText: "Looking for a finished pattern? Browse the pattern shop",
+  shopLinkText: "Looking for a finished pattern? See all the patterns",
 };
 
 /**

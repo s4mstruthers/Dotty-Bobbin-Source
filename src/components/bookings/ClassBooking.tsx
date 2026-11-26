@@ -150,8 +150,13 @@ export default function ClassBooking({ service }: { service: ServiceDetail }) {
   // Times are shown to everyone; at "Your details" a visitor who isn't logged in chooses: log in
   // (and come back here) or book as a guest. The guest choice lasts for the visit, so it isn't
   // asked again on every class page.
+  // ?guest=1 comes from the login page's "Book as a guest" (for anyone stuck at the email code).
   const [asGuest, setAsGuest] = useState(() => {
     try {
+      if (new URLSearchParams(window.location.search).get("guest") === "1") {
+        sessionStorage.setItem("book-as-guest", "1");
+        return true;
+      }
       return sessionStorage.getItem("book-as-guest") === "1";
     } catch {
       return false;

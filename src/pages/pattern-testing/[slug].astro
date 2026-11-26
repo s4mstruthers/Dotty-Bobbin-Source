@@ -26,8 +26,6 @@ const due = formatDate(test.deadlineIso, "en-GB", { day: "numeric", month: "long
 ---
 <SiteLayout title={`Test ${test.title}`} description={test.summary || `Apply to test the ${test.title} sewing pattern from ${BUSINESS.name}.`}>
   <div class="wrap">
-    <p class="mb-6"><a href="/pattern-testing" class="text-sm font-semibold underline decoration-blush decoration-2 underline-offset-4">← All pattern tests</a></p>
-
     <div class="grid gap-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
       <div class="overflow-hidden rounded-lg border border-border">
         {hasPhoto ? (

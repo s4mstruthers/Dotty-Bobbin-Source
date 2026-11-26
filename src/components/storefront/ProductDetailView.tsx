@@ -37,17 +37,6 @@ export default function ProductDetailView(props: { initial?: ProductDetail | nul
 
   return (
     <div>
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
-        <a href="/shop" className="no-underline hover:underline">Shop</a>
-        {p.breadcrumbs.filter((c) => c.slug !== "all-products").map((c) => (
-          <span key={c.id}>
-            <span aria-hidden="true"> › </span>
-            <a href={`/category/${c.slug}`} className="no-underline hover:underline">{c.name}</a>
-          </span>
-        ))}
-        <span aria-hidden="true"> › </span>
-        <span className="text-foreground">{p.name}</span>
-      </nav>
 
       <div className="md:grid md:grid-cols-2 md:gap-10 lg:gap-16">
         <div>

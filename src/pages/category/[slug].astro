@@ -19,6 +19,8 @@ export const wixMetadata = {
 };
 
 const slug = Astro.params.slug!;
+// The Patterns category has its own page now (26 Nov 2026); old links and bookmarks go there.
+if (slug === SHOP.patternsCategorySlug) return Astro.redirect(SHOP.patternsHref, 301);
 const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
 const pageUrl =
   forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol)
@@ -54,14 +56,6 @@ const isPatterns = category.slug === SHOP.patternsCategorySlug;
 <SiteLayout title={category.name}>
   <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />
   <div class="wrap">
-    <nav aria-label="Breadcrumb" class="mb-4 text-sm text-muted-foreground">
-      <a href="/shop" class="no-underline hover:underline">Shop</a>
-      {category.breadcrumbs.map((b) => (
-        <span><span aria-hidden="true"> › </span><a href={`/category/${b.slug}`} class="no-underline hover:underline">{b.name}</a></span>
-      ))}
-      <span aria-hidden="true"> › </span>
-      <span class="text-foreground">{category.name}</span>
-    </nav>
     <header class="mb-6 max-w-2xl">
       <h1 class="text-3xl text-sage sm:text-4xl">{category.name}</h1>
       {category.description && <p class="mt-2">{category.description}</p>}

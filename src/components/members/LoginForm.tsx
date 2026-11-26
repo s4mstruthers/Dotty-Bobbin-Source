@@ -6,6 +6,40 @@ import { type FormEvent, useState } from "react";
 import { useMember } from "../../hooks/members/useMember";
 import { PROFILE_ON_SIGNUP } from "../../wix/members/auth";
 import ForgotPassword from "./ForgotPassword";
+import { BUSINESS } from "../../content/site";
+
+const HELP_LINK = "font-semibold underline decoration-blush decoration-2 underline-offset-4";
+
+/**
+ * For anyone stuck at the email code (26 Nov 2026: an older customer got three codes that all
+ * "ran out"): booking never needs an account, so offer the guest route straight back to the class,
+ * and Saskia's number.
+ */
+function StuckHelp({ guestHref }: { guestHref: string | null }) {
+  return (
+    <div className="mt-6 rounded-md bg-secondary px-4 py-3 text-sm">
+      <p className="font-semibold">Having trouble?</p>
+      <p className="mt-1">
+        {guestHref ? (
+          <>
+            You don't need an account to book.{" "}
+            <a href={guestHref} className={HELP_LINK}>
+              Book as a guest
+            </a>{" "}
+            instead.{" "}
+          </>
+        ) : (
+          <>You don't need an account to book: choose a class and pick &ldquo;Continue as guest&rdquo;. </>
+        )}
+        Or call or text {BUSINESS.owner.split(" ")[0]} on{" "}
+        <a href={`tel:${BUSINESS.phoneIntl}`} className={HELP_LINK}>
+          {BUSINESS.phone}
+        </a>
+        .
+      </p>
+    </div>
+  );
+}
 
 export interface LoginFormProps {
   onSuccess?: () => void;
@@ -35,6 +69,19 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [pending, setPending] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  // Safari set to block all cookies: signing in can't work (the code step is kept in a cookie).
+  const [codeExpired, setCodeExpired] = useState(false);
+  const [cookiesBlocked] = useState(() => typeof navigator !== "undefined" && navigator.cookieEnabled === false);
+
+  // The class page they came from, opened for guest booking — only when they came from a class.
+  function guestHref(): string | null {
+    const wanted = new URLSearchParams(window.location.search).get("returnTo") ?? "";
+    if (!/^\/(services|portfolio-course-1)\//.test(wanted)) return null;
+    const u = new URL(wanted, window.location.origin);
+    u.searchParams.set("guest", "1");
+    return u.pathname + u.search;
+  }
+
   // Where a SUCCESS lands: ?returnTo when it is a same-site path, else /account. With onSuccess the
   // form stays put on manual auth; on managed Astro the round trip returns to this very page.
   function returnTo(): string {
@@ -58,6 +105,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     event.preventDefault();
     setBusy(true);
     setShowPassword(false); // so the browser still offers to save the password
+    setCodeExpired(false);
     let leaving = false;
     try {
       const options = { returnTo: returnTo() };
@@ -82,6 +130,16 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     setBusy(true);
     try {
       const result = await verifyEmail(code);
+      // The code step was lost (over 15 minutes, or the browser didn't keep it): back to the first
+      // form with the email kept and the explanation showing, so one tap gets a fresh code.
+      if (result.state === "FAILURE" && result.errorCode === "VERIFICATION_STATE_EXPIRED") {
+        setVerification(false);
+        setCode("");
+        setPassword("");
+        setMode("login"); // an account made at sign-up already exists: signing in sends the new code
+        setCodeExpired(true);
+        return;
+      }
       if (result.state === "SUCCESS" && result.redirectUrl) return; // navigating to Wix and back
       if (result.state === "SUCCESS") done();
       if (result.state === "OWNER_APPROVAL_REQUIRED") setPending(true);
@@ -130,6 +188,10 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         <p className="mb-6 mt-2 text-muted-foreground">
           We've emailed a code to <span className="font-semibold text-foreground">{email}</span>. Type it in below. If it hasn't arrived, check your spam folder.
         </p>
+        <p className="-mt-3 mb-6 rounded-md bg-blush-soft px-4 py-3 text-sm">
+          <span className="font-semibold">The code works for 15 minutes.</span> Keep this page open while you check your email, then come back here. If you asked for more
+          than one, use the newest email.
+        </p>
         <form onSubmit={submitCode} className="space-y-4">
           <label className="block text-sm">
             Code from the email
@@ -152,11 +214,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             </button>
           </div>
         </form>
+        <StuckHelp guestHref={guestHref()} />
       </>
     );
   }
   // Sign-up said the account exists, or sign-in failed: offer the password email prominently.
-  const needsPassword = Boolean(error) && (mode === "login" || /already exists/i.test(error ?? ""));
+  const needsPassword = Boolean(error) && !codeExpired && (mode === "login" || /already exists/i.test(error ?? ""));
   const tab = (on: boolean) =>
     `rounded-control px-3 py-2 text-sm font-semibold transition-colors ${on ? "bg-background text-sage-deep shadow-sm" : "text-muted-foreground hover:text-foreground"}`;
   return (
@@ -167,6 +230,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         ? "Sign in to see your classes, tickets and orders."
         : "Use the email address you book with, so your classes and orders all appear in one place."}
     </p>
+    {cookiesBlocked && (
+      <p className="mb-5 rounded-md bg-blush-soft px-4 py-3 text-sm" role="alert">
+        <span className="font-semibold">This browser is blocking cookies,</span> so signing in won't work here. You can still book as a guest, or turn cookies back on
+        (on an iPhone: Settings › Safari › untick &ldquo;Block All Cookies&rdquo;).
+      </p>
+    )}
     <form onSubmit={submit} className="space-y-4">
       <div className="grid grid-cols-2 gap-1 rounded-control bg-secondary p-1" role="group" aria-label="Sign in or create an account">
         <button type="button" aria-pressed={mode === "login"} onClick={() => switchMode("login")} className={tab(mode === "login")}>
@@ -245,6 +314,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       </button>
     </form>
     <ForgotPassword key={mode} initialEmail={email} prompt={needsPassword} onCreateAccount={mode === "login" ? createAccount : undefined} />
+    {(cookiesBlocked || codeExpired) && <StuckHelp guestHref={guestHref()} />}
     </>
   );
 }

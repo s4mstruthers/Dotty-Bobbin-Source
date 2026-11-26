@@ -4,6 +4,10 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Placeholder from "../components/Placeholder.astro";
 import { ABOUT, ABOUT_TITLE, BUSINESS } from "../content/site";
+import { GALLERY } from "../content/gallery";
+import { imgFitAttrs } from "../wix/media-fit";
+// A taste of the gallery (it left the menu, 26 Nov 2026): the first photos, then a link to all.
+const photos = GALLERY.slice(0, 6);
 ---
 <SiteLayout title="About" description={`About ${BUSINESS.owner} and ${BUSINESS.name}, sewing classes and retreats in Felden, Hemel Hempstead.`}>
   <div class="wrap grid gap-10 md:grid-cols-[1fr_1.6fr] md:items-start">
@@ -28,4 +32,19 @@ import { ABOUT, ABOUT_TITLE, BUSINESS } from "../content/site";
       </div>
     </article>
   </div>
+  {photos.length > 0 && (
+    <section class="wrap mt-16" aria-labelledby="studio-photos">
+      <div class="mb-5 flex flex-wrap items-baseline justify-between gap-3">
+        <h2 id="studio-photos" class="text-2xl text-sage sm:text-3xl">From the studio</h2>
+        <a href="/gallery" class="link-pill">See all {GALLERY.length} photos</a>
+      </div>
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        {photos.map((url) => (
+          <a href="/gallery" class="block aspect-square overflow-hidden rounded-md bg-secondary" aria-label="Open the gallery">
+            <img {...imgFitAttrs(url, "(min-width: 640px) 33vw, 50vw")} alt="" loading="lazy" class="h-full w-full object-cover" />
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
 </SiteLayout>

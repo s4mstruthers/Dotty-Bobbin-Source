@@ -76,7 +76,7 @@ const AUTH_ROUTE_ERRORS: Record<string, string> = {
   ALREADY_LOGGED_IN: "You're already signed in.",
   AUTH_SERVICE_ERROR: OUR_SIDE_ERROR,
   VERIFICATION_FAILED: "That code didn't match. Check the email and try again.",
-  VERIFICATION_STATE_EXPIRED: "That code has run out. Use a different email, or sign in again to get a new code.",
+  VERIFICATION_STATE_EXPIRED: "That code has expired: codes only last 15 minutes. Tap the button below to get a fresh one, then use the code in the newest email.",
   INVALID_REQUEST: CHECK_DETAILS_ERROR,
   FORBIDDEN: OUR_SIDE_ERROR,
 };

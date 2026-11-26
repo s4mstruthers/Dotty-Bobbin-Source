@@ -3,6 +3,7 @@
 // the owner edit this page's SEO in the dashboard and register it in the sitemap. All three SEO
 // pieces are required, exactly as here (the kit's skeleton).
 import SiteLayout from "../../layouts/SiteLayout.astro";
+import { SHOP } from "../../content/site";
 import ProductDetailView from "../../components/storefront/ProductDetailView";
 import { fetchProductBySlug } from "../../wix/storefront/catalog";
 import { WIX_APPS } from "@wix/essentials";
@@ -44,8 +45,10 @@ try {
 if (!product) {
   return new Response(null, { status: 404 });
 }
+// A pattern (a digital download, or in the Patterns category) belongs to the Patterns page.
+const isPattern = product.digital || product.breadcrumbs.some((b) => b.slug === SHOP.patternsCategorySlug);
 ---
-<SiteLayout title={product.name}>
+<SiteLayout title={product.name} back={isPattern ? { href: SHOP.patternsHref, label: "Back to patterns" } : undefined}>
   <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />
   <div class="wrap">
     <ProductDetailView client:load initial={product} />

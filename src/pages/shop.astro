@@ -15,35 +15,25 @@ try {
   // Guarded: an unhandled SSR throw truncates the response mid-stream; the island
   // renders the empty state instead.
 }
-// The door to the patterns shows only while the Patterns category exists and is visible in Wix.
+// Patterns have their own page; the shop points there while the category exists in Wix.
 const patterns = categories.find((c) => c.slug === SHOP.patternsCategorySlug);
-const door = "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background p-5 no-underline transition-colors hover:border-sage hover:bg-secondary";
 ---
 <SiteLayout title="Studio Shop" description="The Dotty Bobbin studio shop: the notions, kits and sewing folders Saskia uses in class.">
   <div class="wrap">
     <header class="mb-6 max-w-2xl">
       <h1 class="text-3xl text-sage sm:text-4xl">Studio Shop</h1>
       <p class="mt-2">A small selection of the notions and kits I use in class, so you can carry on sewing at home.</p>
-      <p class="mt-3 inline-block rounded-md bg-secondary px-4 py-2 text-sm font-semibold">{SHOP_COLLECTION_NOTE}{patterns && ` ${SHOP.patternsShopNote}`}</p>
-    </header>
-    <div class:list={["mb-8 grid gap-4", patterns && "md:grid-cols-2"]}>
+      {/* One line instead of a note and two big cards (26 Nov 2026): Patterns is one of the
+          category links below; the gift card is a link here. */}
+      <p class="mt-2 text-sm text-muted-foreground">
+        {SHOP_COLLECTION_NOTE} Buying for someone? <a href="/gift-card" class="font-semibold text-sage-deep underline decoration-blush decoration-2 underline-offset-4">Gift cards</a>
+      </p>
       {patterns && (
-        <a href={`/category/${patterns.slug}`} class={door}>
-          <span>
-            <span class="block text-lg font-bold text-sage">{SHOP.patternsTitle}</span>
-            <span class="mt-0.5 block text-sm text-muted-foreground">{SHOP.patternsText}</span>
-          </span>
-          <span class="link-pill">{SHOP.patternsButton}</span>
-        </a>
+        <p class="mt-3 text-base">
+          {SHOP.shopPatternsLine} <a href={SHOP.patternsHref} class="font-semibold text-sage-deep underline decoration-blush decoration-2 underline-offset-4">Sewing patterns</a>
+        </p>
       )}
-      <a href="/gift-card" class={door}>
-        <span>
-          <span class="block text-lg font-bold text-sage">Gift cards</span>
-          <span class="mt-0.5 block text-sm text-muted-foreground">Give the gift of sewing — for classes, retreats or anything in the shop. Emailed straight to them.</span>
-        </span>
-        <span class="link-pill">Buy a gift card</span>
-      </a>
-    </div>
+    </header>
     <ShopView client:load initialProducts={products} initialCategories={categories} />
   </div>
 </SiteLayout>

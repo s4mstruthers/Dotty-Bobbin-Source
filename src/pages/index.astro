@@ -16,7 +16,7 @@ import { fetchCategoryBySlug, fetchProductsByCategory, fetchProducts } from "../
 import type { ServiceSummary } from "../wix/bookings/types";
 import type { EventSummary } from "../wix/events/types";
 import type { ProductSummary } from "../wix/storefront/types";
-import { BUSINESS, HOME, MEET_SASKIA } from "../content/site";
+import { BUSINESS, HOME, MEET_SASKIA, SHOP } from "../content/site";
 
 // Where "Read all our reviews on Google" goes before Google has said (a Maps search URL, from
 // Google's documented Maps URLs; the place ID pins it to the listing once it's set).
@@ -28,11 +28,13 @@ let hasMoreServices = false;
 let events: EventSummary[] = [];
 let products: ProductSummary[] = [];
 let shopHref = "/shop";
+let patterns: ProductSummary[] = [];
 
-const [svc, evs, shopCat] = await Promise.allSettled([
+const [svc, evs, shopCat, patternsCat] = await Promise.allSettled([
   fetchServices({ limit: 6 }),
   fetchEvents({ limit: 3 }),
   fetchCategoryBySlug(HOME.shopCategorySlug),
+  fetchCategoryBySlug(SHOP.patternsCategorySlug),
 ]);
 if (svc.status === "fulfilled") {
   services = svc.value.items;
@@ -45,6 +47,12 @@ try {
   products = cat ? await fetchProductsByCategory(cat.id, { limit: 4 }) : await fetchProducts({ limit: 4 });
 } catch {
   /* the shop row is left out */
+}
+try {
+  const cat = patternsCat.status === "fulfilled" ? patternsCat.value : null;
+  if (cat) patterns = await fetchProductsByCategory(cat.id, { limit: 4 });
+} catch {
+  /* the patterns row is left out */
 }
 ---
 
@@ -63,7 +71,7 @@ try {
         <p class="mt-6 max-w-xl text-lg sm:text-xl">{HOME.heroText}</p>
         <div class="mt-8 flex flex-wrap items-center gap-3">
           <a href="/services" class="btn text-base">{HOME.heroButton}</a>
-          <a href="/events" class="link-pill">See retreats &amp; days out</a>
+          <a href={SHOP.patternsHref} class="link-pill">{HOME.heroPatternsButton}</a>
         </div>
       </div>
       <div class="relative mx-auto w-full max-w-[24rem] lg:max-w-[30rem]" aria-hidden="true">
@@ -88,6 +96,22 @@ try {
       <ClassesList client:load compact initialServices={services} initialHasMore={hasMoreServices} />
     </div>
   </section>
+
+  <!-- Sewing patterns: Saskia's own, the newer half of the business -->
+  {patterns.length > 0 && (
+    <section class="py-16 sm:py-20" aria-labelledby="patterns-title">
+      <div class="wrap">
+        <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div class="max-w-2xl">
+            <h2 id="patterns-title" class="text-3xl text-sage sm:text-4xl">{HOME.patternsTitle}</h2>
+            <p class="mt-2 text-lg">{HOME.patternsText}</p>
+          </div>
+          <a href={SHOP.patternsHref} class="link-pill">All patterns</a>
+        </div>
+        <FeaturedProducts client:visible products={patterns} />
+      </div>
+    </section>
+  )}
 
   <!-- Retreats & days out -->
   <section class="py-16 sm:py-20" aria-labelledby="retreats-title">

@@ -26,7 +26,7 @@ try {
       <p class="eyebrow">{T.kicker}</p>
       <h1 class="mt-2 text-4xl text-sage sm:text-5xl">{T.title}</h1>
       <p class="mt-3 text-lg">{T.intro}</p>
-      <p class="mt-3 text-sm"><a href={`/category/${SHOP.patternsCategorySlug}`} class="font-semibold underline decoration-blush decoration-2 underline-offset-4">{SHOP.shopLinkText}</a></p>
+      <p class="mt-3 text-sm"><a href={SHOP.patternsHref} class="font-semibold underline decoration-blush decoration-2 underline-offset-4">{SHOP.shopLinkText}</a></p>
     </header>
 
     {tests.length === 0 ? (

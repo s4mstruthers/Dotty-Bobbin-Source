@@ -1,0 +1,57 @@
+---
+// The Patterns page (/patterns), added 26 Nov 2026: Saskia's own sewing patterns are a business
+// of their own, so they get a page of their own rather than a filtered view of the shop. The
+// patterns are the products in the Wix Stores category SHOP.patternsCategorySlug (add or remove
+// them in the dashboard); the words are in src/content/site.ts (SHOP). The old address,
+// /category/patterns, forwards here.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import FeaturedProducts from "../components/storefront/FeaturedProducts";
+import { fetchCategoryBySlug, fetchProductsByCategory } from "../wix/storefront/catalog";
+import type { ProductSummary } from "../wix/storefront/types";
+import { SHOP } from "../content/site";
+
+let patterns: ProductSummary[] = [];
+try {
+  const category = await fetchCategoryBySlug(SHOP.patternsCategorySlug);
+  if (category) patterns = await fetchProductsByCategory(category.id, { limit: 48 });
+} catch {
+  // Guarded: the page still explains itself and points to pattern testing.
+}
+---
+<SiteLayout title={SHOP.patternsPageTitle} description={SHOP.patternsPageIntro}>
+  <div class="wrap">
+    <header class="max-w-2xl">
+      <p class="eyebrow">{SHOP.patternsPageKicker}</p>
+      <h1 class="mt-2 text-4xl text-sage sm:text-5xl">{SHOP.patternsPageTitle}</h1>
+      <p class="mt-4 text-lg">{SHOP.patternsPageIntro}</p>
+    </header>
+
+    <ol class="mt-8 grid gap-3 sm:grid-cols-3" aria-label="How buying a pattern works">
+      {SHOP.patternsSteps.map((step, i) => (
+        <li class="flex items-center gap-3 rounded-lg bg-secondary px-4 py-3">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-background font-display text-lg font-bold text-sage-deep" aria-hidden="true">{i + 1}</span>
+          <span class="font-semibold">{step}</span>
+        </li>
+      ))}
+    </ol>
+
+    <section class="mt-12" aria-label="The patterns">
+      {patterns.length > 0 ? (
+        <FeaturedProducts client:load products={patterns} />
+      ) : (
+        <div class="rounded-lg bg-secondary p-8 text-center">
+          <p class="font-display text-lg font-bold">New patterns are on the way</p>
+          <p class="mt-1 text-sm text-muted-foreground">Check back soon, or have a look at pattern testing below.</p>
+        </div>
+      )}
+    </section>
+
+    <a href="/pattern-testing" class="mt-14 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background p-5 no-underline transition-colors hover:border-sage hover:bg-secondary">
+      <span>
+        <span class="block text-lg font-bold text-sage">{SHOP.testingTitle}</span>
+        <span class="mt-0.5 block text-sm text-muted-foreground">{SHOP.testingText}</span>
+      </span>
+      <span class="link-pill">{SHOP.testingButton}</span>
+    </a>
+  </div>
+</SiteLayout>
