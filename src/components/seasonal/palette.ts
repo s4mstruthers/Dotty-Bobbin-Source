@@ -1,25 +1,31 @@
-// The colours of each season's decorations (garland, snow or petals, stitched motifs, the strip above the menu),
-// as Tailwind classes on the fixed colours in src/styles/global.css. The page colours themselves
-// change in global.css (html[data-season=…]); these are the ornaments.
+// What each holiday look hangs on the page, and in which colours (Tailwind classes on the fixed
+// colours in src/styles/global.css): the garland, what drifts past the bird, the stitched motifs
+// and the strip above the menu. The page colours themselves change in global.css
+// (html[data-season=…]); these are the ornaments.
 import type { Season } from "../../lib/season";
 
 export interface SeasonDecor {
-  /** Garland buttons, in turn along the thread. */
+  /** What hangs on the garland: sewing buttons, or painted eggs. Their colours, in turn. */
+  ornament: "button" | "egg";
   buttons: string[];
   thread: string;
-  /** The cross stitch through each button's holes. */
+  /** The cross stitch through a button's holes, or the zigzag painted round an egg; then the same
+   *  colour as a fill, for the dots painted on an egg. */
   stitch: string;
+  stitchFill: string;
   pins: string;
-  /** What falls beside the bird, in turn: polka-dot snow, or blossom petals that twirl as they fall. */
+  /** What drifts past the bird, in turn: polka-dot snow, blossom petals that twirl as they fall,
+   *  or little bats that flap their way up. Dots and petals take bg-* classes; bats text-*. */
   snow: string[];
-  snowShape: "dot" | "petal";
-  /** A faint ring round each snow dot, so pale dots still show on a pale page. */
+  snowShape: "dot" | "petal" | "bat";
+  /** A faint ring round each dot or petal, so pale ones still show on a pale page. */
   snowRing: string;
-  /** The cross-stitch motif (in the strip and beside the bird), its two colours beside the bird, and a flower's centre. */
-  motif: "snowflake" | "flower";
+  /** The cross-stitch motif (in the strip and beside the bird), its two colours beside the bird,
+   *  and the colour of a flower's centre or a pumpkin's stalk. */
+  motif: "snowflake" | "flower" | "pumpkin";
   flakes: [string, string];
   motifCentre: string;
-  /** The strip above the menu: background and text, then its snowflakes, stitching and link underline. */
+  /** The strip above the menu: background and text, then its motifs, stitching and link underline. */
   strip: string;
   stripAccent: string;
   stripUnderline: string;
@@ -29,9 +35,11 @@ export interface SeasonDecor {
 
 export const DECOR: Record<Season, SeasonDecor> = {
   christmas: {
+    ornament: "button",
     buttons: ["fill-berry", "fill-holly", "fill-gold", "fill-dotty", "fill-snow", "fill-berry", "fill-holly"],
     thread: "stroke-berry",
     stitch: "stroke-snow",
+    stitchFill: "fill-snow",
     pins: "fill-gold",
     snow: ["bg-berry/45", "bg-gold/70", "bg-holly/40", "bg-dotty/50"],
     snowShape: "dot",
@@ -44,26 +52,12 @@ export const DECOR: Record<Season, SeasonDecor> = {
     stripUnderline: "decoration-gold",
     themeColor: "#22513a",
   },
-  winter: {
-    buttons: ["fill-navy", "fill-ice", "fill-white", "fill-dotty", "fill-silver", "fill-navy", "fill-ice"],
-    thread: "stroke-steel",
-    stitch: "stroke-dotty",
-    pins: "fill-silver",
-    snow: ["bg-white", "bg-ice/70", "bg-white", "bg-dotty/40"],
-    snowShape: "dot",
-    snowRing: "ring-1 ring-steel/25",
-    motif: "snowflake",
-    flakes: ["text-steel/80", "text-ice"],
-    motifCentre: "",
-    strip: "bg-midnight text-white",
-    stripAccent: "text-ice-light",
-    stripUnderline: "decoration-ice-light",
-    themeColor: "#1f3b57",
-  },
-  spring: {
-    buttons: ["fill-dotty", "fill-primrose", "fill-leaf", "fill-lilac", "fill-white", "fill-sky", "fill-dotty"],
+  easter: {
+    ornament: "egg",
+    buttons: ["fill-blossom", "fill-primrose", "fill-sky", "fill-lilac", "fill-leaf", "fill-dotty", "fill-primrose"],
     thread: "stroke-leaf",
     stitch: "stroke-white",
+    stitchFill: "fill-white",
     pins: "fill-primrose",
     snow: ["bg-blossom", "bg-white", "bg-dotty/45", "bg-blossom", "bg-primrose/70"],
     snowShape: "petal",
@@ -75,5 +69,23 @@ export const DECOR: Record<Season, SeasonDecor> = {
     stripAccent: "text-dotty",
     stripUnderline: "decoration-dotty",
     themeColor: "#fbd3dd",
+  },
+  halloween: {
+    ornament: "button",
+    buttons: ["fill-pumpkin", "fill-plum", "fill-ink", "fill-lime", "fill-white", "fill-pumpkin", "fill-plum"],
+    thread: "stroke-night",
+    stitch: "stroke-white",
+    stitchFill: "fill-white",
+    pins: "fill-pumpkin",
+    snow: ["text-night/75", "text-plum/70", "text-ink/60"],
+    snowShape: "bat",
+    snowRing: "",
+    motif: "pumpkin",
+    flakes: ["text-pumpkin", "text-pumpkin/80"],
+    motifCentre: "text-leaf",
+    strip: "bg-night text-white",
+    stripAccent: "text-pumpkin",
+    stripUnderline: "decoration-pumpkin",
+    themeColor: "#2a1b3d",
   },
 };

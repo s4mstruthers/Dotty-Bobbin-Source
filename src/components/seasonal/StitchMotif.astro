@@ -1,11 +1,11 @@
 ---
-// A little motif in cross stitch on a 9×9 chart, one X per stitch: a snowflake (Christmas, winter)
-// or a four-petal flower (spring). X stitches are in the current text colour; the flower's centre
-// (O) takes `centre`. Decorative (hidden from screen readers). `twinkle` makes it glint now and
+// A little motif in cross stitch on a 9×9 chart, one X per stitch: a snowflake (Christmas), a
+// four-petal flower (Easter) or a jack-o'-lantern (Halloween). X stitches are in the current text
+// colour; O stitches (a flower's centre, a pumpkin's stalk) take `centre`. Decorative (hidden from screen readers). `twinkle` makes it glint now and
 // then; with "reduce motion" on it stays still.
 interface Props {
-  motif?: "snowflake" | "flower";
-  /** Text-colour class for the flower's centre. */
+  motif?: "snowflake" | "flower" | "pumpkin";
+  /** Text-colour class for the O stitches: a flower's centre, a pumpkin's stalk. */
   centre?: string;
   class?: string;
   twinkle?: boolean;
@@ -36,6 +36,17 @@ const CHARTS = {
     "...XXX...",
     "...XXX...",
     "....X....",
+  ],
+  pumpkin: [
+    "....O....",
+    "...OO....",
+    ".XXXXXXX.",
+    "XXXXXXXXX",
+    "XX.XXX.XX",
+    "XXXXXXXXX",
+    "XX.....XX",
+    ".XXXXXXX.",
+    "..XXXXX..",
   ],
 };
 const CELL = 10;

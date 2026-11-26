@@ -1,8 +1,9 @@
 ---
-// "Dotty snow": polka dots in the season's colours (./palette.ts) drifting down, slowly and softly,
-// behind whatever sits on top; in spring, blossom petals that twirl as they fall. Decorative
-// (hidden from screen readers) and never in the way of a click. It fills its positioned parent;
-// phones get half as many. With "reduce motion" on nothing falls.
+// What drifts past the bird in a holiday look (./palette.ts): "Dotty snow" at Christmas, polka dots
+// falling slowly and softly; at Easter blossom petals that twirl as they fall; at Halloween a few
+// little bats that flap their way up. Behind whatever sits on top, decorative (hidden from screen
+// readers) and never in the way of a click. It fills its positioned parent; phones get half as
+// many. With "reduce motion" on nothing moves and nothing shows.
 import type { Season } from "../../lib/season";
 import { DECOR } from "./palette";
 
@@ -14,15 +15,18 @@ interface Props {
 const { season, class: className, count = 22 } = Astro.props;
 const decor = DECOR[season];
 const petals = decor.snowShape === "petal";
+const bats = decor.snowShape === "bat";
+// Bats are bigger and livelier than snow, so there are half as many.
+const n = bats ? Math.ceil(count / 2) : count;
 
 // Fixed "random" values, so the page is the same on every visit (no flicker between server and browser).
 const rand = (i: number, k: number) => {
   const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
   return v - Math.floor(v);
 };
-const dots = Array.from({ length: count }, (_, i) => ({
+const dots = Array.from({ length: n }, (_, i) => ({
   left: (rand(i, 1) * 100).toFixed(1),
-  size: Math.round(6 + rand(i, 2) * 9) + (petals ? 3 : 0),
+  size: Math.round(6 + rand(i, 2) * 9) + (petals ? 3 : bats ? 4 : 0),
   fall: (14 + rand(i, 3) * 12).toFixed(1),
   delay: (-rand(i, 4) * 26).toFixed(1),
   drift: Math.round((rand(i, 5) - 0.5) * 50),
@@ -36,13 +40,21 @@ const dots = Array.from({ length: count }, (_, i) => ({
 <div class:list={["dot-snow", className]} aria-hidden="true">
   {dots.map((d) => (
     <span
-      class:list={["flake", d.phoneHidden && "phone-off"]}
+      class:list={["flake", bats && "rise", d.phoneHidden && "phone-off"]}
       style={`left:${d.left}%;animation-duration:${d.fall}s;animation-delay:${d.delay}s`}
     >
-      <span
-        class:list={["block", petals ? "petal" : "rounded-full", d.colour, decor.snowRing]}
-        style={`width:${d.size}px;height:${d.size}px;--drift:${d.drift}px;--spin:${d.spin}deg;animation-duration:${d.wobble}s`}
-      />
+      {bats ? (
+        <span class:list={["block", d.colour]} style={`--drift:${d.drift * 1.6}px;animation-duration:${d.wobble}s`}>
+          <svg class="bat" viewBox="0 0 40 20" width={d.size * 2.2} height={d.size} fill="currentColor" style={`animation-duration:${(0.28 + (d.size % 4) * 0.03).toFixed(2)}s`}>
+            <path d="M20 5L21.5 2.5L22.5 6C26 3 32 2 39 4C36 6 35 9 35 12C33 10 30 10 28 13C26 11 24 11 22 14L20 17L18 14C16 11 14 11 12 13C10 10 7 10 5 12C5 9 4 6 1 4C8 2 14 3 17.5 6L18.5 2.5Z" />
+          </svg>
+        </span>
+      ) : (
+        <span
+          class:list={["block", petals ? "petal" : "rounded-full", d.colour, decor.snowRing]}
+          style={`width:${d.size}px;height:${d.size}px;--drift:${d.drift}px;--spin:${d.spin}deg;animation-duration:${d.wobble}s`}
+        />
+      )}
     </span>
   ))}
 </div>
@@ -73,6 +85,14 @@ const dots = Array.from({ length: count }, (_, i) => ({
     .flake > .petal {
       animation-name: flutter;
     }
+    /* Bats fly up rather than fall, and flap as they go. */
+    .rise {
+      animation-direction: reverse;
+    }
+    .bat {
+      display: block;
+      animation: flap ease-in-out infinite alternate;
+    }
   }
   /* A petal: two opposite corners fully rounded. */
   .petal {
@@ -96,6 +116,14 @@ const dots = Array.from({ length: count }, (_, i) => ({
     100% {
       transform: translateY(calc(100cqh + 40px));
       opacity: 0;
+    }
+  }
+  @keyframes flap {
+    from {
+      transform: scaleY(1);
+    }
+    to {
+      transform: scaleY(0.4);
     }
   }
   @keyframes flutter {

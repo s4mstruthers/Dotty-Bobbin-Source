@@ -1,8 +1,8 @@
 ---
 // A hat for the Dotty Bobbin bird, drawn like the logo (black outline, flat colour): a Santa hat at
-// Christmas, its tip flopping back behind her head; in winter a knitted bobble hat, navy with white
-// spots and a pink bobble; in spring a straw sun hat with a pink ribbon and a daisy. All sit level on
-// the same band (x 18–90, bottom at y 71 of the 100×80 drawing), so one placement fits every hat:
+// Christmas, its tip flopping back behind her head; at Easter a straw bonnet with a pink ribbon and
+// a daisy; at Halloween a witch's hat with a pumpkin band, its point bent back. All sit level on the
+// same band (x 18–90, bottom at y 71 of the 100×80 drawing), so one placement fits every hat:
 // put it over the bird with `class` (absolute, left/top/width),
 // the band centred on her crown and its lower edge just above her eye. Decorative (hidden from
 // screen readers).
@@ -15,20 +15,12 @@ interface Props {
   wiggle?: boolean;
 }
 const { season, class: className, wiggle = false } = Astro.props;
-const RIBS = [26, 33, 40, 47, 54, 61, 68, 75, 82];
-// The daisy on the sun hat's ribbon: six petals round a yellow middle.
+// The daisy on the bonnet's ribbon: six petals round a yellow middle.
 const DAISY = { x: 70, y: 47 };
 const DAISY_PETALS = Array.from({ length: 6 }, (_, i) => {
   const a = (i * Math.PI) / 3;
   return [DAISY.x + Math.cos(a) * 4.6, DAISY.y + Math.sin(a) * 4.6];
 });
-const SPOTS = [
-  [40, 41],
-  [54, 31],
-  [68, 41],
-  [47, 49],
-  [61, 49],
-];
 ---
 
 <svg class:list={["bird-hat", wiggle && "wiggle", className]} viewBox="0 0 100 80" aria-hidden="true" focusable="false">
@@ -43,7 +35,7 @@ const SPOTS = [
         <rect x="18" y="53" width="72" height="18" rx="9" class="fill-snow" />
         <circle cx="14" cy="37" r="8.5" class="fill-snow" />
       </>
-    ) : season === "spring" ? (
+    ) : season === "easter" ? (
       <>
         <!-- The straw crown and its pink ribbon. -->
         <path class="fill-straw" d="M29 64 C29 40 39 28 54 28 C69 28 79 40 79 64 Z" />
@@ -57,15 +49,14 @@ const SPOTS = [
       </>
     ) : (
       <>
-        <!-- The knitted crown, with spots. -->
-        <path class="fill-navy" d="M22 58 C20 34 34 18 54 18 C74 18 88 34 86 58 Z" />
-        {SPOTS.map(([x, y]) => <circle cx={x} cy={y} r="3.4" class="fill-white" stroke="none" />)}
-        <!-- The ribbed band. -->
-        <rect x="18" y="52" width="72" height="19" rx="7" class="fill-ice" />
-        {RIBS.map((x) => <path d={`M${x} 56V67`} stroke-width="1.6" opacity="0.35" stroke-linecap="round" />)}
-        <!-- The bobble. -->
-        <circle cx="54" cy="14" r="10" class="fill-dotty" />
-        <path d="M49 10l3 3M57 9l-2 4M50 18l3-2M58 17l-2-2" stroke-width="1.4" opacity="0.4" stroke-linecap="round" />
+        <!-- The pointed crown, its tip bent back to the left. -->
+        <path class="fill-night" d="M34 62 C38 46 42 30 44 18 C45 12 42 8 36 9 C42 3 52 5 52 14 C54 30 66 48 74 62 Z" />
+        <!-- A pumpkin-orange band with a gold buckle. -->
+        <path class="fill-pumpkin" d="M37 48 L68.5 48 L71 56 L35.5 56 Z" stroke-width="1.8" />
+        <rect x="49" y="47" width="9" height="10" rx="1" class="fill-gold" stroke-width="1.6" />
+        <rect x="51.5" y="49.5" width="4" height="5" class="fill-pumpkin" stroke-width="1.2" />
+        <!-- The wide brim, in front of the crown. -->
+        <ellipse cx="54" cy="64" rx="46" ry="7" class="fill-night" />
       </>
     )}
   </g>

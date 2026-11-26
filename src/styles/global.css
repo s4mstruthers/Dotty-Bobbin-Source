@@ -43,8 +43,8 @@
   --color-blush: #fbbcca;
   --color-blush-soft: #fde8ee;
 
-  /* Fixed colours, the same in every season: text on blush (ribbons), the logo-style outline, the
-     brand pink itself, and the Christmas extras (ornaments, the banner strip, stitched snow). */
+  /* Fixed colours, the same in every holiday look: text on blush (ribbons), the logo-style outline,
+     the brand pink itself, and the Christmas extras (ornaments, the banner strip, stitched snow). */
   --color-ink: #2b2929;
   --color-dotty: #f571a0;
   --color-berry: #b3263f;
@@ -52,21 +52,19 @@
   --color-pine: #22513a;
   --color-gold: #e2b75e;
   --color-snow: #fffaf3;
-  /* …and the winter extras. */
-  --color-midnight: #1f3b57;
-  --color-navy: #27496b;
-  --color-steel: #5f86a6;
-  --color-ice: #9cc4de;
-  --color-ice-light: #b9d8ec;
-  --color-silver: #c3ccd5;
   --color-white: #ffffff;
-  /* …and the spring extras. */
+  /* …the Easter extras… */
   --color-blossom: #fbd3dd;
   --color-primrose: #f6d55c;
   --color-leaf: #5c9a4e;
   --color-lilac: #c7a8dc;
   --color-sky: #9ccfe8;
   --color-straw: #e8c98b;
+  /* …and the Halloween extras. */
+  --color-pumpkin: #f28c28;
+  --color-night: #2a1b3d;
+  --color-plum: #6b3fa0;
+  --color-lime: #a6d65a;
 
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -134,34 +132,39 @@ html[data-season='christmas'] {
   --color-blush-soft: #f9e6e3;
 }
 
-/* ─── Winter ────────────────────────────────────────────────────────────────────────────
-   On <html data-season="winter">, 6 Jan – end of Feb (WINTER in src/content/site.ts). A frosty
-   morning: cool backgrounds and blue headings, with the brand pink kept for buttons and accents.
-     frost  #F5F9FC background        ice   #E6EFF6 sections and cards
-     lake   #2F5F80 headings (6.5:1 on frost)   navy #1F4562 small labels (9.5:1)
-     buttons stay hot pink with charcoal labels (5.3:1) */
-html[data-season='winter'] {
-  --color-background: #f5f9fc;
-  --color-secondary: #e6eff6;
-  --color-border: #d3e1eb;
-  --color-sage: #2f5f80;
-  --color-sage-deep: #1f4562;
-}
-
-/* ─── Spring ────────────────────────────────────────────────────────────────────────────
-   On <html data-season="spring">, March – May (SPRING in src/content/site.ts). A spring meadow:
-   primrose cream, fresh greens and primrose-yellow accents, with the brand pink for buttons.
+/* ─── Easter ────────────────────────────────────────────────────────────────────────────
+   On <html data-season="easter">, two weeks before Easter Sunday to Easter Monday (EASTER in
+   src/content/site.ts). Spring pastels: primrose cream, fresh greens and primrose-yellow accents,
+   with the brand pink for buttons.
      cream   #FFFDF7 background        leaf  #EEF6E7 sections and cards
      meadow  #3B7340 headings (5.6:1 on cream)   deep #2B5530 small labels (8.4:1)
      primrose #F6D55C small accents (was blush; charcoal text on it is 10:1)
      buttons stay hot pink with charcoal labels (5.3:1) */
-html[data-season='spring'] {
+html[data-season='easter'] {
   --color-background: #fffdf7;
   --color-secondary: #eef6e7;
   --color-border: #dbe9cf;
   --color-sage: #3b7340;
   --color-sage-deep: #2b5530;
   --color-blush: #f6d55c;
+}
+
+/* ─── Halloween ─────────────────────────────────────────────────────────────────────────
+   On <html data-season="halloween">, 17 – 31 October (HALLOWEEN in src/content/site.ts). Playful,
+   not scary: parchment and pumpkin backgrounds, plum headings, pumpkin buttons.
+     parchment #FFF9F2 background      pumpkin tint #FCECDC sections and cards
+     pumpkin #F28C28 buttons, charcoal labels (5.9:1); small accents (was blush)
+     plum    #5A2D82 headings (9.4:1)  deep plum #3E1D5C small labels (13:1)
+     lavender #F3E8FB (was blush-soft) */
+html[data-season='halloween'] {
+  --color-background: #fff9f2;
+  --color-secondary: #fcecdc;
+  --color-border: #f1d9c1;
+  --color-primary: #f28c28;
+  --color-sage: #5a2d82;
+  --color-sage-deep: #3e1d5c;
+  --color-blush: #f28c28;
+  --color-blush-soft: #f3e8fb;
 }
 
 /* iPhone Safari zooms the page into any field under 16px; keep phone-sized fields at 16px or more.

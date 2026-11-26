@@ -24,7 +24,7 @@ import { DECOR } from "../components/seasonal/palette";
 import { BUSINESS, CHRISTMAS, HOME, MEET_SASKIA, SHOP } from "../content/site";
 import { currentSeason } from "../lib/season";
 
-// The seasonal look (Christmas, winter, spring or none): the hero's garland, snow or petals, and the bird's hat.
+// The holiday look (Christmas, Easter, Halloween or none): the hero's garland, what drifts past the bird, and her hat.
 const season = currentSeason(Astro.url, Astro.cookies);
 const christmas = season === "christmas";
 
@@ -243,7 +243,7 @@ try {
 </SiteLayout>
 
 <style>
-  /* In a seasonal look the bird hops when the pointer comes over her (a pointer only; still with "reduce motion"). */
+  /* In a holiday look the bird hops when the pointer comes over her (a pointer only; still with "reduce motion"). */
   @media (prefers-reduced-motion: no-preference) and (hover: hover) {
     .hop-on-hover:hover .bird {
       animation: hop 0.7s ease-out;

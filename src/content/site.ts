@@ -82,12 +82,13 @@ export const HOME = {
 };
 
 /**
- * The seasonal looks: Christmas, then winter, then spring. Each switches itself on and off every
- * year between its two dates (UK time, both days included): nothing to release when one starts or
- * ends. `on: false` keeps that one off all year. Outside both, the site wears its usual look.
+ * The holiday looks: Christmas, Easter and Halloween. Each switches itself on and off every year
+ * (UK time, both end days included): nothing to release when one starts or ends. `on: false` keeps
+ * that one off. The rest of the year the site wears its usual look.
  *
- * To see one at any time, open any page with ?season=christmas, ?season=winter or ?season=spring on the end of the
- * address; the whole site keeps it in that browser until ?season=off (or the browser is closed).
+ * To see one at any time, open any page with ?season=christmas, ?season=easter or ?season=halloween
+ * on the end of the address; the whole site keeps it in that browser until ?season=off (or the
+ * browser is closed).
  */
 export const CHRISTMAS = {
   on: true,
@@ -103,26 +104,28 @@ export const CHRISTMAS = {
     "For the sewist in your life, or someone who'd love to learn. A gift card can be spent on any of my classes, retreats or anything in the studio shop.",
 };
 
-/** The winter look, from the day after Christmas comes down to the end of February. */
-export const WINTER = {
+/**
+ * Easter moves every year, so its dates are counted from Easter Sunday, which the site works out
+ * for itself: from two weeks before it to Easter Monday (in 2027, 14 to 29 March).
+ */
+export const EASTER = {
   on: true,
-  from: "01-06", // 6 January
-  until: "02-29", // the end of February (the 29th covers leap years)
+  daysBefore: 14,
+  daysAfter: 1, // Easter Monday, the bank holiday
   // The thin strip above the menu on every page.
-  bannerText: "Learn something new this winter:",
-  bannerLink: "Sewing classes",
-  bannerHref: "/services",
-};
-
-/** The spring look, straight after winter: March, April and May. */
-export const SPRING = {
-  on: true,
-  from: "03-01", // 1 March
-  until: "05-31", // 31 May; then the usual look until Christmas
-  // The thin strip above the menu on every page.
-  bannerText: "Spring into sewing:",
+  bannerText: "Happy Easter! Sew something new:",
   bannerLink: "Sewing patterns",
   bannerHref: "/patterns",
+};
+
+export const HALLOWEEN = {
+  on: true,
+  from: "10-17", // 17 October
+  until: "10-31", // Halloween itself
+  // The thin strip above the menu on every page.
+  bannerText: "Happy Halloween! Make your own costume:",
+  bannerLink: "Sewing classes",
+  bannerHref: "/services",
 };
 
 /** Shown on the shop and every product page. Shop orders are collected, never posted. */

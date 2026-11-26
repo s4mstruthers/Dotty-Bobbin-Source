@@ -1,9 +1,9 @@
 ---
-// The thin strip above the menu in a seasonal look (pine at Christmas, midnight blue in winter,
-// blossom pink in spring),
-// with a running stitch along its foot that sews itself in when the page opens (still, with
-// "reduce motion" on). Words: CHRISTMAS, WINTER and SPRING in src/content/site.ts; colours: ./palette.ts.
-import { CHRISTMAS, SPRING, WINTER } from "../../content/site";
+// The thin strip above the menu in a holiday look (pine at Christmas, blossom pink at Easter, night
+// purple at Halloween), with a running stitch along its foot that sews itself in when the page
+// opens (still, with "reduce motion" on). Words: CHRISTMAS, EASTER and HALLOWEEN in
+// src/content/site.ts; colours: ./palette.ts.
+import { CHRISTMAS, EASTER, HALLOWEEN } from "../../content/site";
 import type { Season } from "../../lib/season";
 import { DECOR } from "./palette";
 import StitchMotif from "./StitchMotif.astro";
@@ -12,7 +12,7 @@ interface Props {
   season: Season;
 }
 const { season } = Astro.props;
-const words = { christmas: CHRISTMAS, winter: WINTER, spring: SPRING }[season];
+const words = { christmas: CHRISTMAS, easter: EASTER, halloween: HALLOWEEN }[season];
 const decor = DECOR[season];
 ---
 
