@@ -12,11 +12,17 @@ export type UseBookingFlow = BookingFlowState &
   Pick<
     BookingFlowStore,
     | "nextWeek"
+    | "nextMonth"
+    | "prevMonth"
+    | "toggleSlotAddOn"
+    | "setSlotAddOnQuantity"
+    | "canSelectMoreFor"
     | "prevWeek"
     | "retrySlots"
     | "jumpTo"
     | "setStaffId"
     | "setSelectedSlot"
+    | "toggleSlot"
     | "setDisplayTimeZone"
     | "setParticipants"
     | "setPayDeposit"
@@ -40,11 +46,17 @@ export function useBookingFlow(service: ServiceDetail): UseBookingFlow {
   return {
     ...state,
     nextWeek: store.nextWeek,
+    nextMonth: store.nextMonth,
+    prevMonth: store.prevMonth,
+    toggleSlotAddOn: store.toggleSlotAddOn,
+    setSlotAddOnQuantity: store.setSlotAddOnQuantity,
+    canSelectMoreFor: store.canSelectMoreFor,
     prevWeek: store.prevWeek,
     retrySlots: store.retrySlots,
     jumpTo: store.jumpTo,
     setStaffId: store.setStaffId,
     setSelectedSlot: store.setSelectedSlot,
+    toggleSlot: store.toggleSlot,
     setDisplayTimeZone: store.setDisplayTimeZone,
     setParticipants: store.setParticipants,
     setPayDeposit: store.setPayDeposit,

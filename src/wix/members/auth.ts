@@ -48,7 +48,8 @@ export function loggedInHint(): boolean | null {
 // ---- ambient: the built-in routes ----------------------------------------------------------------
 
 function safeReturnTo(returnTo: string | undefined): string {
-  return returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
+  // "/\\x" counts too: browsers read a backslash as "/", so it would leave the site.
+  return returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") && !returnTo.startsWith("/\\") ? returnTo : "/";
 }
 
 async function postAuthRoute(path: string, body: Record<string, string>): Promise<LoginResult> {

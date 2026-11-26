@@ -34,7 +34,7 @@ const address = BUSINESS.address.join(", ");
         <div class="rounded-lg bg-secondary p-5" data-panel="shop">
           <h2 class="text-lg text-sage">Bought from the shop?</h2>
           <p class="mt-2 text-sm leading-relaxed">
-            Shop orders are collected from {address}. Please call or text {`${BUSINESS.owner.split(" ")[0]} on `}<a href={`tel:${BUSINESS.phoneIntl}`}>{BUSINESS.phone}</a> to arrange a
+            Shop orders are collected from {address}. We'll email you when your order is ready (normally within 7 days), then call or text {`${BUSINESS.owner.split(" ")[0]} on `}<a href={`tel:${BUSINESS.phoneIntl}`}>{BUSINESS.phone}</a> to arrange a
             time, or pick it up at your next class.
           </p>
         </div>
@@ -85,7 +85,7 @@ const address = BUSINESS.address.join(", ");
   if (new URLSearchParams(window.location.search).get("orderId")) {
     const kinds = takeCheckoutKinds();
     const booked = bookedClass();
-    const show = { shop: !!kinds?.shop, digital: !!kinds?.digital, gift: !!kinds?.giftCard, class: !!booked };
+    const show = { shop: !!kinds?.shop, digital: !!kinds?.digital, gift: !!kinds?.giftCard, class: !!booked || !!kinds?.classes };
     const known = show.shop || show.digital || show.gift || show.class; // nothing kept: show every panel
     const panels = [...document.querySelectorAll<HTMLElement>("[data-panel]")];
     for (const panel of panels) panel.hidden = known && !show[panel.dataset.panel as keyof typeof show];

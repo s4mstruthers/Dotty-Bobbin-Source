@@ -457,6 +457,27 @@ export function priceWithAddOns(service: Pick<ServiceDetail, "priceAmount" | "cu
   return money({ value: String(service.priceAmount + total), currency });
 }
 
+/**
+ * What a FIXED-price class costs for one date with its own add-ons, as a number (0 when the price
+ * isn't a plain fixed amount or an add-on is in another currency — then no total is shown).
+ */
+export function dateAmount(service: Pick<ServiceDetail, "priceAmount" | "currency">, groups: AddOnGroup[], selection: AddOnSelection): number {
+  if (service.priceAmount <= 0) return 0;
+  const { total, currency } = addOnsAmount(groups, selection);
+  if (total > 0 && currency !== service.currency) return 0;
+  return Math.round((service.priceAmount + total) * 100) / 100;
+}
+
+/** Several dates of a class, each with its own add-ons, added up and formatted ("" when any date can't be priced). */
+export function priceForDates(service: Pick<ServiceDetail, "priceAmount" | "currency">, groups: AddOnGroup[], selections: AddOnSelection[], places = 1): string {
+  const amounts = selections.map((sel) => dateAmount(service, groups, sel) * Math.max(1, places));
+  if (!amounts.length || amounts.some((a) => a <= 0)) return "";
+  return money({ value: String(Math.round(amounts.reduce((a, b) => a + b, 0) * 100) / 100), currency: service.currency });
+}
+
+/** One amount formatted in the service's currency ("" for 0). */
+export const formatServiceAmount = (service: Pick<ServiceDetail, "currency">, amount: number): string => money({ value: String(amount), currency: service.currency });
+
 /** Extra minutes the selection adds to the session. */
 export function addOnsDuration(groups: AddOnGroup[], selection: AddOnSelection): number {
   let minutes = 0;

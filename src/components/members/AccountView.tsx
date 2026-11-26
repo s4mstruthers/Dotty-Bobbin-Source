@@ -50,8 +50,11 @@ export default function AccountView({ initialMember }: AccountViewProps) {
   if (loading) return <div className="h-40 animate-pulse rounded-lg bg-secondary" aria-busy="true" />;
   if (!loggedIn) return <p className="py-16 text-center text-muted-foreground">You're logged out.</p>;
 
-  const upcoming = (data?.bookings ?? []).filter((b) => !isPast(b.endIso || b.startIso) && b.status !== "CANCELED" && b.status !== "DECLINED").reverse();
-  const pastOrCancelled = (data?.bookings ?? []).filter((b) => !upcoming.includes(b));
+  // Only bookings that went through: a checkout left part-way leaves an unpaid booking (status
+  // CREATED) that isn't a place, so it's never shown as "Confirmed".
+  const real = (data?.bookings ?? []).filter((b) => b.status !== "CREATED");
+  const upcoming = real.filter((b) => !isPast(b.endIso || b.startIso) && b.status !== "CANCELED" && b.status !== "DECLINED").reverse();
+  const pastOrCancelled = real.filter((b) => !upcoming.includes(b));
   const ticketsUpcoming = (data?.tickets ?? []).filter((t) => !isPast(t.startIso)).reverse();
   const ticketsPast = (data?.tickets ?? []).filter((t) => isPast(t.startIso));
 
@@ -249,7 +252,7 @@ function BookingRow({ booking: b, onChanged }: { booking: AccountBooking; onChan
         )}
       </div>
       {mode === "reschedule" && <RescheduleBooking booking={b} onDone={() => finish("Moved. A confirmation email is on its way.")} onClose={() => setMode("idle")} />}
-      {mode === "cancel" && <CancelBooking booking={b} onDone={() => finish("Cancelled. A confirmation email is on its way.")} onClose={() => setMode("idle")} />}
+      {mode === "cancel" && <CancelBooking booking={b} canMove={canMove} onDone={() => finish("Cancelled. A confirmation email is on its way.")} onClose={() => setMode("idle")} />}
       {!b.canCancel && !canMove && (
         <p className="mt-3 text-xs text-muted-foreground">To change this booking, please <a href="/contact" className="underline">get in touch</a>.</p>
       )}
@@ -288,7 +291,7 @@ function TicketRow({ order: t }: { order: AccountTicketOrder }) {
 
 function OrderRow({ order: o }: { order: AccountShopOrder }) {
   // A digital pattern is emailed: there is nothing to collect, whatever its fulfilment says.
-  const state = o.cancelled ? "Cancelled" : o.digitalOnly ? "Sent by email" : o.collected ? "Collected" : "Ready to collect";
+  const state = o.cancelled ? "Cancelled" : o.digitalOnly ? "Sent by email" : o.collected ? "Collected" : "To collect · we'll email you when it's ready";
   const settled = o.collected || o.digitalOnly;
   return (
     <li className={card}>

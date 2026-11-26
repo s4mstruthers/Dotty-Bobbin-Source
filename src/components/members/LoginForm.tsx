@@ -11,11 +11,23 @@ export interface LoginFormProps {
   onSuccess?: () => void;
 }
 
+/** The show/hide password eye; struck through while the password is showing (click hides it). */
+function EyeIcon({ crossed }: { crossed: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+      {crossed && <path d="M4 4l16 16" />}
+    </svg>
+  );
+}
+
 export default function LoginForm({ onSuccess }: LoginFormProps) {
   const { login, register, verifyEmail, error, clearError } = useMember();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [code, setCode] = useState("");
@@ -27,7 +39,13 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   // form stays put on manual auth; on managed Astro the round trip returns to this very page.
   function returnTo(): string {
     const wanted = new URLSearchParams(window.location.search).get("returnTo");
-    if (wanted?.startsWith("/") && !wanted.startsWith("//")) return wanted;
+    // Only this site: "/\\evil.com" starts with "/" but browsers read it as another site.
+    if (wanted?.startsWith("/")) {
+      try {
+        const u = new URL(wanted, window.location.origin);
+        if (u.origin === window.location.origin) return u.pathname + u.search + u.hash;
+      } catch {}
+    }
     return onSuccess ? window.location.pathname + window.location.search : "/account";
   }
 
@@ -39,18 +57,23 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
+    setShowPassword(false); // so the browser still offers to save the password
+    let leaving = false;
     try {
       const options = { returnTo: returnTo() };
       const result =
         mode === "login"
           ? await login(email, password, options)
           : await register(email, password, PROFILE_ON_SIGNUP ? { firstName, lastName } : undefined, options);
-      if (result.state === "SUCCESS" && result.redirectUrl) return; // navigating to Wix and back
+      if (result.state === "SUCCESS" && result.redirectUrl) {
+        leaving = true; // navigating to Wix and back: keep the button disabled
+        return;
+      }
       if (result.state === "SUCCESS") done();
       if (result.state === "EMAIL_VERIFICATION_REQUIRED") setVerification(true);
       if (result.state === "OWNER_APPROVAL_REQUIRED") setPending(true);
     } finally {
-      setBusy(false);
+      if (!leaving) setBusy(false);
     }
   }
 
@@ -184,17 +207,35 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
           className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
         />
       </label>
-      <label className="block text-sm">
-        Password
-        <input
-          required
-          type="password"
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="mt-1 w-full rounded-sm border-[1.5px] border-border bg-background px-4 py-2.5 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
-        />
-      </label>
+      <div className="text-sm">
+        <label htmlFor="login-password">Password</label>
+        <div className="relative mt-1">
+          <input
+            id="login-password"
+            required
+            type={showPassword ? "text" : "password"}
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="w-full rounded-sm border-[1.5px] border-border bg-background py-2.5 pl-4 pr-12 text-base text-foreground outline-none transition-shadow focus:border-sage focus:ring-2 focus:ring-sage/25"
+          />
+          {/* Show what was typed, to catch a typo before signing in. */}
+          <button
+            type="button"
+            onClick={() => setShowPassword((on) => !on)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+            aria-controls="login-password"
+            title={showPassword ? "Hide password" : "Show password"}
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/25"
+          >
+            <EyeIcon crossed={showPassword} />
+          </button>
+        </div>
+      </div>
       {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
       <button
         disabled={busy}

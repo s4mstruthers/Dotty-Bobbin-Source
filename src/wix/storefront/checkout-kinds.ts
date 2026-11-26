@@ -10,6 +10,8 @@ export interface CheckoutKinds {
   /** Digital downloads (patterns): emailed, nothing to collect. */
   digital: boolean;
   giftCard: boolean;
+  /** Class bookings (several dates of a class have no single calendar event to show). */
+  classes?: boolean;
 }
 
 const KEY = "checkout-kinds";
@@ -22,6 +24,13 @@ export function rememberCheckoutKinds(lines: CartLine[]): void {
   };
   try {
     sessionStorage.setItem(KEY, JSON.stringify({ ...kinds, savedAt: Date.now() }));
+  } catch {}
+}
+
+/** A class booking is going to the checkout: the thank-you page shows the class panel, not the shop's. */
+export function rememberClassCheckout(): void {
+  try {
+    sessionStorage.setItem(KEY, JSON.stringify({ shop: false, digital: false, giftCard: false, classes: true, savedAt: Date.now() }));
   } catch {}
 }
 
@@ -40,7 +49,7 @@ export function takeCheckoutKinds(): CheckoutKinds | null {
     const k = raw ? JSON.parse(raw) : null;
     // A checkout takes minutes; anything older is from a checkout that was left.
     if (!k || Date.now() - k.savedAt > 2 * 60 * 60 * 1000) return null;
-    return { shop: k.shop === true, digital: k.digital === true, giftCard: k.giftCard === true };
+    return { shop: k.shop === true, digital: k.digital === true, giftCard: k.giftCard === true, classes: k.classes === true };
   } catch {
     return null;
   }

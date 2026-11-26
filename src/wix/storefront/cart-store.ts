@@ -145,6 +145,8 @@ export async function goToCheckout(): Promise<void> {
     // For the thank-you page: which panels (shop collection, gift card) fit this order.
     rememberCheckoutKinds(state.cart?.lines ?? []);
     forgetBookedEvent(); // a class checkout left earlier mustn't show as booked after this one
+    // Back from the checkout restores this page as it was ("One moment…"): free it and re-read the cart.
+    window.addEventListener("pageshow", (e) => { if (e.persisted) { setState({ busy: false }); void refreshCart(); } }, { once: true });
     window.location.href = url;
   } catch (e) {
     setState({ busy: false, error: e instanceof Error ? e.message : String(e) });

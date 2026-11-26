@@ -217,17 +217,67 @@ export async function bookService(
   service: ServiceDetail,
   slot: Slot | null,
   formValues: Record<string, unknown>,
+  options: Omit<BookingOptions, "idKey"> = {},
+): Promise<BookingResult> {
+  return bookServiceDates(service, [slot], formValues, options);
+}
+
+/** A booking that failed for one of several dates — `slot` says which, so the visitor can drop it. */
+export class DateBookingError extends Error {
+  constructor(
+    readonly slot: Slot,
+    readonly reason: unknown,
+  ) {
+    super(reason instanceof Error ? reason.message : String(reason));
+  }
+}
+
+/**
+ * Several dates of one class in ONE checkout (added 26 Nov 2026 — customers were booking and paying
+ * for each date separately): one booking per slot, each with the same form and seats and its own add-ons, then
+ * one cart holding every booking (bookingCartRequest takes the list), so there is one payment.
+ * `[slot]` is a single booking and `[null]` a course, exactly as bookService always did. If a date
+ * can't be booked (it just filled), nothing is paid: the bookings made so far stay unpaid
+ * (status CREATED, which holds no seat) and a DateBookingError names the date.
+ */
+export async function bookServiceDates(
+  service: ServiceDetail,
+  slots: (Slot | null)[],
+  formValues: Record<string, unknown>,
   { staffId, timeZone = defaultTimeZone(), participants, depositSelected, addOns }: Omit<BookingOptions, "idKey"> = {},
+  /** Each date's own add-ons, by slot key (a class picks extras per date); `addOns` for a date not listed. */
+  addOnsBySlot: Record<string, BookingOptions["addOns"]> = {},
 ): Promise<BookingResult> {
   if (inHomeScreenApp()) throw new Error(HOME_SCREEN_APP_MESSAGE);
-  const created: Raw = await bookings.createBooking(
-    bookingRequest(service, slot, { staffId, timeZone, participants, depositSelected, addOns, idKey: "_id" }) as any,
-    bookingOptions(formValues) as any,
-  );
-  const bookingId = bookingIdOf(created);
-  if (!bookingId) throw new Error("The booking couldn't be created — the slot may have just been taken.");
+  if (!slots.length) throw new Error("Pick a time first.");
+  const bookingIds: string[] = [];
+  let contact: Raw | undefined;
+  for (const slot of slots) {
+    let created: Raw;
+    try {
+      created = await bookings.createBooking(
+        bookingRequest(service, slot, { staffId, timeZone, participants, depositSelected, addOns: (slot && addOnsBySlot[slot.key]) || addOns, idKey: "_id" }) as any,
+        bookingOptions(formValues) as any,
+      );
+    } catch (e) {
+      // Only a refusal about THIS date names it; the form or the login is the same for every date.
+      const aboutTheForm = /phone|email|valid|field|session|revoked|unauthori|permission/i.test(e instanceof Error ? e.message : String(e));
+      throw slots.length > 1 && slot && !aboutTheForm ? new DateBookingError(slot, e) : e;
+    }
+    const bookingId = bookingIdOf(created);
+    if (!bookingId) {
+      const taken = new Error("The booking couldn't be created — the slot may have just been taken.");
+      throw slots.length > 1 && slot ? new DateBookingError(slot, taken) : taken;
+    }
+    bookingIds.push(bookingId);
+    contact ??= contactOf(created);
+  }
+  const bookingId = bookingIds[0];
 
-  const newCart: Raw = await cart.createCart(bookingCartRequest([bookingId], contactOf(created), slot?.location?.type === "BUSINESS" ? slot.location.id : null) as any);
+  // The cart's business location: the studio's, when every date is there.
+  const locationIds = new Set(slots.map((s) => (s?.location?.type === "BUSINESS" ? s.location.id : null)));
+  const locationId = locationIds.size === 1 ? [...locationIds][0] : null;
+  const newCart: Raw = await cart.createCart(bookingCartRequest(bookingIds, contact, locationId) as any);
   const cartId = cartIdOf(newCart);
   if (!cartId) throw new Error("The booking couldn't be reserved — please try again.");
 

@@ -244,7 +244,7 @@ export const DELIVERY: Policy = {
         rows: [
           ["Shop items (haberdashery, kits, folders)", "Collected in person from our studio in Felden, Hemel Hempstead", "Ready within 7 days; we email you when it's ready", "Free (no postage)"],
           ["Digital patterns", "Download link on screen and by email", "Immediately after payment", "Free"],
-          ["Gift cards", "Gift card code by email", "Immediately after payment, or on the date you choose", "Free"],
+          ["Gift cards", "Gift card code by email", "By email as soon as your order is paid", "Free"],
           ["Classes, retreats, events and courses", "Booking confirmation by email; the class or event takes place in person", "Confirmation immediately; the class or event on the date booked", "Free"],
           ["Class add-ons (machine hire, project packs)", "Handed to you at your class", "At the class you booked", "Included in the price"],
         ],
@@ -267,9 +267,9 @@ export const DELIVERY: Policy = {
       labelled: true,
       bullets: [
         "What you receive: the pattern as a downloadable PDF with the sewing instructions. Depending on the pattern, this may also include a print-at-home version and a projector file for use with a sewing projector.",
-        "How: a download link is shown on screen straight after payment, and the same link is emailed to the address you gave at checkout.",
+        "How: a download link is emailed to the address you gave at checkout as soon as your order is paid.",
         "When: immediately after payment; the email normally arrives within a few minutes.",
-        "Download link: your link works for 30 days after purchase, so please save your pattern somewhere safe once downloaded. If you have a problem, message me and I can resend it.",
+        "Download link: your link works for 30 days after purchase, so please save your pattern somewhere safe once downloaded. If you have a problem, contact us and we will resend it.",
         "What you need: a device that can open PDF files, and either a printer (or a print shop) to print the pattern, or a projector set up for sewing to use the projector file.",
         "If it doesn't arrive: check your junk or spam folder first. If you still haven't received it within 24 hours, contact us and we will send it to you by email within 2 working days.",
         "Faulty files: if a file is faulty or won't open, we will replace it or refund you (see our Refund & Cancellation Policy).",
@@ -282,7 +282,7 @@ export const DELIVERY: Policy = {
       bullets: [
         "What you receive: an e-gift card with a unique code for the amount you chose. Nothing is posted.",
         "How: the gift card is emailed to the recipient (or to you, if you prefer to pass it on yourself).",
-        "When: immediately after payment, or on the date you choose at checkout.",
+        "When: by email as soon as your order is paid.",
         "Validity: 12 months from the date of purchase.",
         "How to use it: enter the code at checkout on dottybobbin.com.",
         "If it doesn't arrive: check the junk or spam folder, then contact us and we will resend it within 2 working days.",

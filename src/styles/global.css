@@ -20,6 +20,13 @@
        labels use --color-sage-deep (6.4:1).
      • Charcoal on white 8.5:1, on pale sage 7.5:1. Muted text #6B6868 is 5.4:1 on white. */
 @theme {
+  /* Readable for every customer, many of them older (26 Nov 2026): the two small steps of the type
+     scale are a notch larger than Tailwind's 12px / 14px. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.45rem;
+
   --color-background: #ffffff;
   --color-foreground: #4e4c4c;
   --color-primary: #f571a0;
@@ -189,4 +196,10 @@
     list-style: disc;
     padding-left: 1.25rem;
   }
+}
+
+/* The login form has its own show-password eye; hide Edge's built-in one so there aren't two. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
 }

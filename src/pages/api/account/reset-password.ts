@@ -23,6 +23,21 @@ const json = (body: unknown, status = 200) =>
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// At most a few reset emails per address per hour (per server instance), so the form can't be used
+// to flood someone's inbox. Over the limit the answer is the same; no email goes.
+const RECENT = new Map<string, number[]>();
+const LIMIT = 3;
+const HOUR = 60 * 60 * 1000;
+function allowed(email: string): boolean {
+  const now = Date.now();
+  const key = email.toLowerCase();
+  const times = (RECENT.get(key) ?? []).filter((t) => now - t < HOUR);
+  if (times.length >= LIMIT) return false;
+  RECENT.set(key, [...times, now]);
+  if (RECENT.size > 5000) RECENT.clear();
+  return true;
+}
+
 export const POST: APIRoute = async ({ request, url }) => {
   let email = "";
   try {
@@ -33,23 +48,17 @@ export const POST: APIRoute = async ({ request, url }) => {
   if (!EMAIL.test(email) || email.length > 320) return json({ error: "Enter a valid email address." }, 400);
 
   const options = { redirect: { url: `${url.origin}/login`, ...(WIX_MEMBERS_CLIENT_ID ? { clientId: WIX_MEMBERS_CLIENT_ID } : {}) } } as any;
+  // Sent with the site's own (elevated) permission, never the visitor's. Found 26 Nov 2026: the
+  // visitor's call answered OK and Wix sent nothing (two tries, two inboxes), while the identical
+  // request made with the site's permission arrived within a minute and its link opened Wix's
+  // "Reset password" page (/__auth/loginv2) on this domain. Safe to elevate: the only effect is a
+  // reset email to the address that was typed in, and the reply never says more.
+  if (!allowed(email)) return json({ ok: true });
   try {
-    await recovery.sendRecoveryEmail(email, options);
+    await auth.elevate(recovery.sendRecoveryEmail)(email, options);
   } catch (e) {
-    const status = (e as any)?.details?.httpStatus ?? (e as any)?.response?.status ?? (e as any)?.status;
-    const code = (e as any)?.details?.applicationError?.code ?? (e as Error)?.message;
-    if (status === 401 || status === 403 || /permission|unauthori|forbidden/i.test(String(code))) {
-      // The visitor identity may not be allowed to send it; the site can. Safe to elevate: the only
-      // effect is a reset email to the address that was typed in, and the reply never says more.
-      try {
-        await auth.elevate(recovery.sendRecoveryEmail)(email, options);
-      } catch (e2) {
-        console.error("[account] recovery email failed (elevated)", (e2 as any)?.details?.applicationError?.code ?? (e2 as Error)?.message);
-      }
-    } else {
-      // Unknown emails also land here; log for the owner, answer the visitor the same either way.
-      console.error("[account] recovery email failed", code);
-    }
+    // Unknown emails also land here; log for the owner, answer the visitor the same either way.
+    console.error("[account] recovery email failed", (e as any)?.details?.applicationError?.code ?? (e as Error)?.message);
   }
   return json({ ok: true });
 };
