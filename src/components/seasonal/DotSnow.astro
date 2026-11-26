@@ -1,7 +1,8 @@
 ---
-// "Dotty snow": polka dots in the season's colours (./palette.ts) drifting down, slowly and softly, behind whatever
-// sits on top. Decorative (hidden from screen readers) and never in the way of a click. It fills
-// its positioned parent; phones get half as many dots. With "reduce motion" on there is no snow.
+// "Dotty snow": polka dots in the season's colours (./palette.ts) drifting down, slowly and softly,
+// behind whatever sits on top; in spring, blossom petals that twirl as they fall. Decorative
+// (hidden from screen readers) and never in the way of a click. It fills its positioned parent;
+// phones get half as many. With "reduce motion" on nothing falls.
 import type { Season } from "../../lib/season";
 import { DECOR } from "./palette";
 
@@ -12,6 +13,7 @@ interface Props {
 }
 const { season, class: className, count = 22 } = Astro.props;
 const decor = DECOR[season];
+const petals = decor.snowShape === "petal";
 
 // Fixed "random" values, so the page is the same on every visit (no flicker between server and browser).
 const rand = (i: number, k: number) => {
@@ -20,11 +22,12 @@ const rand = (i: number, k: number) => {
 };
 const dots = Array.from({ length: count }, (_, i) => ({
   left: (rand(i, 1) * 100).toFixed(1),
-  size: Math.round(6 + rand(i, 2) * 9),
+  size: Math.round(6 + rand(i, 2) * 9) + (petals ? 3 : 0),
   fall: (14 + rand(i, 3) * 12).toFixed(1),
   delay: (-rand(i, 4) * 26).toFixed(1),
   drift: Math.round((rand(i, 5) - 0.5) * 50),
   wobble: (2.5 + rand(i, 6) * 2).toFixed(1),
+  spin: Math.round(rand(i, 7) * 360),
   colour: decor.snow[i % decor.snow.length],
   phoneHidden: i % 2 === 1,
 }));
@@ -37,8 +40,8 @@ const dots = Array.from({ length: count }, (_, i) => ({
       style={`left:${d.left}%;animation-duration:${d.fall}s;animation-delay:${d.delay}s`}
     >
       <span
-        class:list={["block rounded-full", d.colour, decor.snowRing]}
-        style={`width:${d.size}px;height:${d.size}px;--drift:${d.drift}px;animation-duration:${d.wobble}s`}
+        class:list={["block", petals ? "petal" : "rounded-full", d.colour, decor.snowRing]}
+        style={`width:${d.size}px;height:${d.size}px;--drift:${d.drift}px;--spin:${d.spin}deg;animation-duration:${d.wobble}s`}
       />
     </span>
   ))}
@@ -67,6 +70,13 @@ const dots = Array.from({ length: count }, (_, i) => ({
     .flake > span {
       animation: wobble ease-in-out infinite alternate;
     }
+    .flake > .petal {
+      animation-name: flutter;
+    }
+  }
+  /* A petal: two opposite corners fully rounded. */
+  .petal {
+    border-radius: 100% 0;
   }
   /* After the rule above, so it wins: phones get half the dots. */
   @media (max-width: 639.98px) {
@@ -86,6 +96,14 @@ const dots = Array.from({ length: count }, (_, i) => ({
     100% {
       transform: translateY(calc(100cqh + 40px));
       opacity: 0;
+    }
+  }
+  @keyframes flutter {
+    from {
+      transform: translateX(calc(var(--drift) * -0.5)) rotate(calc(var(--spin) - 50deg));
+    }
+    to {
+      transform: translateX(calc(var(--drift) * 0.5)) rotate(calc(var(--spin) + 50deg));
     }
   }
   @keyframes wobble {

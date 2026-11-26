@@ -60,6 +60,13 @@
   --color-ice-light: #b9d8ec;
   --color-silver: #c3ccd5;
   --color-white: #ffffff;
+  /* …and the spring extras. */
+  --color-blossom: #fbd3dd;
+  --color-primrose: #f6d55c;
+  --color-leaf: #5c9a4e;
+  --color-lilac: #c7a8dc;
+  --color-sky: #9ccfe8;
+  --color-straw: #e8c98b;
 
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -139,6 +146,22 @@ html[data-season='winter'] {
   --color-border: #d3e1eb;
   --color-sage: #2f5f80;
   --color-sage-deep: #1f4562;
+}
+
+/* ─── Spring ────────────────────────────────────────────────────────────────────────────
+   On <html data-season="spring">, March – May (SPRING in src/content/site.ts). A spring meadow:
+   primrose cream, fresh greens and primrose-yellow accents, with the brand pink for buttons.
+     cream   #FFFDF7 background        leaf  #EEF6E7 sections and cards
+     meadow  #3B7340 headings (5.6:1 on cream)   deep #2B5530 small labels (8.4:1)
+     primrose #F6D55C small accents (was blush; charcoal text on it is 10:1)
+     buttons stay hot pink with charcoal labels (5.3:1) */
+html[data-season='spring'] {
+  --color-background: #fffdf7;
+  --color-secondary: #eef6e7;
+  --color-border: #dbe9cf;
+  --color-sage: #3b7340;
+  --color-sage-deep: #2b5530;
+  --color-blush: #f6d55c;
 }
 
 /* iPhone Safari zooms the page into any field under 16px; keep phone-sized fields at 16px or more.

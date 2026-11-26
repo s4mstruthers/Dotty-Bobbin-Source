@@ -82,11 +82,11 @@ export const HOME = {
 };
 
 /**
- * The seasonal looks: Christmas, then winter straight after. Each switches itself on and off every
+ * The seasonal looks: Christmas, then winter, then spring. Each switches itself on and off every
  * year between its two dates (UK time, both days included): nothing to release when one starts or
  * ends. `on: false` keeps that one off all year. Outside both, the site wears its usual look.
  *
- * To see one at any time, open any page with ?season=christmas or ?season=winter on the end of the
+ * To see one at any time, open any page with ?season=christmas, ?season=winter or ?season=spring on the end of the
  * address; the whole site keeps it in that browser until ?season=off (or the browser is closed).
  */
 export const CHRISTMAS = {
@@ -112,6 +112,17 @@ export const WINTER = {
   bannerText: "Learn something new this winter:",
   bannerLink: "Sewing classes",
   bannerHref: "/services",
+};
+
+/** The spring look, straight after winter: March, April and May. */
+export const SPRING = {
+  on: true,
+  from: "03-01", // 1 March
+  until: "05-31", // 31 May; then the usual look until Christmas
+  // The thin strip above the menu on every page.
+  bannerText: "Spring into sewing:",
+  bannerLink: "Sewing patterns",
+  bannerHref: "/patterns",
 };
 
 /** Shown on the shop and every product page. Shop orders are collected, never posted. */

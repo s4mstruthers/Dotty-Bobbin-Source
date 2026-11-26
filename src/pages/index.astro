@@ -19,12 +19,12 @@ import type { ProductSummary } from "../wix/storefront/types";
 import ButtonGarland from "../components/seasonal/ButtonGarland.astro";
 import DotSnow from "../components/seasonal/DotSnow.astro";
 import BirdHat from "../components/seasonal/BirdHat.astro";
-import StitchSnowflake from "../components/seasonal/StitchSnowflake.astro";
+import StitchMotif from "../components/seasonal/StitchMotif.astro";
 import { DECOR } from "../components/seasonal/palette";
 import { BUSINESS, CHRISTMAS, HOME, MEET_SASKIA, SHOP } from "../content/site";
 import { currentSeason } from "../lib/season";
 
-// The seasonal look (Christmas, winter or none): the hero's garland, snow and the bird's hat.
+// The seasonal look (Christmas, winter, spring or none): the hero's garland, snow or petals, and the bird's hat.
 const season = currentSeason(Astro.url, Astro.cookies);
 const christmas = season === "christmas";
 
@@ -104,8 +104,8 @@ try {
         <span class="absolute bottom-[12%] left-[2%] h-10 w-10 rounded-full border-4 border-secondary bg-background"></span>
         {season && (
           <>
-            <StitchSnowflake twinkle class:list={["absolute left-[-4%] top-[24%] w-[14%]", DECOR[season].flakes[0]]} />
-            <StitchSnowflake twinkle delay={3} class:list={["absolute bottom-[22%] right-[-2%] w-[11%]", DECOR[season].flakes[1]]} />
+            <StitchMotif motif={DECOR[season].motif} centre={DECOR[season].motifCentre} twinkle class:list={["absolute left-[-4%] top-[24%] w-[14%]", DECOR[season].flakes[0]]} />
+            <StitchMotif motif={DECOR[season].motif} centre={DECOR[season].motifCentre} twinkle delay={3} class:list={["absolute bottom-[22%] right-[-2%] w-[11%]", DECOR[season].flakes[1]]} />
           </>
         )}
       </div>
