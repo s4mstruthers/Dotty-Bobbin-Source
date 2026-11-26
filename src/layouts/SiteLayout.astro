@@ -43,7 +43,7 @@ const within = (base: string) => path === base || path.startsWith(`${base}/`);
 const isActive = (href: string) => (href === "/" ? path === "/" : within(href) || (UNDER[href] ?? []).some(within));
 const patternsHref = SHOP.patternsHref;
 const year = new Date().getFullYear();
-// The Christmas look, 1 Dec – 5 Jan (src/lib/season.ts; dates in CHRISTMAS, src/content/site.ts).
+// The Christmas look, 26 Nov – 5 Jan (src/lib/season.ts; dates in CHRISTMAS, src/content/site.ts).
 const christmas = currentSeason(Astro.url, Astro.cookies) === "christmas";
 // One back link per page, naming where it goes ("‹ All classes"), and always going there — easier
 // to follow than "Back" plus a breadcrumb trail. Top-level pages have none: the menu is there.

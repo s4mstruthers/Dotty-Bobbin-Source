@@ -90,7 +90,7 @@ export const HOME = {
  */
 export const CHRISTMAS = {
   on: true,
-  from: "12-01", // 1 December
+  from: "11-26", // 26 November
   until: "01-05", // 5 January: Twelfth Night, when the decorations come down
   // The thin strip above the menu on every page.
   bannerText: "Merry Christmas! Give the gift of sewing:",
