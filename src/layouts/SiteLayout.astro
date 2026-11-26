@@ -164,7 +164,7 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
           </address>
           <a href={`mailto:${BUSINESS.email}`} class="mt-3 inline-block text-sm font-semibold underline decoration-blush decoration-2 underline-offset-4">{BUSINESS.email}</a>
           {BUSINESS.showPhone && <p class="mt-1 text-sm">{BUSINESS.phone}</p>}
-          {BUSINESS.facebook && <a href={BUSINESS.facebook} target="_blank" rel="noopener" class="mt-2 inline-block py-1.5 text-sm font-semibold no-underline hover:underline">Facebook</a>}
+          {BUSINESS.facebook && <a href={BUSINESS.facebook} target="_blank" rel="noopener" class="mt-2 block w-fit py-1.5 text-sm font-semibold no-underline hover:underline">Facebook</a>}
         </div>
         <div>
           <p class="eyebrow">Menu</p>
