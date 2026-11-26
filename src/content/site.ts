@@ -81,6 +81,27 @@ export const HOME = {
   contactButton: "Email me",
 };
 
+/**
+ * The Christmas look. It switches itself on and off every year between these two dates (UK time,
+ * both days included): nothing to release when it starts or ends. `on: false` keeps it off all year.
+ *
+ * To see it before it starts, open any page with ?season=christmas on the end of the address; the
+ * whole site stays Christmassy in that browser until ?season=off (or the browser is closed).
+ */
+export const CHRISTMAS = {
+  on: true,
+  from: "12-01", // 1 December
+  until: "01-05", // 5 January: Twelfth Night, when the decorations come down
+  // The thin strip above the menu on every page.
+  bannerText: "Merry Christmas! Give the gift of sewing:",
+  bannerLink: "Gift cards",
+  bannerHref: "/gift-card",
+  // The gift card panel on the home page.
+  giftTitle: "Give the gift of sewing this Christmas",
+  giftText:
+    "For the sewist in your life, or someone who'd love to learn. A gift card can be spent on any of my classes, retreats or anything in the studio shop.",
+};
+
 /** Shown on the shop and every product page. Shop orders are collected, never posted. */
 /**
  * The pattern-testing pages (/pattern-testing). The calls for testers themselves live in the Wix

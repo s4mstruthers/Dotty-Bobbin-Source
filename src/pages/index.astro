@@ -16,7 +16,14 @@ import { fetchCategoryBySlug, fetchProductsByCategory, fetchProducts } from "../
 import type { ServiceSummary } from "../wix/bookings/types";
 import type { EventSummary } from "../wix/events/types";
 import type { ProductSummary } from "../wix/storefront/types";
-import { BUSINESS, HOME, MEET_SASKIA, SHOP } from "../content/site";
+import ButtonGarland from "../components/seasonal/ButtonGarland.astro";
+import DotSnow from "../components/seasonal/DotSnow.astro";
+import SantaHat from "../components/seasonal/SantaHat.astro";
+import StitchSnowflake from "../components/seasonal/StitchSnowflake.astro";
+import { BUSINESS, CHRISTMAS, HOME, MEET_SASKIA, SHOP } from "../content/site";
+import { currentSeason } from "../lib/season";
+
+const christmas = currentSeason(Astro.url, Astro.cookies) === "christmas";
 
 // Where "Read all our reviews on Google" goes before Google has said (a Maps search URL, from
 // Google's documented Maps URLs; the place ID pins it to the listing once it's set).
@@ -59,7 +66,15 @@ try {
 <SiteLayout title={`${BUSINESS.name} · Sewing classes & retreats in Hemel Hempstead`} description={HOME.heroText} bare>
   <!-- Hero -->
   <section class="relative overflow-hidden">
-    <div class="wrap grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
+    {christmas && (
+      <>
+        <!-- Snow falls on the bird's side only, never across the words: the right half on a wide
+             screen; on a phone, round the bird (below). -->
+        <div class="pointer-events-none absolute inset-y-0 left-1/2 right-0 hidden lg:block"><DotSnow /></div>
+        <ButtonGarland sew class="absolute inset-x-0 top-0 h-16 sm:h-20" />
+      </>
+    )}
+    <div class:list={["wrap grid items-center gap-10 lg:grid-cols-[1.15fr_1fr]", christmas ? "pb-12 pt-20 sm:pb-16 sm:pt-24 lg:pb-24 lg:pt-28" : "py-12 sm:py-16 lg:py-24"]}>
       <div class="relative z-10">
         <p class="eyebrow">{HOME.kicker}</p>
         <h1 class="mt-4 text-5xl text-sage sm:text-6xl lg:text-7xl">
@@ -74,11 +89,21 @@ try {
           <a href={SHOP.patternsHref} class="link-pill">{HOME.heroPatternsButton}</a>
         </div>
       </div>
-      <div class="relative mx-auto w-full max-w-[24rem] lg:max-w-[30rem]" aria-hidden="true">
+      <div class:list={["relative mx-auto w-full max-w-[24rem] lg:max-w-[30rem]", christmas && "hop-on-hover"]} aria-hidden="true">
         <div class="dots aspect-square rounded-full"></div>
-        <img src="/dotty-bobbin-icon.png" alt="" width="879" height="879" class="absolute inset-[8%] h-[84%] w-[84%] object-contain" />
+        {christmas && <div class="pointer-events-none absolute -inset-x-[10%] -bottom-[6%] -top-[12%] lg:hidden"><DotSnow count={20} /></div>}
+        <div class="bird absolute inset-[8%]">
+          <img src="/dotty-bobbin-icon.png" alt="" width="879" height="879" class="h-full w-full object-contain" />
+          {christmas && <SantaHat wiggle class="absolute left-[37.5%] top-[-14.7%] w-[35%]" />}
+        </div>
         <span class="absolute right-[6%] top-[10%] h-6 w-6 rounded-full bg-blush"></span>
         <span class="absolute bottom-[12%] left-[2%] h-10 w-10 rounded-full border-4 border-secondary bg-background"></span>
+        {christmas && (
+          <>
+            <StitchSnowflake twinkle class="absolute left-[-4%] top-[24%] w-[14%] text-gold" />
+            <StitchSnowflake twinkle delay={3} class="absolute bottom-[22%] right-[-2%] w-[11%] text-holly/70" />
+          </>
+        )}
       </div>
     </div>
   </section>
@@ -158,8 +183,8 @@ try {
       <div class="dots-pink rounded-lg p-3 sm:p-4">
         <div class="flex flex-col gap-5 rounded-md bg-background/95 px-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-10">
           <div class="max-w-2xl">
-            <h2 id="gift-title" class="text-2xl text-sage sm:text-3xl">Give the gift of sewing</h2>
-            <p class="mt-2">Know someone who'd love to learn? A gift card can be spent on any of my classes, retreats or anything in the studio shop.</p>
+            <h2 id="gift-title" class="text-2xl text-sage sm:text-3xl">{christmas ? CHRISTMAS.giftTitle : "Give the gift of sewing"}</h2>
+            <p class="mt-2">{christmas ? CHRISTMAS.giftText : "Know someone who'd love to learn? A gift card can be spent on any of my classes, retreats or anything in the studio shop."}</p>
           </div>
           <a href="/gift-card" class="btn shrink-0 self-start sm:self-auto">Buy a gift card</a>
         </div>
@@ -212,3 +237,27 @@ try {
     </div>
   </section>
 </SiteLayout>
+
+<style>
+  /* At Christmas the bird hops when the pointer comes over her (a pointer only; still with "reduce motion"). */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) {
+    .hop-on-hover:hover .bird {
+      animation: hop 0.7s ease-out;
+    }
+  }
+  @keyframes hop {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-7%);
+    }
+    55% {
+      transform: translateY(0);
+    }
+    72% {
+      transform: translateY(-2.5%);
+    }
+  }
+</style>

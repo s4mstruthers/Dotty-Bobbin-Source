@@ -43,6 +43,16 @@
   --color-blush: #fbbcca;
   --color-blush-soft: #fde8ee;
 
+  /* Fixed colours, the same in every season: text on blush (ribbons), the logo-style outline, the
+     brand pink itself, and the Christmas extras (ornaments, the banner strip, stitched snow). */
+  --color-ink: #2b2929;
+  --color-dotty: #f571a0;
+  --color-berry: #b3263f;
+  --color-holly: #2f6a4a;
+  --color-pine: #22513a;
+  --color-gold: #e2b75e;
+  --color-snow: #fffaf3;
+
   --radius-lg: 28px;
   --radius-md: 18px;
   --radius-sm: 12px;
@@ -87,6 +97,26 @@
   summary {
     cursor: pointer;
   }
+}
+
+/* ─── Christmas ─────────────────────────────────────────────────────────────────────────
+   On <html data-season="christmas">, 1 Dec – 5 Jan (CHRISTMAS in src/content/site.ts). Only the
+   tokens change, so every page and component follows. The pink bird and logo stay as they are.
+     calico  #FFFAF3 background      linen   #F7EEE2 sections and cards
+     cranberry #B3263F buttons, white labels (6.4:1)
+     holly   #2F6A4A headings (6.2:1 on calico)   pine #22513A small labels (8.8:1)
+     gold    #EBC57A small accents (was blush)    cranberry milk #F9E6E3 (was blush-soft)
+   Unlayered, so it wins over the @theme values. */
+html[data-season='christmas'] {
+  --color-background: #fffaf3;
+  --color-secondary: #f7eee2;
+  --color-border: #eadfce;
+  --color-primary: #b3263f;
+  --color-primary-foreground: #ffffff;
+  --color-sage: #2f6a4a;
+  --color-sage-deep: #22513a;
+  --color-blush: #ebc57a;
+  --color-blush-soft: #f9e6e3;
 }
 
 /* iPhone Safari zooms the page into any field under 16px; keep phone-sized fields at 16px or more.

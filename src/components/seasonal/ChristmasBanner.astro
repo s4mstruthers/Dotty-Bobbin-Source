@@ -1,0 +1,46 @@
+---
+// The thin pine-green strip above the menu at Christmas, with a gold running stitch along its foot
+// that sews itself in when the page opens (still, with "reduce motion" on). Words: CHRISTMAS in
+// src/content/site.ts.
+import { CHRISTMAS } from "../../content/site";
+import StitchSnowflake from "./StitchSnowflake.astro";
+---
+
+<div class="xmas-banner relative bg-pine text-snow">
+  <div class="wrap flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 py-2.5 text-center text-sm">
+    <StitchSnowflake class="h-5 w-5 shrink-0 text-gold max-sm:hidden" twinkle />
+    <span>{CHRISTMAS.bannerText}</span>
+    <a href={CHRISTMAS.bannerHref} class="inline-flex items-center gap-1 font-bold underline decoration-gold decoration-2 underline-offset-4 hover:decoration-snow">
+      {CHRISTMAS.bannerLink}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+    </a>
+    <StitchSnowflake class="h-5 w-5 shrink-0 text-gold max-sm:hidden" twinkle delay={3.5} />
+  </div>
+  <span class="stitches" aria-hidden="true"></span>
+</div>
+
+<style>
+  .stitches {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 4px;
+    height: 2px;
+    background-image: linear-gradient(to right, var(--color-gold) 60%, transparent 60%);
+    background-size: 14px 2px;
+    background-repeat: repeat-x;
+    opacity: 0.85;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stitches {
+      animation: sew-in 1.8s steps(40, end) 0.3s both;
+    }
+  }
+  @keyframes sew-in {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+</style>

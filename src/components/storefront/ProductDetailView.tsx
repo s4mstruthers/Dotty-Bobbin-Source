@@ -62,7 +62,7 @@ export default function ProductDetailView(props: { initial?: ProductDetail | nul
           {p.ribbons.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1.5">
               {p.ribbons.map((r) => (
-                <span key={r} className="rounded-control bg-blush px-3 py-0.5 text-xs font-bold text-primary-foreground">{r}</span>
+                <span key={r} className="rounded-control bg-blush px-3 py-0.5 text-xs font-bold text-ink">{r}</span>
               ))}
             </div>
           )}

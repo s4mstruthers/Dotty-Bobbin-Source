@@ -14,6 +14,10 @@ import CartDrawer from "../components/storefront/CartDrawer";
 import AccountLink from "../components/AccountLink";
 import { BUSINESS, NAV, SHOP } from "../content/site";
 import { ALL_POLICIES } from "../content/policies";
+import { currentSeason } from "../lib/season";
+import ChristmasBanner from "../components/seasonal/ChristmasBanner.astro";
+import ButtonGarland from "../components/seasonal/ButtonGarland.astro";
+import SantaHat from "../components/seasonal/SantaHat.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -39,6 +43,8 @@ const within = (base: string) => path === base || path.startsWith(`${base}/`);
 const isActive = (href: string) => (href === "/" ? path === "/" : within(href) || (UNDER[href] ?? []).some(within));
 const patternsHref = SHOP.patternsHref;
 const year = new Date().getFullYear();
+// The Christmas look, 1 Dec – 5 Jan (src/lib/season.ts; dates in CHRISTMAS, src/content/site.ts).
+const christmas = currentSeason(Astro.url, Astro.cookies) === "christmas";
 // One back link per page, naming where it goes ("‹ All classes"), and always going there — easier
 // to follow than "Back" plus a breadcrumb trail. Top-level pages have none: the menu is there.
 const [, section, item] = path.split("/");
@@ -54,7 +60,7 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
 ---
 
 <!doctype html>
-<html lang="en-GB">
+<html lang="en-GB" data-season={christmas ? "christmas" : undefined}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -65,16 +71,19 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
          as a standalone web app: Wix's hosted checkout can't load inside one (see inHomeScreenApp in
          src/wix/bookings/booking.ts). -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content={christmas ? "#22513a" : "#ffffff"} />
     <slot name="seo-tags" />
   </head>
   <body class="flex min-h-screen flex-col">
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-background focus:px-4 focus:py-2">Skip to content</a>
 
+    {christmas && <ChristmasBanner />}
+
     <header class="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">
       <div class="wrap flex h-[76px] items-center justify-between gap-4 sm:h-[88px]">
-        <a href="/" class="shrink-0" aria-label={`${BUSINESS.name} home`}>
+        <a href="/" class="relative shrink-0" aria-label={`${BUSINESS.name} home`}>
           <img src="/dotty-bobbin-logo.png" alt={BUSINESS.name} width="698" height="175" class="h-11 w-auto sm:h-14" />
+          {christmas && <SantaHat class="absolute left-[3.2%] top-[-20%] w-[9.4%]" />}
         </a>
 
         <nav class="hidden items-center gap-0.5 lg:flex xl:gap-1" aria-label="Main">
@@ -142,6 +151,7 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
     </main>
 
     <footer class="mt-auto bg-secondary">
+      {christmas && <ButtonGarland class="h-16 w-full sm:h-20" />}
       <div class="wrap grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <img src="/dotty-bobbin-logo.png" alt={BUSINESS.name} width="698" height="175" class="h-11 w-auto" loading="lazy" />
@@ -185,6 +195,11 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
     <CartDrawer client:only="react" />
 
     <script>
+      // The Christmas preview (src/lib/season.ts): ?season=christmas or ?season=off is remembered
+      // for the rest of the visit, so every page follows until the browser is closed.
+      const seasonChoice = new URLSearchParams(location.search).get("season");
+      if (seasonChoice === "christmas" || seasonChoice === "off") document.cookie = `db-season=${seasonChoice}; path=/; SameSite=Lax`;
+
       // Close the mobile menu on Escape, a tap outside it, or after picking a link (delegated: the
       // account link is an island that renders after this runs).
       const menu = document.getElementById("mobile-menu") as HTMLDetailsElement | null;

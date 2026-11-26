@@ -42,7 +42,7 @@ export default function ProductTile({ p, motif = "bag" }: { p: ProductSummary; m
           {p.ribbons.length > 0 && (
             <span className="absolute left-2.5 top-2.5 flex flex-wrap gap-1">
               {p.ribbons.map((r) => (
-                <span key={r} className="rounded-control bg-blush px-2.5 py-0.5 text-xs font-bold text-primary-foreground">{r}</span>
+                <span key={r} className="rounded-control bg-blush px-2.5 py-0.5 text-xs font-bold text-ink">{r}</span>
               ))}
             </span>
           )}

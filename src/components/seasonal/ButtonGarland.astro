@@ -1,0 +1,143 @@
+---
+// A Christmas garland: a red thread strung across in swags, with sewing buttons hanging from it for
+// baubles. Decorative (hidden from screen readers); nothing under it can be clicked.
+//   - The buttons sway gently on their threads, and jingle when the pointer passes over one.
+//   - `sew`: the thread sews itself across and the buttons drop on when the page opens (for the
+//     garland at the top of the home page; one further down would finish before anyone saw it).
+//   - With "reduce motion" on, it simply hangs still.
+// It is cropped from the middle on narrow screens, so phones see fewer buttons, never smaller ones.
+interface Props {
+  class?: string;
+  sew?: boolean;
+}
+const { class: className, sew = false } = Astro.props;
+
+const W = 1200;
+const H = 80;
+const STEP = 150;
+const PIN_Y = 5;
+const SAG = 28;
+const pins = Array.from({ length: W / STEP + 1 }, (_, i) => i * STEP);
+const thread = `M0 ${PIN_Y} ` + pins.slice(1).map((x) => `Q${x - STEP / 2} ${SAG} ${x} ${PIN_Y}`).join(" ");
+
+// Button colours in turn; cream ones read as "snow" buttons.
+const FILLS = ["fill-berry", "fill-holly", "fill-gold", "fill-dotty", "fill-snow", "fill-berry", "fill-holly"];
+const buttons = pins.slice(1, -1).map((x, i) => {
+  const r = i % 2 ? 13 : 16;
+  const drop = i % 2 ? 34 : 18;
+  return {
+    x,
+    r,
+    cy: PIN_Y + drop + r,
+    drop,
+    fill: FILLS[i % FILLS.length],
+    holes: i % 3 === 1 ? 2 : 4,
+    // Out of step with each other, like real ones.
+    sway: (3.4 + (i % 3) * 0.5).toFixed(1),
+    swayDelay: (-(i * 0.9) % 3).toFixed(1),
+    dropDelay: (1.1 + i * 0.12).toFixed(2),
+  };
+});
+---
+
+<svg
+  class:list={["garland", sew && "sew", className]}
+  viewBox={`0 0 ${W} ${H}`}
+  preserveAspectRatio="xMidYMin slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path class="thread stroke-berry" d={thread} fill="none" stroke-width="2.2" stroke-linecap="round" pathLength="1" />
+  {buttons.map((b) => (
+    <g class="sway" style={`transform-origin:${b.x}px ${PIN_Y}px;animation-duration:${b.sway}s;animation-delay:${b.swayDelay}s`}>
+      <g class="drop" style={`animation-delay:${b.dropDelay}s`}>
+        <g class="jingle" style={`transform-origin:${b.x}px ${PIN_Y}px`}>
+          <line x1={b.x} y1={PIN_Y} x2={b.x} y2={PIN_Y + b.drop} class="stroke-berry" stroke-width="1.6" />
+          <circle cx={b.x} cy={b.cy} r={b.r} class:list={[b.fill, "stroke-ink"]} stroke-width="1.6" />
+          <circle cx={b.x} cy={b.cy} r={b.r - 3.5} fill="none" class="stroke-ink" stroke-width="1" opacity="0.25" />
+          {b.holes === 4 ? (
+            <>
+              {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([dx, dy]) => (
+                <circle cx={b.x + dx * 3.2} cy={b.cy + dy * 3.2} r="1.7" class="fill-ink" opacity="0.55" />
+              ))}
+              <path d={`M${b.x - 3.2} ${b.cy - 3.2}L${b.x + 3.2} ${b.cy + 3.2}M${b.x + 3.2} ${b.cy - 3.2}L${b.x - 3.2} ${b.cy + 3.2}`} class="stroke-snow" stroke-width="1.3" stroke-linecap="round" />
+            </>
+          ) : (
+            <>
+              <circle cx={b.x - 3} cy={b.cy} r="1.7" class="fill-ink" opacity="0.55" />
+              <circle cx={b.x + 3} cy={b.cy} r="1.7" class="fill-ink" opacity="0.55" />
+              <path d={`M${b.x - 3} ${b.cy}L${b.x + 3} ${b.cy}`} class="stroke-snow" stroke-width="1.3" stroke-linecap="round" />
+            </>
+          )}
+        </g>
+      </g>
+    </g>
+  ))}
+  {pins.map((x) => <circle cx={x} cy={PIN_Y} r="3.6" class="fill-gold stroke-ink" stroke-width="1" />)}
+</svg>
+
+<style>
+  .garland {
+    display: block;
+    overflow: visible;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sway {
+      animation-name: sway;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+    .sew .thread {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: sew 1.6s ease-out 0.2s forwards;
+    }
+    .sew .drop {
+      animation: drop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @media (hover: hover) {
+      .jingle:hover {
+        animation: jingle 0.9s ease-out;
+      }
+    }
+  }
+  @keyframes sway {
+    from {
+      transform: rotate(-4deg);
+    }
+    to {
+      transform: rotate(4deg);
+    }
+  }
+  @keyframes sew {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes drop {
+    from {
+      transform: translateY(-24px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes jingle {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(14deg);
+    }
+    45% {
+      transform: rotate(-10deg);
+    }
+    70% {
+      transform: rotate(5deg);
+    }
+  }
+</style>
