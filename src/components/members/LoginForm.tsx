@@ -149,6 +149,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   async function submitCode(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
+    let leaving = false;
     try {
       const result = await verifyEmail(code);
       // The code step was lost (over 15 minutes, or the browser didn't keep it): back to the first
@@ -161,11 +162,14 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         setCodeExpired(true);
         return;
       }
-      if (result.state === "SUCCESS" && result.redirectUrl) return; // navigating to Wix and back
+      if (result.state === "SUCCESS" && result.redirectUrl) {
+        leaving = true; // navigating to Wix and back: keep the button disabled (a second tap re-sent the code)
+        return;
+      }
       if (result.state === "SUCCESS") done();
       if (result.state === "OWNER_APPROVAL_REQUIRED") setPending(true);
     } finally {
-      setBusy(false);
+      if (!leaving) setBusy(false);
     }
   }
 

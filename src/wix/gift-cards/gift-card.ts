@@ -7,7 +7,7 @@
 import { currentCartV2 } from "@wix/ecom";
 import { wixFetch, wixModule } from "../sdk";
 import { fetchCart } from "../storefront/cart";
-import { cartErrorMessage } from "../storefront/cart-core";
+import { cartErrorMessage, rawId } from "../storefront/cart-core";
 import type { Cart } from "../storefront/types";
 import { giftCardCatalogItem, purchaseProblem, toGiftCardProduct } from "./gift-card-core";
 import type { GiftCardProduct, GiftCardPurchase } from "./types";
@@ -49,13 +49,25 @@ export function giftCardImageUrl(): Promise<string> {
 export async function addGiftCardToCart(product: GiftCardProduct, purchase: GiftCardPurchase, currency: string): Promise<Cart> {
   const problem = purchaseProblem(product, purchase);
   if (problem) throw new Error(problem);
+  const isThisCard = (l: Raw) => l.source?.catalogReference?.catalogItemId === product.id;
+  const requested = (l: Raw): number => Number(l.quantityInfo?.requestedQuantity ?? 0) || 0;
+  // The gift card lines already in the basket (line id → quantity), so the check below looks at
+  // the line THIS add made, or grew, and not at an earlier gift card (say, for someone else).
+  const before = new Map<string, number>();
+  try {
+    const { cart } = await cartApi.getCurrentCart();
+    for (const l of ((cart as Raw)?.lineItems ?? []) as Raw[]) if (isThisCard(l)) before.set(rawId(l), requested(l));
+  } catch {
+    /* no basket yet: nothing before */
+  }
   let raw: Raw;
   try {
     raw = (await cartApi.addLineItemsToCurrentCart({ catalogItems: [giftCardCatalogItem(product, purchase, currency)] } as any)).cart as Raw;
   } catch (e) {
     throw new Error(cartErrorMessage(e));
   }
-  const line = ((raw?.lineItems ?? []) as Raw[]).find((l) => l.source?.catalogReference?.catalogItemId === product.id);
+  const lines = ((raw?.lineItems ?? []) as Raw[]).filter(isThisCard);
+  const line = lines.find((l) => !before.has(rawId(l))) ?? lines.find((l) => requested(l) > (before.get(rawId(l)) ?? 0));
   if (!line || line.quantityInfo?.confirmedQuantity === 0 || (line.status && line.status !== "IN_STOCK")) {
     throw new Error("The gift card couldn't be added just now. Please try again or get in touch.");
   }

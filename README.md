@@ -59,6 +59,7 @@ start an edit from anywhere else, and never edit only the live site.
 | `/event-confirmation` | `src/pages/event-confirmation.astro` | Thank-you page after buying tickets (keep this address) |
 | `/shop`, `/category/<cat>`, `/products/<item>` | `src/pages/shop.astro`, `category/[slug].astro`, `products/[slug].astro` | The studio shop; the cart opens as a drawer |
 | `/product-page/<item>` | `src/pages/product-page/[slug].astro` | The old editor shop's product address: a permanent redirect to `/products/<item>` |
+| `/sitemap-index.xml` | `src/pages/sitemap-index.xml.ts` | The site's sitemap for search engines (see *Sitemap* under Common edits) |
 | `/pattern-testing` | `src/pages/pattern-testing.astro` | Every pattern test with "Open for applications" ticked (Wix CMS) |
 | `/pattern-testing/<slug>` | `src/pages/pattern-testing/[slug].astro` | One pattern test: details, sizes, deadline and the apply form |
 | `/api/pattern-testing/apply` | `src/pages/api/pattern-testing/apply.ts` → `src/wix/pattern-testing/server.ts` | Server-only: files an application into the private Tester applications collection |
@@ -72,6 +73,14 @@ start an edit from anywhere else, and never edit only the live site.
 - **Reword the home page**: edit `HOME` in `src/content/site.ts`.
 - **Add Saskia's text**: paste it into `MEET_SASKIA` and `ABOUT` in `src/content/site.ts`,
   one string per paragraph, exactly as she wrote it. The dashed placeholders disappear by themselves.
+- **Sitemap**: `/sitemap-index.xml` lists every page for search engines. Classes, retreats & events,
+  products, shop categories and open pattern tests are read live from Wix, so dashboard changes
+  appear in it within the hour. **A new page added in code** (a new `.astro` file under
+  `src/pages`) must be added to `MAIN_PAGES` at the top of `src/pages/sitemap-index.xml.ts`.
+  Why it exists (27 Nov 2026): the `/sitemap.xml` Wix generates for this site lists no pages.
+  `robots.txt` names both sitemaps; it was set through Wix's Robots.txt API, so Wix no longer
+  regenerates it. If it's ever reset to default in the dashboard (SEO › Robots.txt editor), add
+  the line `Sitemap: https://www.dottybobbin.com/sitemap-index.xml` back.
 - **Google reviews**: read live from Google (`/api/google-reviews`) with the place ID in `BUSINESS.googlePlaceId` and the `GOOGLE_PLACES_API_KEY` secret (`wix env set`). Google allows no caching, so each visitor who scrolls to them is one billed call; the key's daily quota in Google Cloud caps the cost. Never write reviews by hand.
 - **Policies**: fill `POLICIES` in `src/content/site.ts`.
 - **Show the phone number**: set `showPhone: true` in `BUSINESS`.
