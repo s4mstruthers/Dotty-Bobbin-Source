@@ -48,12 +48,24 @@ export function eventCalendarLinks(event: Pick<EventDetail, "title" | "startDate
     endIso: event.endDateIso || event.startDateIso,
     location: event.address || event.locationName,
   });
-  return { google: event.addToCalendar?.google || ours.google, apple: event.addToCalendar?.ics || ours.apple };
+  return { google: https(event.addToCalendar?.google) || ours.google, apple: https(event.addToCalendar?.ics) || ours.apple };
 }
+
+/** Wix sends its Google Calendar link as plain http:// (seen 27 Nov 2026); the https form is the same page. */
+const https = (url: string | undefined): string => (url ? url.replace(/^http:\/\//i, "https://") : "");
 
 // ---- the .ics file (RFC 5545) ----------------------------------------------------------------
 
-const escapeText = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+// Every kind of line break becomes the escaped "\n", and other control characters go: a bare CR
+// left in the text (it reaches /api/calendar.ics from the address bar) would start a new line in
+// some calendar apps and let a crafted link add its own properties to a file from this domain.
+const escapeText = (s: string) =>
+  s
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r\n|\r|\n|\u2028|\u2029/g, "\\n")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "");
 
 /** Lines longer than 75 octets continue on the next line after a space. */
 function fold(line: string): string {

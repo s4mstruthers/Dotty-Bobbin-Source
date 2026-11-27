@@ -74,8 +74,12 @@ const isSeason = (v: string | undefined): v is Season => (SEASONS as readonly st
 
 /** A preview choice from the address or the cookie: a holiday, "off", or undefined for none. */
 function previewChoice(url: URL, cookies: AstroCookies): Season | "off" | undefined {
-  const raw = url.searchParams.get(SEASON_PARAM) ?? cookies.get(SEASON_COOKIE)?.value;
-  return raw === "off" || isSeason(raw) ? raw : undefined;
+  // Any case (?season=Christmas); a misspelt choice in the address leaves the cookie's in force.
+  const valid = (v: string | undefined): Season | "off" | undefined => {
+    const s = v?.trim().toLowerCase();
+    return s === "off" || isSeason(s) ? s : undefined;
+  };
+  return valid(url.searchParams.get(SEASON_PARAM) ?? undefined) ?? valid(cookies.get(SEASON_COOKIE)?.value);
 }
 
 /** The holiday look to show on this request, or null for the usual look. */

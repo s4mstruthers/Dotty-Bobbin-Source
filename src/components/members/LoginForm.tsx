@@ -57,7 +57,9 @@ function EyeIcon({ crossed }: { crossed: boolean }) {
 }
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
-  const { login, register, verifyEmail, error, clearError } = useMember();
+  const { login, register, verifyEmail, error, clearError, loggedIn, logout } = useMember();
+  // Back here after a stale login was cleared (see submit): say why they're signing in again.
+  const [signedOutAgain] = useState(() => new URLSearchParams(window.location.search).get("again") === "1");
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -73,11 +75,25 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [codeExpired, setCodeExpired] = useState(false);
   const [cookiesBlocked] = useState(() => typeof navigator !== "undefined" && navigator.cookieEnabled === false);
 
+  // ?returnTo as a URL on this site, or null. The check is made on the path AFTER the URL is
+  // resolved: "/services/..//evil.com" starts like a class page but resolves to the path
+  // "//evil.com", which a browser reads as another site (as it does "/\evil.com").
+  function wantedUrl(): URL | null {
+    const wanted = new URLSearchParams(window.location.search).get("returnTo") ?? "";
+    if (!wanted.startsWith("/")) return null;
+    try {
+      const u = new URL(wanted, window.location.origin);
+      if (u.origin !== window.location.origin || /^\/[/\\]/.test(u.pathname)) return null;
+      return u;
+    } catch {
+      return null;
+    }
+  }
+
   // The class page they came from, opened for guest booking — only when they came from a class.
   function guestHref(): string | null {
-    const wanted = new URLSearchParams(window.location.search).get("returnTo") ?? "";
-    if (!/^\/(services|portfolio-course-1)\//.test(wanted)) return null;
-    const u = new URL(wanted, window.location.origin);
+    const u = wantedUrl();
+    if (!u || !/^\/(services|portfolio-course-1)\//.test(u.pathname)) return null;
     u.searchParams.set("guest", "1");
     return u.pathname + u.search;
   }
@@ -85,14 +101,8 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   // Where a SUCCESS lands: ?returnTo when it is a same-site path, else /account. With onSuccess the
   // form stays put on manual auth; on managed Astro the round trip returns to this very page.
   function returnTo(): string {
-    const wanted = new URLSearchParams(window.location.search).get("returnTo");
-    // Only this site: "/\\evil.com" starts with "/" but browsers read it as another site.
-    if (wanted?.startsWith("/")) {
-      try {
-        const u = new URL(wanted, window.location.origin);
-        if (u.origin === window.location.origin) return u.pathname + u.search + u.hash;
-      } catch {}
-    }
+    const u = wantedUrl();
+    if (u) return u.pathname + u.search + u.hash;
     return onSuccess ? window.location.pathname + window.location.search : "/account";
   }
 
@@ -115,6 +125,17 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
           : await register(email, password, PROFILE_ON_SIGNUP ? { firstName, lastName } : undefined, options);
       if (result.state === "SUCCESS" && result.redirectUrl) {
         leaving = true; // navigating to Wix and back: keep the button disabled
+        return;
+      }
+      // Wix's login route says "already signed in" whenever the browser still holds a member login,
+      // even one Wix has since revoked or expired, which the rest of the site reads as logged out.
+      // Without this the member is stuck: "Log in" everywhere, "already signed in" here, and no Log
+      // out button. Really signed in (another tab): carry on. Stale: clear it, come back, sign in.
+      if (result.state === "FAILURE" && result.errorCode === "ALREADY_LOGGED_IN") {
+        leaving = true;
+        clearError();
+        if (loggedIn) window.location.assign(returnTo());
+        else await logout(`/login?${new URLSearchParams({ returnTo: returnTo(), again: "1" })}`);
         return;
       }
       if (result.state === "SUCCESS") done();
@@ -230,6 +251,11 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         ? "Sign in to see your classes, tickets and orders."
         : "Use the email address you book with, so your classes and orders all appear in one place."}
     </p>
+    {signedOutAgain && !error && (
+      <p className="mb-5 rounded-md bg-blush-soft px-4 py-3 text-sm" role="status">
+        Your last sign-in had run out, so we've signed you out. Please sign in again.
+      </p>
+    )}
     {cookiesBlocked && (
       <p className="mb-5 rounded-md bg-blush-soft px-4 py-3 text-sm" role="alert">
         <span className="font-semibold">This browser is blocking cookies,</span> so signing in won't work here. You can still book as a guest, or turn cookies back on

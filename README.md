@@ -58,6 +58,7 @@ start an edit from anywhere else, and never edit only the live site.
 | `/order-confirmation` | `src/pages/order-confirmation.astro` | Thank-you page after a shop or class-booking checkout (keep this address) |
 | `/event-confirmation` | `src/pages/event-confirmation.astro` | Thank-you page after buying tickets (keep this address) |
 | `/shop`, `/category/<cat>`, `/products/<item>` | `src/pages/shop.astro`, `category/[slug].astro`, `products/[slug].astro` | The studio shop; the cart opens as a drawer |
+| `/product-page/<item>` | `src/pages/product-page/[slug].astro` | The old editor shop's product address: a permanent redirect to `/products/<item>` |
 | `/pattern-testing` | `src/pages/pattern-testing.astro` | Every pattern test with "Open for applications" ticked (Wix CMS) |
 | `/pattern-testing/<slug>` | `src/pages/pattern-testing/[slug].astro` | One pattern test: details, sizes, deadline and the apply form |
 | `/api/pattern-testing/apply` | `src/pages/api/pattern-testing/apply.ts` → `src/wix/pattern-testing/server.ts` | Server-only: files an application into the private Tester applications collection |

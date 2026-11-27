@@ -24,6 +24,16 @@ interface PlaceReview {
   authorAttribution?: { displayName?: string; uri?: string; photoUri?: string };
 }
 
+/** Only https links and photos go on to the page (they land in href and src there). */
+const httpsOnly = (u: string | undefined): string | null => {
+  if (!u) return null;
+  try {
+    return new URL(u).protocol === "https:" ? u : null;
+  } catch {
+    return null;
+  }
+};
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -47,17 +57,17 @@ export const GET: APIRoute = async () => {
     return json({
       rating: place.rating ?? null,
       count: place.userRatingCount ?? 0,
-      mapsUri: place.googleMapsUri ?? null,
+      mapsUri: httpsOnly(place.googleMapsUri),
       reviews: (place.reviews ?? [])
         .filter((r) => r.text?.text)
         .map((r) => ({
           rating: r.rating ?? 0,
           text: r.text!.text!,
           when: r.relativePublishTimeDescription ?? "",
-          uri: r.googleMapsUri ?? null,
+          uri: httpsOnly(r.googleMapsUri),
           author: r.authorAttribution?.displayName ?? "A Google user",
-          authorUri: r.authorAttribution?.uri ?? null,
-          photo: r.authorAttribution?.photoUri ?? null,
+          authorUri: httpsOnly(r.authorAttribution?.uri),
+          photo: httpsOnly(r.authorAttribution?.photoUri),
         })),
     });
   } catch {

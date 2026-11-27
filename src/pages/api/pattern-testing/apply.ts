@@ -3,6 +3,7 @@
 // files the row into the private "Tester applications" collection (src/wix/pattern-testing/server.ts).
 import type { APIRoute } from "astro";
 import { ApplicationError, submitApplication, validateApplication } from "../../../wix/pattern-testing/server";
+import { requireJson } from "../../../lib/same-site";
 
 export const prerender = false;
 
@@ -10,6 +11,8 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" } });
 
 export const POST: APIRoute = async ({ request }) => {
+  const notJson = requireJson(request);
+  if (notJson) return notJson;
   let body: unknown;
   try {
     body = await request.json();

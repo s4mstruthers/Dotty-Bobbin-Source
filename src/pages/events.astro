@@ -7,13 +7,14 @@ import EventsIndex from "../components/events/EventsIndex";
 import { fetchEventsPage } from "../wix/events/events";
 import type { EventSummary } from "../wix/events/types";
 
-let events: EventSummary[] = [];
-let total = 0;
+// Left undefined when the read fails, so the island reads the events again in the browser rather
+// than showing an empty list.
+let events: EventSummary[] | undefined;
+let total: number | undefined;
 try {
   ({ events, total } = await fetchEventsPage());
 } catch {
-  // An unguarded SSR throw truncates the response mid-stream; the island renders the
-  // empty state instead.
+  // An unguarded SSR throw truncates the response mid-stream.
 }
 ---
 

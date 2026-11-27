@@ -15,6 +15,7 @@ import type { APIRoute } from "astro";
 import { recovery } from "@wix/identity";
 import { auth } from "@wix/essentials";
 import { WIX_MEMBERS_CLIENT_ID } from "../../../wix/config";
+import { requireJson } from "../../../lib/same-site";
 
 export const prerender = false;
 
@@ -39,6 +40,8 @@ function allowed(email: string): boolean {
 }
 
 export const POST: APIRoute = async ({ request, url }) => {
+  const notJson = requireJson(request);
+  if (notJson) return notJson;
   let email = "";
   try {
     email = String(((await request.json()) as { email?: unknown }).email ?? "").trim();

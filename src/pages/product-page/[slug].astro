@@ -1,0 +1,8 @@
+---
+// The old Wix editor shop's product address (/product-page/<slug>): search results, old emails
+// and social posts still link to it. Products kept their slugs, so send them to /products/<slug>,
+// which shows its own "not found" page for a product that has since gone. The slug is passed on
+// exactly as it came (still URL-encoded), so nothing is decoded and encoded twice.
+const slug = Astro.url.pathname.slice("/product-page/".length);
+return Astro.redirect(`/products/${slug}`, 301);
+---

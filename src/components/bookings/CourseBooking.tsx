@@ -91,8 +91,14 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
   // Logged-in customers: fill in their name and email (only fields this booking form has, and
   // only while still empty, so nothing they typed is overwritten).
   const { member, loggedIn, loading: memberLoading } = useMember();
+  // ?guest=1 comes from the login page's "Book as a guest" (for anyone stuck at the email code),
+  // as on the class pages.
   const [asGuest, setAsGuest] = useState(() => {
     try {
+      if (new URLSearchParams(window.location.search).get("guest") === "1") {
+        sessionStorage.setItem("book-as-guest", "1");
+        return true;
+      }
       return sessionStorage.getItem("book-as-guest") === "1";
     } catch {
       return false;
@@ -188,7 +194,7 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
 
       {closed ? (
         <p className="mt-6 rounded-lg bg-secondary p-5 text-sm">
-          {ended ? "This course has ended." : "This course has started, so bookings are closed."}{" "}
+          {ended ? "This course has ended." : started ? "This course has started, so bookings are closed." : "Bookings for this course are closed."}{" "}
           <a href="/contact" className="underline">Get in touch</a> to hear about the next one.
         </p>
       ) : places.full ? (
@@ -272,7 +278,13 @@ export default function CourseBooking({ service, initialSessions, otherGroup }: 
           {bookHint && <p className="mt-2 text-sm text-muted-foreground">{bookHint}</p>}
           <PolicyNote />
           <p className="mt-2 text-xs text-muted-foreground">
-            Paid by card online{price ? `: ${price.amountPerCycle} now, then ${price.amountPerCycle} on the 1st of each month until all ${price.totalPayments} payments are made` : ""}. You'll be taken to a secure Wix checkout.
+            Paid by card online
+            {price
+              ? price.firstPaymentAtCheckout
+                ? `: ${price.amountPerCycle} now, then ${price.amountPerCycle} on the 1st of each month until all ${price.totalPayments} payments are made`
+                : `: ${price.label}`
+              : ""}
+            . You'll be taken to a secure Wix checkout.
           </p>
         </>
       )}

@@ -5,6 +5,7 @@
 import type { APIRoute } from "astro";
 import { AccountError, changeBooking, currentCaller } from "../../../wix/account/server";
 import type { BookingActionRequest } from "../../../wix/account/types";
+import { requireJson } from "../../../lib/same-site";
 
 export const prerender = false;
 
@@ -12,6 +13,8 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" } });
 
 export const POST: APIRoute = async ({ request }) => {
+  const notJson = requireJson(request);
+  if (notJson) return notJson;
   const caller = await currentCaller();
   if (!caller) return json({ error: "Log in to change a booking." }, 401);
 

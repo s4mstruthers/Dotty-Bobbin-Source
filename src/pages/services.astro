@@ -11,22 +11,22 @@ import type { BookingCategory, LocationOption, ServiceSummary } from "../wix/boo
 const categoryId = Astro.url.searchParams.get("category") || null;
 const locationId = Astro.url.searchParams.get("location") || null;
 
-let services: ServiceSummary[] = [];
+// Each read is guarded on its own (an unguarded SSR throw truncates the response mid-stream), and
+// one that fails is left undefined so the island reads it again in the browser: a failed class
+// list then loads there or shows its error, rather than "No classes are listed right now".
+let services: ServiceSummary[] | undefined;
 let hasMore = false;
-let categories: BookingCategory[] = [];
-let locations: { locations: LocationOption[]; hasOtherLocations: boolean } = { locations: [], hasOtherLocations: false };
+let categories: BookingCategory[] | undefined;
+let locations: { locations: LocationOption[]; hasOtherLocations: boolean } | undefined;
 let courseGroups: CourseGroupSummary[] = [];
-try {
-  const [page, cats, locs, course] = await Promise.all([fetchServices({ categoryId, locationId }), fetchBookingCategories(), fetchLocations(), fetchPortfolioCourseSummary()]);
-  courseGroups = course;
-  services = page.items;
-  hasMore = page.hasMore;
-  categories = cats;
-  locations = locs;
-} catch {
-  // An unguarded SSR throw truncates the response mid-stream; the island renders the
-  // empty state instead.
+const [page, cats, locs, course] = await Promise.allSettled([fetchServices({ categoryId, locationId }), fetchBookingCategories(), fetchLocations(), fetchPortfolioCourseSummary()]);
+if (page.status === "fulfilled") {
+  services = page.value.items;
+  hasMore = page.value.hasMore;
 }
+if (cats.status === "fulfilled") categories = cats.value;
+if (locs.status === "fulfilled") locations = locs.value;
+if (course.status === "fulfilled") courseGroups = course.value;
 ---
 
 <SiteLayout title="Sewing classes" description="Book a small-group sewing class or a private one-to-one at Dotty Bobbin in Felden, Hemel Hempstead. All abilities welcome.">

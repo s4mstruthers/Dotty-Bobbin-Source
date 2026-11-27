@@ -13,6 +13,7 @@ import type { EventSummary } from "../../wix/events/types";
 import NoPhoto from "../../components/ui/NoPhoto";
 import AddToCalendar from "../../components/ui/AddToCalendar";
 import { eventCalendarLinks } from "../../lib/calendar";
+import { STUDIO_MAP_SRC, isAtStudio } from "../../lib/map";
 import { heroFitAttrs } from "../../wix/media-fit";
 import { WIX_APPS } from "@wix/essentials";
 import { SEO } from "@wix/seo/components";
@@ -57,6 +58,9 @@ if (!event) {
 }
 
 const calendar = eventCalendarLinks(event);
+// An event at the studio shows the Contact page's map (the house's own pin), not Wix's geocode
+// of the address, which puts "Felden Ln" about 450 m from the house.
+const atStudio = isAtStudio(event.coordinates);
 
 // Other dates of a recurring series (empty for a one-time event); guarded like every SSR read.
 let occurrences: EventSummary[] = [];
@@ -120,7 +124,7 @@ if (event.recurringCategoryId) {
         {event.coordinates && (
           <iframe
             title={`Map: ${event.locationName}`}
-            src={`https://www.google.com/maps?q=${event.coordinates.lat},${event.coordinates.lng}&output=embed`}
+            src={atStudio ? STUDIO_MAP_SRC : `https://www.google.com/maps?q=${event.coordinates.lat},${event.coordinates.lng}&output=embed`}
             class="mt-8 h-64 w-full rounded-lg border-0"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"

@@ -243,7 +243,7 @@ export const DELIVERY: Policy = {
         head: ["What you buy", "How you receive it", "When you receive it", "Delivery cost"],
         rows: [
           ["Shop items (haberdashery, kits, folders)", "Collected in person from our studio in Felden, Hemel Hempstead", "Ready within 7 days; we email you when it's ready", "Free (no postage)"],
-          ["Digital patterns", "Download link on screen and by email", "Immediately after payment", "Free"],
+          ["Digital patterns", "Download link by email", "Immediately after payment", "Free"],
           ["Gift cards", "Gift card code by email", "By email as soon as your order is paid", "Free"],
           ["Classes, retreats, events and courses", "Booking confirmation by email; the class or event takes place in person", "Confirmation immediately; the class or event on the date booked", "Free"],
           ["Class add-ons (machine hire, project packs)", "Handed to you at your class", "At the class you booked", "Included in the price"],

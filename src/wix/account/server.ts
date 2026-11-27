@@ -242,6 +242,9 @@ export class AccountError extends Error {
 
 const LOCAL_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
 
+/** Absent, or an id string of a sensible length (Wix's calendar event ids are long, opaque strings). */
+const optionalId = (v: unknown): boolean => v == null || (typeof v === "string" && v.length <= 512 && !/[\s<>]/.test(v));
+
 function isTimeZone(tz: unknown): tz is string {
   if (typeof tz !== "string" || tz.length > 64) return false;
   try {
@@ -275,7 +278,9 @@ export async function changeBooking(caller: Caller, req: BookingActionRequest): 
   if (req.action === "reschedule") {
     if (eb.allowedActions?.reschedule !== true) throw new AccountError("This booking can no longer be moved online. Please get in touch.", 409);
     const s = req.slot;
-    if (!s || !LOCAL_DATETIME.test(s.startLocal) || !LOCAL_DATETIME.test(s.endLocal) || !isTimeZone(s.timeZone)) throw new AccountError("Pick a new time.", 400);
+    if (!s || typeof s !== "object" || !LOCAL_DATETIME.test(s.startLocal) || !LOCAL_DATETIME.test(s.endLocal) || !isTimeZone(s.timeZone)) throw new AccountError("Pick a new time.", 400);
+    // The two ids go to Wix as they are, so they must be plain ids, not objects or long strings.
+    if (!optionalId(s.eventId) || !optionalId(s.scheduleId)) throw new AccountError("Pick a new time.", 400);
     const current: Raw = booking.bookedEntity?.slot ?? {};
     if (!current.serviceId) throw new AccountError("This booking can't be moved online. Please get in touch.", 409);
     // Same service, same place and (for 1-1s) the same teacher; only the time changes. Wix checks

@@ -31,7 +31,8 @@ export default function ClassesList(props: {
   });
 
   // Only offer categories that actually hold services (Wix keeps an empty default one).
-  const used = new Set((props.initialServices ?? []).map((s) => s.categoryId).filter(Boolean));
+  // (The server's list when it sent one; else the first list the browser loaded.)
+  const used = new Set((props.initialServices ?? services ?? []).map((s) => s.categoryId).filter(Boolean));
   const shownCategories = categories.filter((c) => used.has(c.id));
 
   // The course groups leave the cards for the featured panel, which follows the category filter.

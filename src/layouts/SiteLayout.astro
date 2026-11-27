@@ -116,7 +116,7 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
               {NAV.map((item) => (
                 <a
                   href={item.href}
-                  aria-current={isActive(item.href) ? "page" : undefined}
+                  aria-current={isActive(item.href) && !(item.href === "/shop" && within("/gift-card")) ? "page" : undefined}
                   class:list={[
                     "block rounded-md px-4 py-3 font-semibold no-underline",
                     isActive(item.href) ? "bg-secondary text-sage-deep" : "hover:bg-secondary",
@@ -188,7 +188,7 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
             <span class="block">{BUSINESS.email} · {BUSINESS.phone}</span>
           </p>
           <ul class="flex flex-wrap gap-x-5 gap-y-1">
-            {ALL_POLICIES.map((p) => <li><a href={`/${p.slug}`} class="inline-block py-1.5 underline underline-offset-4">{p.title}</a></li>)}
+            {ALL_POLICIES.map((p) => <li><a href={`/${p.slug}`} class="inline-block py-1.5 underline underline-offset-4">{p.shortTitle ?? p.title}</a></li>)}
           </ul>
           <p>© {year} {BUSINESS.name}</p>
         </div>
@@ -200,7 +200,7 @@ const back = Astro.props.back ?? (item ? BACK[section] : section === "gift-card"
     <script>
       // The holiday preview (src/lib/season.ts): ?season=christmas, valentines, easter, halloween or off is
       // remembered for the rest of the visit, so every page follows until the browser is closed.
-      const seasonChoice = new URLSearchParams(location.search).get("season") ?? "";
+      const seasonChoice = (new URLSearchParams(location.search).get("season") ?? "").trim().toLowerCase();
       if (["christmas", "valentines", "easter", "halloween", "off"].includes(seasonChoice)) document.cookie = `db-season=${seasonChoice}; path=/; SameSite=Lax`;
 
       // Close the mobile menu on Escape, a tap outside it, or after picking a link (delegated: the

@@ -34,7 +34,9 @@ const christmas = season === "christmas";
 const reviewsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${BUSINESS.name} ${BUSINESS.mapQuery}`)}${BUSINESS.googlePlaceId ? `&query_place_id=${encodeURIComponent(BUSINESS.googlePlaceId)}` : ""}`;
 
 // Each read is guarded on its own: one failing section never takes the page down.
-let services: ServiceSummary[] = [];
+// Left undefined when the read fails, so the list island loads it in the browser instead of
+// saying no classes are listed.
+let services: ServiceSummary[] | undefined;
 let hasMoreServices = false;
 let courseGroups: CourseGroupSummary[] = [];
 let events: EventSummary[] = [];
